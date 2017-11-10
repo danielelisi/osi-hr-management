@@ -35,3 +35,7 @@ html
                         #login-error.alert.alert-success.font-weight-bold(role='alert')
                             i.fa.fa-check.fa-lg.mr-1(aria-hidden='true')
                             | #{message}
+                    else if (message === 'Employee does not exist')
+                        #login-error.alert.alert-danger.font-weight-bold(role='alert')
+                            i.fa.fa-check.fa-lg.mr-1(aria-hidden='true')
+                            | #{message}

@@ -155,8 +155,6 @@ app.post('/login-api', function(req, resp) {
                                 for (let field in result.fields) {
                                     req.session[field] = result.fields[field];
                                 }
-                                console.log(result);
-                                console.log(req.session);
                                 resp.redirect('/view');
                             });
 
@@ -763,7 +761,7 @@ app.post('/submit-goal-review/:who', function(req, resp) {
     });
 });
 
-app.post('/submit-action-status', function(req, resp) {
+app.post(/\/submit-action-status/, function(req, resp) {
     dbRequest.input('a_id', req.body.a_id);
     dbRequest.input('status', req.body.status);
     dbRequest.query('UPDATE actions SET status = @status Output Inserted.* WHERE a_id = @a_id', function(err, result) {
