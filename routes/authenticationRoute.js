@@ -101,7 +101,7 @@ router.post('/login-api', function(req, resp) {
                     req.session.auth = 'HR';
                 }
 
-                if (userEmail === 'mike.plett@osimaritime.com' || userEmail === 'elizabeth.barnard@osimaritime.com') {
+                if (userEmail === 'mike.plett@osimaritime.com' || userEmail === 'elizabeth.barnard@osimaritime.com' || userEmail === 'tim.addison@osimaritime.com') {
                     fetchBamboo(userEmail);
                 } else {
                     req.session.emp_id = result.recordset[0].emp_id;

@@ -38,47 +38,49 @@ $(document).ready(function() {
         }
     });
     // employee checkin submission
-    $('.employee-checkin').each(function(i) {
-       $(this).submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/submit-checkin/employee',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp) {
-                    if (resp.status === 'success') {
-                        displayStatus('Check-in submitted', 'bg-success', 'fa-check');
-                        statusMessageTimeout();
+    $('#accordion-checkins').on('submit', 'form.employee-checkin', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/submit-checkin/employee',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                console.log(resp);
+                if (resp.status === 'success') {
+                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
 
-                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('.employee-ck-comments').eq(i)).slideDown('slow')
-                    } else if (resp.status === 'fail') {
-                        displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                        statusMessageTimeout();
-                    }
+                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $(parent).remove();
+                } else if (resp.status === 'fail') {
+                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                    statusMessageTimeout();
                 }
-            });
+            }
         });
     });
-    // employee goal review submission
-    $('.employee-goal-review').each(function(i) {
-        $(this).submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/submit-goal-review/employee',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp) {
-                    if (resp.status === 'success') {
-                        displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
-                        statusMessageTimeout();
 
-                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#employee-gr-comments')).slideDown('slow')
-                    } else if (resp.status === 'fail') {
-                        displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                        statusMessageTimeout();
-                    }
+    // employee goal review submission
+    $('#accordion-goal-review').on('submit', 'form.employee-goal-review', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/submit-goal-review/employee',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                if (resp.status === 'success') {
+                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+
+                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $(parent).remove();
+                } else if (resp.status === 'fail') {
+                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                    statusMessageTimeout();
                 }
-            })
+            }
         });
     });
     // populate the employee drop down box (manager)
@@ -183,47 +185,48 @@ $(document).ready(function() {
                         createGoalPrep(resp.goal_prep, i);
                     });
                     // checkin submission (manager)
-                    $('.manager-checkin-form').each(function(i) {
-                        $(this).submit(function(e) {
-                            e.preventDefault();
-                            $.ajax({
-                                url: '/submit-checkin/manager',
-                                method: 'POST',
-                                data: $(this).serialize(),
-                                success: function(res) {
-                                    if (res.status === 'success') {
-                                        displayStatus('Check-in submitted', 'bg-success', 'fa-check');
-                                        statusMessageTimeout();
+                    $('#ev-checkin-actions').on('submit', 'form.manager-checkin-form', function(e) {
+                        e.preventDefault();
+                        var parent = $(this);
+                        $.ajax({
+                            url: '/submit-checkin/manager',
+                            method: 'POST',
+                            data: $(parent).serialize(),
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
+                                    statusMessageTimeout();
 
-                                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#manager-ck-comments')).slideDown('slow');
-                                    } else if (res.status === 'fail') {
-                                        displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                                        statusMessageTimeout();
-                                    }  
-                                }
-                            });
+                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $(parent).remove();
+                                } else if (res.status === 'fail') {
+                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                                    statusMessageTimeout();
+                                }  
+                            }
                         });
                     });
-                    // goal review submission (manager)
-                    $('.manager-gr-form').each(function(i) {
-                        $(this).submit(function(e) {
-                            e.preventDefault();
-                            $.ajax({
-                                url: '/submit-goal-review/manager',
-                                method: 'POST',
-                                data: $(this).serialize(),
-                                success: function(res) {
-                                    if (res.status === 'success') {
-                                        displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
-                                        statusMessageTimeout();
 
-                                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#manager-gr-comments')).slideDown('slow');
-                                    } else if (res.status === 'fail') {
-                                        displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                                        statusMessageTimeout();
-                                    }  
-                                }
-                            });
+                    // goal review submission (manager)
+                    $('#ev-gr-actions').on('submit', 'form.manager_gr_form', function(e) {
+                        e.preventDefault();
+                        var parent = $(this);
+                        $.ajax({
+                            url: '/submit-goal-review/manager',
+                            method: 'POST',
+                            data: $(this).serialize(),
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
+                                    statusMessageTimeout();
+
+                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $(parent).remove();
+                                } else if (res.status === 'fail') {
+                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                                    statusMessageTimeout();
+                                }  
+                            }
                         });
                     });
                 }
@@ -232,8 +235,6 @@ $(document).ready(function() {
     });
     // goal preparation edit button
     $('.edit-goal-prep').each(function(i) {
-        //$(this).attr('data-edit', 'false');
-
         $(this).click(function() {
             if ($(this).attr('data-edit') === 'false') {
                 $(this).attr('data-edit', 'true')

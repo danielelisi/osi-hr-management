@@ -32,7 +32,7 @@
                         - var ck_submitted = false
                         if !ck_submitted
                             each v, idx in checkin
-                                if action[index].a_id === checkin[idx].c_a_id
+                                if action[index].a_id === checkin[idx].c_a_id && checkin[idx].employee_checkin_comment
                                     .alert.alert-success
                                         i.fa.fa-check.fa-lg.mr-1(aria-hidden='true')
                                         b You already submitted your check-in for this action on #{formatDate(checkin[idx].checkin_date)}

@@ -759,9 +759,9 @@ app.post('/delete-action', function(req, resp) {
 
 // submit checkins
 app.post('/submit-checkin/:who', function(req, resp) {
-
     let dbRequest = new sql.Request(sql.globalConnection);
 
+    console.log(req.body);
     dbRequest.input('a_id', req.body.a_id);
     dbRequest.input('comment', req.body.comment);
     dbRequest.input('date', new Date());
@@ -771,6 +771,7 @@ app.post('/submit-checkin/:who', function(req, resp) {
                 resp.send({status: 'fail'});
             } else if (result !== undefined && result.recordset.length === 0) {
                 dbRequest.query('INSERT INTO checkins (c_a_id, employee_checkin_comment, checkin_date) Output Inserted.* VALUES (@a_id, @comment, @date)', function(er, res) {
+                    console.log(res);
                     if (er) {
                         resp.send({status: 'fail'});
                     } else if (res !== undefined && res.rowsAffected.length > 0) {
@@ -793,8 +794,7 @@ app.post('/submit-checkin/:who', function(req, resp) {
                     }
 
                     if (res.rowsAffected.length > 0) {
-                        console.log(res);
-                        resp.send({status: 'success', comment: res.recordset[0].manager_checkin_comment, date: res.recordset[0].m_checkin_date});
+                        resp.send({status: 'success', comment: res.recordset[0].manager_checkin_comment, date: res.recordset[0].m_check_in_date});
                     } else {
                         resp.send({status: 'fail'});
                     }
