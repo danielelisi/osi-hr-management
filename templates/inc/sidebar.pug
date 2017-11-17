@@ -3,25 +3,25 @@
         img.profile-pic.img-fluid.rounded-circle.w-99(src=user.photoUrl)
     label.d-block.font-weight-bold.text-dark-blue 
         i.fa.fa-id-card-o.fa-lg.mr-1(aria-hidden='true')
-        | Employee Number
+        span Employee Number
     | #{user.employeeNumber}
-    hr.w-100
+    hr
     label.d-block.font-weight-bold.text-dark-blue
         i.fa.fa-calendar.fa-lg.mr-1(aria-hidden='true')
-        | Hired Date
+        span Hired Date
     |  #{user.hireDate}
-    hr.w-100
-    label.d-block.font-weight-bold.text-dark-blue
-        i.fa.fa-building.fa-lg.mr-1(aria-hidden='true')
-        | Department
-    |  #{user.department}
     hr
     label.d-block.font-weight-bold.text-dark-blue
         i.fa.fa-sitemap.fa-lg.mr-1(aria-hidden='true')
-        | Division
+        span Division
     |  #{user.division}
     hr
     label.d-block.font-weight-bold.text-dark-blue
+        i.fa.fa-building.fa-lg.mr-1(aria-hidden='true')
+        span Department
+    |  #{user.department}
+    hr
+    label.d-block.font-weight-bold.text-dark-blue
         i.fa.fa-user.fa-lg.mr-1(aria-hidden='true')
-        | Manager
+        span Manager
     |  #{user.supervisor}

@@ -28,12 +28,13 @@ function formatDate(date, format) {
 
     if (parseInt(m) < 10) {
         monthIndex = date.substr(6, 1);
+        var monthDigit = '0' + parseInt(m);
     } else {
         monthIndex = m;
+        var monthDigit = parseInt(m)
     }
 
     var month = parseInt(monthIndex) - 1;
-    var monthDigit = parseInt(m);
     var year = parseInt(y);
     var yearShort = parseInt(ys);
     var result;
@@ -59,104 +60,80 @@ function formatDate(date, format) {
 
 // add action in goal setting
 function addAction(id, count, header, from) {
-    if(from === '2') {
-        var saveButton = $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit').click(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/edit-add-action',
-                method: 'POST',
-                data: $(this).parents('form:first').serialize(),
-                success: function(resp) {
-                    console.log(resp);
-                }
-            });
-        });
-        var actionForm = '<form>';
-        var formAttr = {'method': 'POST', 'action': '/edit-add-action', 'id': 'gs-add-action-' + (count + 1)}
-        var g_id = goals[0].g_id;
-    } else {
-        var actionForm = '<div>';
-        var formAttr = {};
-        var g_id;
-    }
     var num = count + 1;
     $('#action-wrapper').append(
-        $(actionForm).attr(formAttr).append(
-            $('<div>').addClass('accordion').attr('id', 'accordion-' + id + '-' + num).attr('role', 'tablist').attr('aria-multiselectable', 'true').append([
-                $('<input>').attr({'type': 'hidden', 'name': 'g_id', 'value': g_id}),
-                $('<div>').addClass('card bg-transparent mb-3').append(
-                    $('<a>').addClass('action-header-link').attr('href', '#collapse-set-' + id + '-' + num).attr('data-toggle', 'collapse').attr('data-parent', '#set-' + id + '-' + num).attr('aria-expanded', 'true').attr('aria-controls', 'collapse-set-' + id + '-' + num).append(
-                        $('<div>').addClass('action-header card-header bg-white').attr('id', 'set-' + id + '-' + num).attr('role', 'tab').append(
-                            $('<div>').addClass('action-header-text d-inline-block mb-0 h6 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header + ' ' + num)
+        $('<div>').addClass('accordion').attr('id', 'accordion-' + id + '-' + num).attr('role', 'tablist').attr('aria-multiselectable', 'true').append([
+            $('<div>').addClass('card bg-transparent mb-3').append(
+                $('<a>').addClass('action-header-link').attr('href', '#collapse-set-' + id + '-' + num).attr('data-toggle', 'collapse').attr('data-parent', '#set-' + id + '-' + num).attr('aria-expanded', 'true').attr('aria-controls', 'collapse-set-' + id + '-' + num).append(
+                    $('<div>').addClass('action-header card-header bg-white').attr('id', 'set-' + id + '-' + num).attr('role', 'tab').append(
+                        $('<div>').addClass('action-header-text d-inline-block mb-0 h6 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header + ' ' + num)
+                    )
+                ),
+                $('<div>').attr('id', 'collapse-set-' + id + '-' + num).addClass('action-body collapse bg-transparent show').attr('role', 'tabpanel').attr('aria-labelledby', 'set-' + id + '-' + num).append(
+                    $('<div>').addClass('goal-actions card-body').append(
+                        $('<div>').addClass('form-group').append(
+                            $('<label>').addClass('d-inline-block font-weight-bold text-dark-blue').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header)
+                        ).append(
+                            $('<input>').addClass('goal-action form-control').attr('type', 'text').attr('name', 'action').attr('required', 'required')
                         )
-                    ),
-                    $('<div>').attr('id', 'collapse-set-' + id + '-' + num).addClass('action-body collapse bg-transparent show').attr('role', 'tabpanel').attr('aria-labelledby', 'set-' + id + '-' + num).append(
-                        $('<div>').addClass('goal-actions card-body').append(
-                            $('<div>').addClass('form-group').append(
-                                $('<label>').addClass('d-inline-block font-weight-bold text-dark-blue').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header)
-                            ).append(
-                                $('<input>').addClass('goal-action form-control').attr('type', 'text').attr('name', 'action').attr('required', 'required')
-                            )
+                    ).append(
+                        $('<div>').addClass('form-inline mt-4').append(
+                            $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:')
                         ).append(
-                            $('<div>').addClass('form-inline mt-4').append(
-                                $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:')
-                            ).append(
-                                $('<input>').addClass('date-select form-control').attr('type', 'date').attr('name', 'due_date').attr('required', 'required')
-                            )
-                        ).append(
-                            $('<div>').addClass('card-deck mt-3').append(
-                                $('<div>').addClass('card bg-transparent').append(
-                                    $('<div>').addClass('card-body text-center').append(
-                                        $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Hourly Cost')
-                                    ).append(
-                                        $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'hourly_cost')
-                                    )
-                                )
-                            ).append(
-                                $('<div>').addClass('card bg-transparent').append(
-                                    $('<div>').addClass('card-body text-center').append(
-                                        $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i> Training Cost')
-                                    ).append(
-                                        $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'training_cost')
-                                    )
-                                )
-                            ).append(
-                                $('<div>').addClass('card bg-transparent').append(
-                                    $('<div>').addClass('card-body text-center').append(
-                                        $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses')
-                                    ).append(
-                                        $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'expenses')
-                                    )
-                                )
-                            )
-                        ).append(
-                            $('<div>').addClass('text-right mt-2').append([
-                                saveButton,
-                                $('<button>').attr('type', 'button').html('<i class="fa fa-trash fa-lg mr-1" aria-hidden="true"></i>Remove').addClass('btn btn-danger').on('click', function() {
-                                    $(this).parent().parent().parent().parent().parent().remove();
-                                    actionCount--;
-                                    $('.accordion').each(function(i) {
-                                        $(this).attr('id', 'accordion-' + id + '-' + (i));
-                                    });
-                                    $('.action-header-link').each(function(i) {
-                                        $(this).attr('href', '#collapse-set-' + id + '-' + (i + 1)).attr('data-parent', '#set-' + id + '-' + (i + 1)).attr('aria-controls', 'collapse-set-' + id + '-' + (i + 1));
-                                    });
-                                    $('.action-header').each(function(i) {
-                                        $(this).attr('id', 'set-' + id + '-' + (i + 1));
-                                    });
-                                    $('.action-header-text').each(function(i) {
-                                        $(this).html(header + ' ' + (i + 1));
-                                    });
-                                    $('.action-body').each(function(i) {
-                                        $(this).attr('id', 'collapse-set-' + id + '-' + (i + 1)).attr('aria-labelledby', 'set-' + id + '-' + (i + 1));
-                                    });
-                                })
-                            ])
+                            $('<input>').addClass('date-select form-control').attr('type', 'date').attr('name', 'due_date').attr('required', 'required')
                         )
+                    ).append(
+                        $('<div>').addClass('card-deck mt-3').append(
+                            $('<div>').addClass('card bg-transparent').append(
+                                $('<div>').addClass('card-body text-center').append(
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Hourly Cost')
+                                ).append(
+                                    $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'hourly_cost')
+                                )
+                            )
+                        ).append(
+                            $('<div>').addClass('card bg-transparent').append(
+                                $('<div>').addClass('card-body text-center').append(
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i> Training Cost')
+                                ).append(
+                                    $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'training_cost')
+                                )
+                            )
+                        ).append(
+                            $('<div>').addClass('card bg-transparent').append(
+                                $('<div>').addClass('card-body text-center').append(
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses')
+                                ).append(
+                                    $('<input>').addClass('form-control').attr('type', 'text').attr('name', 'expenses')
+                                )
+                            )
+                        )
+                    ).append(
+                        $('<div>').addClass('text-right mt-2').append([
+                            $('<button>').attr('type', 'button').html('<i class="fa fa-trash fa-lg mr-1" aria-hidden="true"></i>Remove').addClass('btn btn-danger').on('click', function() {
+                                $(this).parent().parent().parent().parent().parent().remove();
+                                actionCount--;
+                                $('.accordion').each(function(i) {
+                                    $(this).attr('id', 'accordion-' + id + '-' + (i));
+                                });
+                                $('.action-header-link').each(function(i) {
+                                    $(this).attr('href', '#collapse-set-' + id + '-' + (i + 1)).attr('data-parent', '#set-' + id + '-' + (i + 1)).attr('aria-controls', 'collapse-set-' + id + '-' + (i + 1));
+                                });
+                                $('.action-header').each(function(i) {
+                                    $(this).attr('id', 'set-' + id + '-' + (i + 1));
+                                });
+                                $('.action-header-text').each(function(i) {
+                                    $(this).html(header + ' ' + (i + 1));
+                                });
+                                $('.action-body').each(function(i) {
+                                    $(this).attr('id', 'collapse-set-' + id + '-' + (i + 1)).attr('aria-labelledby', 'set-' + id + '-' + (i + 1));
+                                });
+                            })
+                        ])
                     )
                 )
-            ])
-        )
+            )
+        ])
     )
 }
 
@@ -217,7 +194,7 @@ function createCheckins(go, form_url, i) {
         $(go.checkin).each(function(index) {
             if (go.action[i].a_id === go.checkin[index].c_a_id && go.checkin[index].manager_checkin_comment) {
                 checkinManagerComment = $('<div>').addClass('alert alert-success mb-3').append(
-                    $('<div>').addClass('h6 font-weight-bold').html('<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i> You already submitted your checkin for this employee&#39;s action')
+                    $('<div>').addClass('font-weight-bold').html('<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i> You already submitted your checkin for this employee&#39;s action')
                 )
                 return false;
             } else {
@@ -472,7 +449,7 @@ function createGoalPrep(obj, i) {
             $('<div>').addClass('card-body').append(
                 $('<h6>').text(obj[i].question)
             ).append(
-                $('<div>').addClass('card card-light').append(
+                $('<div>').addClass('card bg-transparent').append(
                     $('<div>').addClass('card-body').html(obj[i].answer)
                 )
             )
@@ -480,7 +457,7 @@ function createGoalPrep(obj, i) {
     )
 }
 
-function createEmployeeOverview(obj, i) {
+function createEmployeeActions(obj, i) {
     var select = false;
     if (userData.auth === 'HR' && obj.action[i].status === 'Submitted') {
         var statusBgColor = 'bg-warning-light';
@@ -527,7 +504,7 @@ function createEmployeeOverview(obj, i) {
                     ])
                 )
             ])
-        ]).append(
+        ])/* .append(
             $('<div>').addClass('card-footer ' + statusBgColor).append(
                 $('<form>').addClass('submit-action.status').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
                     $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': obj.action[i].a_id}),
@@ -560,30 +537,12 @@ function createEmployeeOverview(obj, i) {
                     )
                 ])
             )
-        )
+        ) */
     )
 }
 
-function displayStatus(statusCode) {
-    if (statusCode === 1) {
-        var statusMessage = '<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>All fields are required';
-        var statusClass = 'bg-danger';
-    } else if (statusCode === 2) {
-        var statusMessage = '<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>Cannot add more than 4 actions';
-        var statusClass = 'bg-warning';
-    } else if (statusCode === 3) {
-        var statusMessage = '<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Check-in submitted';
-        var statusClass = 'bg-success';
-    } else if (statusCode === 4) {
-        var statusMessage = '<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Goal Review submitted';
-        var statusClass = 'bg-success';
-    } else if (statusCode === 5) {
-        var statusMessage = '<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>An error occurred';
-        var statusClass = 'bg-danger';
-    } else if (statusCode === 6) {
-        var statusMessage = '<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Goal successfully deleted. Refreshing...';
-        var statusClass = 'bg-success';
-    }
+function displayStatus(message, statusClass, iconName) {
+    var statusMessage = '<i class="fa ' + iconName + ' fa-lg mr-1" aria-hidden="true"></i>' + message;
 
     $('#status-message div').html(statusMessage);
     $('#status-message').addClass(statusClass).animate({
@@ -635,14 +594,250 @@ function expandCollapse(button, parentTable, dataTable, type) {
     })
 }
 
-function selectAllOrNone(parent, index, bool, type) {
-    if (type === 'normal') {
-        $(parent).siblings().children().eq(index).click(function() {
-            $(parent).children().prop('selected', bool);
-        });
-    } else if (type === 'nested') {
-        $(parent).siblings().eq(1).children().eq(index).click(function() {
-            $(this).parent().siblings().eq(1).children().children().prop('selected', bool);
-        });
+function selectAllOrNone(parent, bool, type) {
+    $(parent).find('button:contains("' + type + '")').click(function() {
+        $(parent).find('select option').prop('selected', bool);
+    });
+}
+
+function createActionAccordion(resp) {
+    $('<div>').addClass('card bg-transparent mb-3 h-0').css('display', 'none').attr('id', 'action-div-' + resp.action[0].a_id).append([
+        $('<div>').addClass('card-header d-flex justify-content-between align-items-center bg-white').append([
+            $('<h6>').addClass('font-weight-bold text-dark-blue mb-0').append([
+                $('<i>').addClass('fa fa-dot-circle-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                $('<span>').addClass('edit-action-header').html('Action ' + (actionCount + 1))
+            ]),
+            $('<form>').addClass('delete-action').attr({'method': 'POST', 'action': '/delete-action'}).append([
+                $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
+                $('<button>').addClass('delete-action-button btn btn-danger btn-sm').attr('type', 'submit').html('<i class="fa fa-trash-o mr-1" aria-hidden="true"></i>Delete')
+            ])
+        ]),
+        $('<div>').addClass('card-body').append(
+            $('<form>').attr({'method': 'POST', 'action': '/edit-action', 'id': 'edit-action-' + (actionCount + 1)}).append([
+                $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
+                $('<input>').addClass('d-inline-block form-control').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly', 'value': resp.action[0].action}),
+                $('<div>').addClass('d-flex justify-content-between mt-2 mb-2').append([
+                    $('<div>').addClass('input-date w-24 input-group d-flex flex-row').attr({'data-toggle': 'tooltip', 'title': 'Due Date'}).append([
+                        $('<span>').addClass('input-group-addon').append(
+                            $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
+                        ),
+                        $('<input>').addClass('d-flex flex-row form-control').attr({'type': 'date', 'value': formatDate(resp.action[0].due_date, 'yyyy-mm-dd'), 'name': 'due_date', 'readonly': 'readonly'})
+                    ]),
+                    $('<div>').addClass('w-24').append(
+                        $('<div>').addClass('input-group').attr({'data-toggle': 'tooltip', 'title': 'Hourly Cost'}).append([
+                            $('<span>').addClass('input-group-addon').append(
+                                $('<i>').addClass('fa fa-clock-o fa-lg').attr('aria-hidden', 'true')
+                            ),
+                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].hourly_cost, 'name': 'hourly_cost', 'readonly': 'readonly'})
+                        ])
+                    ),
+                    $('<div>').addClass('w-24').append(
+                        $('<div>').addClass('input-group').attr({'data-toggle': 'tooltip', 'title': 'Training Cost'}).append([
+                            $('<span>').addClass('input-group-addon').append(
+                                $('<i>').addClass('fa fa-dollar fa-lg').attr('aria-hidden', 'true')
+                            ),
+                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].training_cost, 'name': 'training_cost', 'readonly': 'readonly'})
+                        ])
+                    ),
+                    $('<div>').addClass('w-24').append(
+                        $('<div>').addClass('input-group').attr({'data-toggle': 'tooltip', 'title': 'Expenses'}).append([
+                            $('<span>').addClass('input-group-addon').append(
+                                $('<i>').addClass('fa fa-money fa-lg').attr('aria-hidden', 'true')
+                            ),
+                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].expenses, 'name': 'expenses', 'readonly': 'readonly'})
+                        ])
+                    )
+                ]),
+                $('<div>').addClass('edit-action-controls form-group text-right').append(
+                    $('<button>').addClass('edit-action-button btn btn-info').attr({'type': 'button', 'data-edit': 'false'}).html("<i class=\"fa fa-edit fa-lg mr-1\" aria-hidden=\"true\"></i>Edit").click(function() {
+                        if($(this).attr('data-edit') === 'false') {
+                            $(this).hide();
+                            $(this).parent().prepend([
+                                $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
+                                $('<button>').addClass('btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
+                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=action]').attr('readonly', '').val(resp.action[0].action);
+                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=due_date]').attr('readonly', '').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
+                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(resp.action[0].hourly_cost);
+                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=training_cost]').attr('readonly', '').val(resp.action[0].training_cost);
+                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=expenses]').attr('readonly', '').val(resp.action[0].expenses);
+                                    $(this).siblings().eq(1).attr('data-edit', 'false').show();
+                                    $(this).siblings().eq(0).remove();
+                                    $(this).remove();
+                                })
+                            ])
+
+                            $('#edit-action-' + (actionCount + 1) + ' :input').not(':button, :hidden').each(function() {
+                                $(this).removeAttr('readonly');
+                            });
+
+                            $(this).hide();
+                            $(this).attr('data-edit', 'true');
+                        }
+                    })
+                )
+            ])
+        )
+    ]).appendTo('#actions-wrapper').slideDown('slow');
+    actionCount++;
+}
+
+function deleteRemaining(a_id) {
+    $('#accordion-overview #overview-action-div-' + a_id).remove();
+    $('#accordion-checkins #checkin-action-div-' + a_id).remove();
+    $('#accordion-goal-review #goal-review-action-div-' + a_id).remove();
+
+    if (actions.length === 0) {
+        $('#overview-action-wrapper').empty();
+        $('#overview-action-wrapper').append(
+            $('<div>').addClass('alert alert-info mx-auto mt-5 w-75 font-weight-bold text-center').html('<i class="fa fa-info-circle fa-lg mr-1" aria-hidden="true"></i>Add actions to begin achieving your goal')
+        )
+        $('#checkin-link').addClass('disabled').attr({'data-placement': 'top', 'title': 'You need actions to access this tab'});
+        $('#goal-review-link').addClass('disabled').attr({'data-placement': 'top', 'title': 'You need actions to access this tab'});
     }
 }
+
+function addTo(resp) {
+    $('#accordion-overview').append(
+        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'overview-action-div-' + resp.action[0].a_id).append([
+            $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-overview', 'href': '#collapse-overview-' + resp.action[0].a_id, 'aria-expanded': 'true', 'aria-controls': 'collapse-overview-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-header bg-white d-flex align-items-center').attr({'role': 'tab', 'id': 'overview-action-' + resp.action[0].a_id}).append([
+                    $('<h6>').addClass('d-inline-block mb-0 font-weight-bold mr-auto').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action),
+                    $('<span>').addClass('badge badge-pill badge-warning mr-2').html('Pending')
+                ])
+            ),
+            $('<div>').addClass('collapse bg-transparent').attr({'role': 'tabpanel', 'aria-labelledby': 'overview-action-' + resp.action[0].a_id, 'id': 'collapse-overview-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-body').append(
+                    $('<div>').addClass('action-items card-deck').append([
+                        $('<div>').addClass('card bg-transparent').append(
+                            $('<div>').addClass('card-body text-center').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>Due Date'),
+                                $('<span>').html(formatDate(resp.action[0].due_date, 'dd-M-yy'))
+                            ])
+                        ),
+                        $('<div>').addClass('card bg-transparent').append(
+                            $('<div>').addClass('card-body text-center').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>Hourly Cost'),
+                                $('<span>').html(resp.action[0].hourly_cost)
+                            ])
+                        ),
+                        $('<div>').addClass('card bg-transparent').append(
+                            $('<div>').addClass('card-body text-center').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>Training Cost'),
+                                $('<span>').html(resp.action[0].training_cost)
+                            ])
+                        ),
+                        $('<div>').addClass('card bg-transparent').append(
+                            $('<div>').addClass('card-body text-center').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>Expenses'),
+                                $('<span>').html(resp.action[0].expenses)
+                            ])
+                        )
+                    ])
+                )
+            )
+        ])
+    )
+
+    $('#accordion-checkins').append(
+        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'checkin-action-div- ' + resp.action[0].a_id).append([
+            $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-checkins', 'href': '#collapse-checkin-action-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-header bg-white').attr({'role': 'tab', 'id': 'checkin-action-' + resp.action[0].a_id}).append(
+                    $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
+                )
+            ),
+            $('<div>').addClass('collapse bg-transparent').attr({'role': 'tabpanel', 'aria-labelledby': 'checkin-action-' + resp.action[0].a_id, 'id': 'collapse-checkin-action-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-body').append([
+                    $('<div>').addClass('employee-ck-comments'),
+                    $('<form>').addClass('employee-checkin').attr({'method': 'POST', 'action': '/submit-checkin/employee'}).append(
+                        $('<div>').addClass('card mt-2 bg-transparent').append([
+                            $('<div>').addClass('card-body').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-comment-o fa-lg mr-1" aria-hidden="true"></i>Employee Comment'),
+                                $('<div>').addClass('d-inline-block w-85 align-top').append([
+                                    $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
+                                    $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'How are you doing with this action?', 'name': 'comment'})
+                                ]),
+                                $('<div>').addClass('d-inline-block w-15 align-top').append(
+                                    $('<div>').addClass('d-flex justify-content-around').append([
+                                        $('<button>').addClass('no-bg').attr('type', 'reset').html('<i class="fa fa-times fa-lg" aria-hidden="true"></i>'),
+                                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
+                                    ])
+                                )
+                            ])
+                        ])
+                    )
+                ])
+            )
+        ])
+    )
+
+    $('#accordion-goal-review').append(
+        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'goal-review-action-div- ' + resp.action[0].a_id).append([
+            $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-goal-review', 'href': '#collapse-goal-review-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-header bg-white').attr({'role': 'tab', 'id': 'goal-review-' + resp.action[0].a_id}).append(
+                    $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
+                )
+            ),
+            $('<div>').addClass('collapse bg-transparent').attr({'role': 'tabpanel', 'aria-labelledby': 'goal-review-' + resp.action[0].a_id, 'id': 'collapse-goal-review-' + resp.action[0].a_id}).append(
+                $('<div>').addClass('card-body').append([
+                    $('<div>').addClass('employee-gr-comments'),
+                    $('<form>').addClass('employee-goal-review').attr({'method': 'POST', 'action': '/submit-goal-review/employee'}).append(
+                        $('<div>').addClass('card mt-2 bg-transparent').append([
+                            $('<div>').addClass('card-body').append([
+                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-comment-o fa-lg mr-1" aria-hidden="true"></i>Employee Comment'),
+                                $('<div>').addClass('d-inline-block w-85 align-top').append([
+                                    $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
+                                    $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'How are you doing with this action?', 'name': 'comment'})
+                                ]),
+                                $('<div>').addClass('d-inline-block w-15 align-top').append(
+                                    $('<div>').addClass('d-flex justify-content-around').append([
+                                        $('<button>').addClass('no-bg').attr('type', 'reset').html('<i class="fa fa-times fa-lg" aria-hidden="true"></i>'),
+                                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
+                                    ])
+                                )
+                            ])
+                        ])
+                    )
+                ])
+            )
+        ])
+    )
+
+    if (actions.length > 0) {
+        $('#checkin-link').removeClass('disabled').removeAttr('data-placement').removeAttr('title');
+        $('#goal-review-link').removeClass('disabled').removeAttr('data-placement').removeAttr('title');
+    }
+}
+
+function updateOthers(resp) {
+    // update action divs in Overview tab
+    var overviewActions = $('#overview-action-div-' + resp.action[0].a_id);
+    $(overviewActions).find('span.overview-action-title').html(resp.action[0].action);
+    $(overviewActions).find('div.action-items .card .card-body span').eq(0).html(formatDate(resp.action[0].due_date, 'dd-M-yy'));
+    $(overviewActions).find('div.action-items .card .card-body span').eq(1).html(resp.action[0].hourly_cost);
+    $(overviewActions).find('div.action-items .card .card-body span').eq(2).html(resp.action[0].training_cost);
+    $(overviewActions).find('div.action-items .card .card-body span').eq(3).html(resp.action[0].expenses);
+
+    // update action divs in Check-in tab
+    $('#checkin-action-div-' + resp.action[0].a_id).find('.card-header span').html(resp.action[0].action);
+    
+    // update action divs in Goal Review tab
+    $('#goal-review-action-div-' + resp.action[0].a_id).find('.card-header span').html(resp.action[0].action);
+}
+
+/* function createModal(id, title, content) {
+    $('<div>').addClass('modal fade').attr({'id': id, 'tabindex': '-1', 'role': 'dialog', 'aria-labelledby': id + '-label', 'aria-hidden': 'true'}).append(
+        $('<div>').addClass('modal-dialog'.attr('role', 'document').append(
+            $('<div>').addClass('modal-content').append([
+                $('<div>').addClass('modal-header').append(
+                    $('<h5>').addClass('modal-title').attr('id', id + '-label').html(title),
+                ),
+                $('<div>').addClass('modal-body').append(
+                    content
+                ),
+                $('<div>').addClass('modal-footer').append([
+                    $('<button>')
+                ])
+            ])
+        )
+    )
+} */

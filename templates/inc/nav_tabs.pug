@@ -7,47 +7,47 @@
 
 ul.nav.nav-tabs
     li.nav-item
-        a.nav-link.active.font-weight-bold(data-toggle='tab', role='tab', href='#overview') 
+        a#overview-link.nav-link.active.font-weight-bold(data-toggle='tab', role='tab', href='#overview') 
             i.fa.fa-eye.fa-lg.mr-1(aria-hidden='true')
-            | Overview
+            span Overview
     li.nav-item
-        a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href="#goal-prep")
+        a#goal-prep-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href="#goal-prep")
             i.fa.fa-list.fa-lg.mr-1(aria-hidden='true')
-            | Goal Preparation
+            span Goal Preparation
     li.nav-item
         if goal_prep.length === 0
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-setting', class='disabled', data-placement='top', title='You need to set your goal preparation first') 
+            a#goal-setting-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-setting', class='disabled', data-placement='top', title='You need to set your goal preparation first') 
                 i.fa.fa-cog.fa-lg.mr-1(aria-hidden='true')
-                | Goal Setting
+                span Goal Setting
         else
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-setting')
+            a#goal-setting-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-setting')
                 i.fa.fa-cog.fa-lg.mr-1(aria-hidden='true')
-                | Goal Setting
+                span Goal Setting
     li.nav-item
-        if goal.length === 0
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#check-ins', class='disabled', data-placement='top', title='You need to set your goal and actions first') 
+        if action.length === 0
+            a#checkin-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#check-ins', class='disabled', data-placement='top', title='You need actions to access this tab') 
                 i.fa.fa-check-square-o.fa-lg.mr-1(aria-hidden='true')
-                | Check-ins
+                span Check-ins
         else
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#check-ins')
+            a#checkin-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#check-ins')
                 i.fa.fa-check-square-o.fa-lg.mr-1(aria-hidden='true')
-                | Check-ins
+                span Check-ins
     li.nav-item
-        if goal.length === 0
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-review', class='disabled', data-placement='top', title='You need to set your goal and actions first') 
+        if action.length === 0
+            a#goal-review-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-review', class='disabled', data-placement='top', title='You need actions to access this tab') 
                 i.fa.fa-file-text-o.fa-lg.mr-1(aria-hidden='true')
-                | Goal Review
+                span Goal Review
         else
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-review')
+            a#goal-review-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#goal-review')
                 i.fa.fa-file-text-o.fa-lg.mr-1(aria-hidden='true')
-                | Goal Review
+                span Goal Review
     if user.auth === 'Manager' || user.auth === 'HR'
         li.nav-item
-            a.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#employee-select')
+            a#view-employee-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#employee-select')
                 i.fa.fa-group.fa-lg.mr-1(aria-hidden='true')
-                | View Employee
+                span View Employee
     if user.auth === 'HR'
         li.nav-item
-            a.nav-link.font-weight-bold(id='admin-link', data-toggle='tab', role='tab', href='#admin')
+            a#admin-link.nav-link.font-weight-bold(data-toggle='tab', role='tab', href='#admin')
                 i.fa.fa-user-circle-o.fa-lg.mr-1(aria-hidden='true')
-                | Admin
+                span Admin

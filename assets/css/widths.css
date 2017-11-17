@@ -83,6 +83,10 @@
     width: 10%;
 }
 
+.w-9 {
+    width: 9%;
+}
+
 .w-7 {
     width: 7%;
 }
@@ -98,6 +102,10 @@
 
 .mw-200p {
     min-width: 200px;
+}
+
+.mw-100 {
+    min-width: 100%;
 }
 
 /* height */

@@ -2,7 +2,7 @@
     h6.h-line
         i.fa.fa-bullseye.fa-lg.mr-1(aria-hidden='true')
         | My Professional Development Goal is:
-    .card.mb-2.mt-2.bg-transparent
+    .card.mb-3.mt-3.bg-transparent
         #overview-goal-wrapper.card-body
             if goal.length > 0
                 .h5.font-weight-bold #{goal[0].goal}
@@ -21,12 +21,12 @@
             else if (i > 1)
                 - var show = ''
                 - var collapsed = 'collapsed'
-            .card.mb-1.bg-transparent
+            .card.mb-1.bg-transparent(id='goal-review-action-div-' + action[index].a_id)
                 a(data-toggle='collapse', data-parent='#accordion-goal-review', href='#collapse-goal-review-' + i, aria-expanded='true', aria-controls='collapse-goal-review-' + i, class=collapsed)
                     .card-header.bg-white(role='tab', id='goal-review-' + i)
                         h6.d-inline-block.mb-0.font-weight-bold
                             i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-                            | #{action[index].action}
+                            span #{action[index].action}
                 .collapse.bg-transparent(role='tabpanel', aria-labelledby='goal-review-' + i, id='collapse-goal-review-' + i, class=show)
                     .card-body
                         - var gr_submitted = false
