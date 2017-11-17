@@ -555,14 +555,19 @@ $(document).ready(function() {
                         var actionTable = $('<div>').addClass('w-100 d-flex justify-content-between flex-wrap')
                         for (index in resp[i].actions) {
                             if (resp[i].actions[index].action !== null) {
+
+                                // Show action index on Admin table
+                                var actionIdx = 'Action ' + (parseInt(index) + 1);
+
+                                // Classify Action Status and store in variables
                                 if (resp[i].actions[index].status === 'Submitted') {
                                     var statusClass = 'btn-warning';
-                                    var buttonHTML = '<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>'
-                                    var statusState = 'Pending';
+                                    var buttonHTML = '<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>';
+                                    var statusState = ' Pending';
                                 } else if (resp[i].actions[index].status === 'Approved') {
                                     var statusClass = 'btn-success';
                                     var buttonHTML = '<i class="fa fa-check mr-1" aria-hidden="true"></i>';
-                                    var statusState = 'Approved';
+                                    var statusState = ' Approved';
                                 } else if (resp[i].actions[index].status === 'Declined') {
                                     var statusClass = 'btn-danger';
                                     var buttonHTML = '<i class="fa fa-ban mr-1" aria-hidden="true"></i>'
@@ -590,7 +595,7 @@ $(document).ready(function() {
 
                                 var action = $('<div>').addClass('action-container w-22 p-1 rounded mx-auto').append(
                                     $('<form>').addClass('form-inline justify-content-around').append([
-                                        $('<button>').addClass('btn ' + statusClass + ' btn-sm').attr('id', 'action-status-button-' + resp[i].actions[index].a_id).attr('type', 'button').html(buttonHTML + statusState).popover({
+                                        $('<button>').addClass('btn ' + statusClass + ' btn-sm').attr('id', 'action-status-button-' + resp[i].actions[index].a_id).attr('type', 'button').html(buttonHTML + actionIdx + statusState ).popover({
                                             'title': resp[i].actions[index].action,
                                             'placement': 'top',
                                             'trigger': 'hover focus',
@@ -601,8 +606,8 @@ $(document).ready(function() {
                                         $('<form>').addClass('set-status-form').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
                                             $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp[i].actions[index].a_id}),
                                             $('<select>').addClass('form-control form-control-sm').attr('name', 'status').append([
-                                                $('<option>').attr('value', 'default').text(''),
-                                                $('<option>').attr('value', 'Submitted').text('Revoke'),
+                                                $('<option>').text(''),
+                                                $('<option>').attr('value', 'Submitted').text('Revise'),
                                                 $('<option>').attr('value', 'Approved').text('Approve'),
                                                 $('<option>').attr('value', 'Declined').text('Decline')
                                             ])
