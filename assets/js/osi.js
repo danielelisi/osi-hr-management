@@ -208,7 +208,7 @@ $(document).ready(function() {
                     });
 
                     // goal review submission (manager)
-                    $('#ev-gr-actions').on('submit', 'form.manager_gr_form', function(e) {
+                    $('#ev-gr-actions').on('submit', 'form.manager-gr-form', function(e) {
                         e.preventDefault();
                         var parent = $(this);
                         $.ajax({
@@ -233,6 +233,33 @@ $(document).ready(function() {
             }
         });
     });
+    
+    // HR/manager edit employee action
+    $('#ev-goal-overview').on('submit', 'form.edit-emp-action-form', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/edit-employee-action',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                var inputs = $(parent).find('input').not('input[type=hidden]');
+                $(inputs).eq(0).attr('readonly', 'readonly').val(resp.action[0].action);
+                $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
+                $(inputs).eq(2).attr('readonly', 'readonly').val(resp.action[0].hourly_cost);
+                $(inputs).eq(3).attr('readonly', 'readonly').val(resp.action[0].hc_cost_type);
+                $(inputs).eq(4).attr('readonly', 'readonly').val(resp.action[0].training_cost);
+                $(inputs).eq(5).attr('readonly', 'readonly').val(resp.action[0].tc_cost_type);
+                $(inputs).eq(6).attr('readonly', 'readonly').val(resp.action[0].expenses);
+                $(inputs).eq(7).attr('readonly', 'readonly').val(resp.action[0].exp_cost_type);
+
+                $(parent).find('div.text-right button:contains("Submit")').hide();
+                $(parent).find('div.text-right button:contains("Cancel")').hide();
+                $(parent).find('div.text-right button:contains("Edit")').show();
+            }
+        });
+    });
+
     // goal preparation edit button
     $('.edit-goal-prep').each(function(i) {
         $(this).click(function() {
@@ -279,21 +306,23 @@ $(document).ready(function() {
                     'id': 'gs-save-goal-button'
                 }).click(function(e) {
                     e.preventDefault();
-                    if(confirm('Proceed to save new goal?')) {
-                        $.ajax({
-                            url: '/edit-goal',
-                            method: 'POST',
-                            data: $('#gs-edit-goal').serialize(),
-                            success: function(resp) {
-                                if(resp.status === 'success') {
-                                    $('#gs-input-goal').attr('readonly', '').val(resp.goal);
-                                    $('#gs-edit-goal-button').attr('data-edit', 'false');
-                                    $('#gs-save-goal-button').remove();
-                                    $('#gs-cancel-goal-button').remove();
+                    createConfirmation('save new goal', function(confirm) {
+                        if(confirm) {
+                            $.ajax({
+                                url: '/edit-goal',
+                                method: 'POST',
+                                data: $('#gs-edit-goal').serialize(),
+                                success: function(resp) {
+                                    if(resp.status === 'success') {
+                                        $('#gs-input-goal').attr('readonly', '').val(resp.goal);
+                                        $('#gs-edit-goal-button').attr('data-edit', 'false');
+                                        $('#gs-save-goal-button').remove();
+                                        $('#gs-cancel-goal-button').remove();
+                                    }
                                 }
-                            }
-                        })
-                    }
+                            })
+                        }
+                    });
                 }),
                 $('<button>').addClass('btn btn-danger').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
                     'type': 'button',
@@ -322,6 +351,9 @@ $(document).ready(function() {
                         $('#edit-action-' + (i + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(actions[i].hourly_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=training_cost]').attr('readonly', '').val(actions[i].training_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=expenses]').attr('readonly', '').val(actions[i].expenses);
+                        $('#edit-action-' + (i + 1) + ' :input[name=hc_cost_type]').attr('readonly', '').val(actions[i].hc_cost_type);
+                        $('#edit-action-' + (i + 1) + ' :input[name=tc_cost_type]').attr('readonly', '').val(actions[i].tc_cost_type);
+                        $('#edit-action-' + (i + 1) + ' :input[name=exp_cost_type]').attr('readonly', '').val(actions[i].exp_cost_type);
                         $(this).siblings().eq(1).attr('data-edit', 'false').show();
                         $(this).siblings().eq(0).remove();
                         $(this).remove();
@@ -348,19 +380,28 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 var inputs = $(parent).find('input').not('button, input[type=hidden]');
-                $(inputs).attr('readonly', 'readonly');
-                $(inputs).eq(0).val(resp.action[0].action);
-                $(inputs).eq(1).val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
-                $(inputs).eq(2).val(resp.action[0].hourly_cost);
-                $(inputs).eq(3).val(resp.action[0].training_cost);
-                $(inputs).eq(4).val(resp.action[0].expenses);
+                console.log(inputs);
+                if (resp.status === 'success') {
+                    $(inputs).attr('readonly', 'readonly');
+                    $(inputs).eq(0).val(resp.action.action);
+                    $(inputs).eq(1).val(formatDate(resp.action.due_date, 'yyyy-mm-dd'));
+                    $(inputs).eq(2).val(resp.action.hourly_cost);
+                    $(inputs).eq(3).val(resp.action.hc_cost_type);
+                    $(inputs).eq(4).val(resp.action.training_cost);
+                    $(inputs).eq(5).val(resp.action.tc_cost_type);
+                    $(inputs).eq(6).val(resp.action.expenses);
+                    $(inputs).eq(7).val(resp.action.exp_cost_type);
 
-                $(parent).find('button[type=submit], button.cancel-button').remove();
-                $(parent).find('button.edit-action-button').attr('data-edit', 'false').show();
+                    $(parent).find('button[type=submit], button.cancel-button').remove();
+                    $(parent).find('button.edit-action-button').attr('data-edit', 'false').show();
 
-                updateOthers(resp);
-                displayStatus('Action successfully updated', 'bg-success', 'fa-check');
-                statusMessageTimeout();
+                    updateOthers(resp);
+                    displayStatus('Action successfully updated', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+                } else {
+                    displayStatus('An error occurred while trying to updated the action', 'bg-danger', 'fa-exclamation-o');
+                    statusMessageTimeout();
+                }
             }
         });
     });
@@ -399,34 +440,36 @@ $(document).ready(function() {
     // delete action
     $('#actions-wrapper').on('submit', 'form.delete-action', function(e) {
         e.preventDefault();
-        if (confirm('Are you sure you want to delete this action?')) {
-            $.ajax({
-                url: '/delete-action',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp) {
-                    for (var i = 0; i < actions.length; i++) {
-                        if (actions[i].a_id === resp.a_id) {
-                            actions.splice(i, 1);
-                            actionCount = actions.length;
+        createConfirmation('delete action', function(confirm) {
+            if (confirm) {
+                $.ajax({
+                    url: '/delete-action',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(resp) {
+                        for (var i = 0; i < actions.length; i++) {
+                            if (actions[i].a_id === resp.a_id) {
+                                actions.splice(i, 1);
+                                actionCount = actions.length;
+                            }
                         }
-                    }
 
-                    $('#edit-add-new-action-div').removeClass('d-none');
+                        $('#edit-add-new-action-div').removeClass('d-none');
 
-                    $('#action-div-' + resp.a_id).animate({height: 0, opacity: 0}, 'slow', function() {
-                        $(this).remove();
-                        $('.edit-action-header').each(function(i) {
-                            $(this).html('Action ' + (i + 1));
+                        $('#action-div-' + resp.a_id).animate({height: 0, opacity: 0}, 'slow', function() {
+                            $(this).remove();
+                            $('.edit-action-header').each(function(i) {
+                                $(this).html('Action ' + (i + 1));
+                            });
+                            displayStatus('Action successfully deleted', 'bg-success', 'fa-check');
+                            statusMessageTimeout();
                         });
-                        displayStatus('Action successfully deleted', 'bg-success', 'fa-check');
-                        statusMessageTimeout();
-                    });
 
-                    deleteRemaining(resp.a_id);
-                }
-            });
-        }
+                        deleteRemaining(resp.a_id);
+                    }
+                });
+            }
+        });
     });
 
     // get number of submitted actions
@@ -500,28 +543,76 @@ $(document).ready(function() {
         });
     });
 
-    $('#gs-delete-goal-button').click(function() {
-        if (confirm('Are you sure you want to delete your goal? (All actions, check-ins, and goal review will be deleted as well)')) {
-            $.ajax({
-                url: '/delete-goal',
-                method: 'POST',
-                data: {
-                    g_id: goals[0].g_id,
-                    user: userData.emp_id
-                },
-                success: function(resp) {
-                    displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
+    $('#gs-delete-goal-button').click(function(e) {
+        createConfirmation('delete goal', function(confirm) {
+            if (confirm) {
+                $('body').find('.delete-goal-confirmation').remove();
+                $('body').css('overflow-y', '');
 
-                    setTimeout(function() {
-                        $('#status-message').animate({
-                            'top': '-50px'
-                        });
+                $.ajax({
+                    url: '/delete-goal',
+                    method: 'POST',
+                    data: {
+                        g_id: goals[0].g_id,
+                        user: userData.emp_id
+                    },
+                    success: function(resp) {
+                        displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
 
-                        location.reload();
-                    }, 1000);
-                }
-            });
-        }
+                        setTimeout(function() {
+                            $('#status-message').animate({
+                                'top': '-50px'
+                            });
+
+                            location.reload();
+                        }, 1000);
+                    }
+                });
+            }
+        });
+        /* var offSetTop = $(window).scrollTop();
+        $('body').css('overflow-y', 'hidden');
+
+        $('body').append(
+            $('<div>').addClass('position-absolute w-100 h-100 d-flex justify-content-center align-items-center delete-goal-confirmation').css({'top': offSetTop, 'background-color': 'rgba(0, 0, 0, 0.75)', 'z-index': 5}).append(
+                $('<div>').addClass('card').append([
+                    $('<div>').addClass('card-body').append([
+                        $('<h5>').html('Are you sure you want to delete your goal?'),
+                        $('<div>').addClass('alert alert-danger').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>All actions, check-ins, and goal review will be deleted as well')
+                    ]),
+                    $('<div>').addClass('card-footer text-right').append(
+                        $('<button>').addClass('btn btn-primary mr-1').attr('type', 'button').html('<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Yes').click(function() {
+                            $('body').find('.delete-goal-confirmation').remove();
+                            $('body').css('overflow-y', '');
+
+                            $.ajax({
+                                url: '/delete-goal',
+                                method: 'POST',
+                                data: {
+                                    g_id: goals[0].g_id,
+                                    user: userData.emp_id
+                                },
+                                success: function(resp) {
+                                    displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
+
+                                    setTimeout(function() {
+                                        $('#status-message').animate({
+                                            'top': '-50px'
+                                        });
+
+                                        location.reload();
+                                    }, 1000);
+                                }
+                            });
+                        }),
+                        $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-ban fa-lg mr-1" aria-hidden="true"></i>No').click(function() {
+                            $('body').find('.delete-goal-confirmation').remove();
+                            $('body').css('overflow-y', '');
+                        })
+                    )
+                ])
+            )
+        ) */
     });
 
     var table = $('#employee-table').DataTable({
@@ -572,8 +663,14 @@ $(document).ready(function() {
                                 } else if (resp[i].actions[index].status === 'Declined') {
                                     var statusClass = 'btn-danger';
                                     var buttonHTML = '<i class="fa fa-ban mr-1" aria-hidden="true"></i>'
-                                    var statusState = 'Declined';
+                                    var statusState = ' Declined';
                                 }
+
+                                console.log(resp[i].actions[index].hc_cost_type);
+
+                                var hc_cost_type = resp[i].actions[index].hc_cost_type ? '/' + resp[i].actions[index].hc_cost_type : null;
+                                var tc_cost_type = resp[i].actions[index].tc_cost_type ? '/' + resp[i].actions[index].tc_cost_type : null;
+                                var exp_cost_type = resp[i].actions[index].exp_cost_type ? ' for ' + resp[i].actions[index].exp_cost_type : null;
 
                                 var actionCards = $('<div>').addClass('card-group').append([
                                     $('<div>').addClass('card').append(
@@ -582,15 +679,15 @@ $(document).ready(function() {
                                     ),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].hourly_cost),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].hourly_cost + hc_cost_type),
                                     ]),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].training_cost),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].training_cost + tc_cost_type),
                                     ]),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].expenses),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].expenses + exp_cost_type)
                                     ])
                                 ])
 
@@ -934,22 +1031,22 @@ $(document).ready(function() {
             {'width': '125px'},
             {'width': '300px'},
             {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Hourly Cost'},
+            {'width': '75px', 'title': 'Wage Cost'},
             {'width': '75px', 'title': 'Training Cost'},
             {'width': '75px', 'title': 'Expenses'},
             {'width': '300px'},
             {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Hourly Cost'},
+            {'width': '75px', 'title': 'Wage Cost'},
             {'width': '75px', 'title': 'Training Cost'},
             {'width': '75px', 'title': 'Expenses'},
             {'width': '300px'},
             {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Hourly Cost'},
+            {'width': '75px', 'title': 'Wage Cost'},
             {'width': '75px', 'title': 'Training Cost'},
             {'width': '75px', 'title': 'Expenses'},
             {'width': '300px'},
             {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Hourly Cost'},
+            {'width': '75px', 'title': 'Wage Cost'},
             {'width': '75px', 'title': 'Training Cost'},
             {'width': '75px', 'title': 'Expenses'}
         ],
@@ -1005,14 +1102,20 @@ $(document).ready(function() {
                             var action = null;
                             var due_date = null;
                             var hourly_cost = null;
+                            var hc_cost_type = null;
                             var training_cost = null;
+                            var tc_cost_type = null;
                             var expenses = null;
+                            var exp_cost_type = null;
                         } else {
                             var action = resp[id].pdp[i].action;
                             var due_date = formatDate(resp[id].pdp[i].due_date, 'dd-M-yy');
-                            var hourly_cost = resp[id].pdp[i].hourly_cost;
-                            var training_cost = resp[id].pdp[i].training_cost;
-                            var expenses = resp[id].pdp[i].expenses
+                            var hc_cost_type = resp[id].pdp[i].hc_cost_type ? '/' + resp[id].pdp[i].hc_cost_type : null;
+                            var tc_cost_type = resp[id].pdp[i].tc_cost_type ? '/' + resp[id].pdp[i].tc_cost_type : null;
+                            var exp_cost_type = resp[id].pdp[i].exp_cost_type ? ' for ' + resp[id].pdp[i].exp_cost_type : null;
+                            var hourly_cost = resp[id].pdp[i].hourly_cost + hc_cost_type;
+                            var training_cost = resp[id].pdp[i].training_cost + tc_cost_type;
+                            var expenses = resp[id].pdp[i].expenses + exp_cost_type;
                         }
                         
                         row.push(action);

@@ -99,6 +99,11 @@ h1, h2, h3, h4, h5, h6, label {
     min-height: 275px;
 }
 
+#add-action-button {
+    top: 10px;
+    z-index: 2;
+}
+
 #accordion-overview a:hover {
     text-decoration: none;
 }

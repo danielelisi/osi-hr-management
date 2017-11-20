@@ -34,8 +34,9 @@
                             each v, idx in checkin
                                 if action[index].a_id === checkin[idx].c_a_id && checkin[idx].employee_checkin_comment
                                     .alert.alert-success
-                                        i.fa.fa-check.fa-lg.mr-1(aria-hidden='true')
-                                        b You already submitted your check-in for this action on #{formatDate(checkin[idx].checkin_date)}
+                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                        b Employee Comment: 
+                                        span #{checkin[idx].employee_checkin_comment}
                                     - ck_submitted = true
                         if !ck_submitted
                             //-- this is complete

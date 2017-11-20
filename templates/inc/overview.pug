@@ -54,20 +54,26 @@
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-clock-o.fa-lg.mr-1(aria-hidden='true')
-                                                    | Hourly Cost
-                                                span #{action[index].hourly_cost}
+                                                    | Wage Cost
+                                                span $#{action[index].hourly_cost}
+                                                if (action[index].hc_cost_type)
+                                                    |  per #{action[index].hc_cost_type}
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-dollar.fa-lg.mr-1(aria-hidden='true')
                                                     | Training Cost
-                                                span #{action[index].training_cost}
+                                                span $#{action[index].training_cost}
+                                                if (action[index].hc_cost_type)
+                                                    |  per #{action[index].tc_cost_type}
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-money.fa-lg.mr-1(aria-hidden='true')
                                                     | Expenses
-                                                span #{action[index].expenses}
+                                                span $#{action[index].expenses}
+                                                if (action[index].hc_cost_type)
+                                                    |  for #{action[index].exp_cost_type}
             else
                 .alert.alert-info.mx-auto.mt-5.w-75.font-weight-bold.text-center
                     i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
