@@ -2,7 +2,7 @@
     h6.h-line
         i.fa.fa-bullseye.fa-lg.mr-1(aria-hidden='true')
         | My Professional Development Goal is:
-    .card.mb-2.mt-2.bg-transparent 
+    .card.mb-3.mt-3.bg-transparent 
         .card-body
             if goal.length > 0
                 .h5.font-weight-bold #{goal[0].goal}
@@ -21,26 +21,27 @@
             else if (i > 1)
                 - var show = ''
                 - var collapsed = 'collapsed'
-            .card.mb-1.bg-transparent
+            .card.mb-1.bg-transparent(id='checkin-action-div-' + action[index].a_id)
                 a(data-toggle='collapse', data-parent='#accordion-checkins', href='#collapse-checkin-action-' + i, aria-expanded='true', aria-controls='collapse-checkin-action-' + i, class=collapsed)
                     .card-header.bg-white(role='tab', id='checkin-action-' + i)
                         h6.d-inline-block.mb-0.font-weight-bold
                             i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-                            | #{action[index].action}
+                            span #{action[index].action}
                 .collapse.bg-transparent(role='tabpanel', aria-labelledby='checkin-action-' + i, id='collapse-checkin-action-' + i, class=show)
                     .card-body
                         - var ck_submitted = false
                         if !ck_submitted
                             each v, idx in checkin
-                                if action[index].a_id === checkin[idx].c_a_id
+                                if action[index].a_id === checkin[idx].c_a_id && checkin[idx].employee_checkin_comment
                                     .alert.alert-success
-                                        i.fa.fa-check.fa-lg.mr-1(aria-hidden='true')
-                                        b You already submitted your check-in for this action on #{formatDate(checkin[idx].checkin_date)}
+                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                        b Employee Comment: 
+                                        span #{checkin[idx].employee_checkin_comment}
                                     - ck_submitted = true
                         if !ck_submitted
                             //-- this is complete
-                            #employee-ck-comments
-                            form.employee-checkin(method='POST', action='/employee/submit-checkin')
+                            .employee-ck-comments
+                            form.employee-checkin(method='POST', action='/submit-checkin/employee')
                                 .card.mt-2.bg-transparent
                                     .card-body
                                         label.d-block.font-weight-bold.text-dark-blue 

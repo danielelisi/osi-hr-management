@@ -32,53 +32,55 @@ $(document).ready(function() {
             addAction('action', actionCount, 'Action', $(this).attr('data-from'));
             actionCount++;
         } else {
-            displayStatus(2);
+            displayStatus('Cannot add more than 4 actions', 'bg-warning', 'fa-warning');
             clearTimeout(addActionStatus);
-             addActionStatus = statusMessageTimeout();
+            addActionStatus = statusMessageTimeout();
         }
     });
     // employee checkin submission
-    $('.employee-checkin').each(function(i) {
-       $(this).submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/submit-checkin/employee',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp) {
-                    if (resp.status === 'success') {
-                        displayStatus(3);
-                        statusMessageTimeout();
+    $('#accordion-checkins').on('submit', 'form.employee-checkin', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/submit-checkin/employee',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                console.log(resp);
+                if (resp.status === 'success') {
+                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
 
-                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#employee-ck-comments')).slideDown('slow')
-                    } else if (resp.status === 'fail') {
-                        displayStatus(5);
-                        statusMessageTimeout();
-                    }
+                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $(parent).remove();
+                } else if (resp.status === 'fail') {
+                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                    statusMessageTimeout();
                 }
-            });
+            }
         });
     });
-    // employee goal review submission
-    $('.employee-goal-review').each(function(i) {
-        $(this).submit(function(e) {
-            e.preventDefault();
-            $.ajax({
-                url: '/submit-goal-review/employee',
-                method: 'POST',
-                data: $(this).serialize(),
-                success: function(resp) {
-                    if (resp.status === 'success') {
-                        displayStatus(4);
-                        statusMessageTimeout();
 
-                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#employee-gr-comments')).slideDown('slow')
-                    } else if (resp.status === 'fail') {
-                        displayStatus(5);
-                        statusMessageTimeout();
-                    }
+    // employee goal review submission
+    $('#accordion-goal-review').on('submit', 'form.employee-goal-review', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/submit-goal-review/employee',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                if (resp.status === 'success') {
+                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+
+                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $(parent).remove();
+                } else if (resp.status === 'fail') {
+                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                    statusMessageTimeout();
                 }
-            })
+            }
         });
     });
     // populate the employee drop down box (manager)
@@ -86,6 +88,7 @@ $(document).ready(function() {
         url: '/populate-manager-employee-select',
         method: 'GET',
         success: function(resp) {
+            console.log(resp);
             $('#manager-employee-select').append($('<option>', {
                 id: 'no-employee'
             }));
@@ -173,7 +176,7 @@ $(document).ready(function() {
                     $('#ev-goal').text(resp.goal[0].goal);
 
                     $(resp.action).each(function(i) {
-                        createEmployeeOverview(resp, i);
+                        createEmployeeActions(resp, i);
                         createCheckins(resp, '/submit-checkin/manager', i);
                         createGoalReview(resp, '/submit-goal-review/manager', i);
                     });
@@ -182,57 +185,83 @@ $(document).ready(function() {
                         createGoalPrep(resp.goal_prep, i);
                     });
                     // checkin submission (manager)
-                    $('.manager-checkin-form').each(function(i) {
-                        $(this).submit(function(e) {
-                            e.preventDefault();
-                            $.ajax({
-                                url: '/submit-checkin/manager',
-                                method: 'POST',
-                                data: $(this).serialize(),
-                                success: function(res) {
-                                    if (res.status === 'success') {
-                                        displayStatus(3);
-                                        statusMessageTimeout();
+                    $('#ev-checkin-actions').on('submit', 'form.manager-checkin-form', function(e) {
+                        e.preventDefault();
+                        var parent = $(this);
+                        $.ajax({
+                            url: '/submit-checkin/manager',
+                            method: 'POST',
+                            data: $(parent).serialize(),
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
+                                    statusMessageTimeout();
 
-                                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#manager-ck-comments')).slideDown('slow');
-                                    } else if (res.status === 'fail') {
-                                        displayStatus(5);
-                                        statusMessageTimeout();
-                                    }  
-                                }
-                            });
+                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $(parent).remove();
+                                } else if (res.status === 'fail') {
+                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                                    statusMessageTimeout();
+                                }  
+                            }
                         });
                     });
-                    // goal review submission (manager)
-                    $('.manager-gr-form').each(function(i) {
-                        $(this).submit(function(e) {
-                            e.preventDefault();
-                            $.ajax({
-                                url: '/submit-goal-review/manager',
-                                method: 'POST',
-                                data: $(this).serialize(),
-                                success: function(res) {
-                                    if (res.status === 'success') {
-                                        displayStatus(4);
-                                        statusMessageTimeout();
 
-                                        $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($('#manager-gr-comments')).slideDown('slow');
-                                    } else if (res.status === 'fail') {
-                                        displayStatus(5);
-                                        statusMessageTimeout();
-                                    }  
-                                }
-                            });
+                    // goal review submission (manager)
+                    $('#ev-gr-actions').on('submit', 'form.manager-gr-form', function(e) {
+                        e.preventDefault();
+                        var parent = $(this);
+                        $.ajax({
+                            url: '/submit-goal-review/manager',
+                            method: 'POST',
+                            data: $(this).serialize(),
+                            success: function(res) {
+                                if (res.status === 'success') {
+                                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
+                                    statusMessageTimeout();
+
+                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $(parent).remove();
+                                } else if (res.status === 'fail') {
+                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
+                                    statusMessageTimeout();
+                                }  
+                            }
                         });
                     });
                 }
             }
         });
     });
+    
+    // HR/manager edit employee action
+    $('#ev-goal-overview').on('submit', 'form.edit-emp-action-form', function(e) {
+        e.preventDefault();
+        var parent = $(this);
+        $.ajax({
+            url: '/edit-employee-action',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                var inputs = $(parent).find('input').not('input[type=hidden]');
+                $(inputs).eq(0).attr('readonly', 'readonly').val(resp.action[0].action);
+                $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
+                $(inputs).eq(2).attr('readonly', 'readonly').val(resp.action[0].hourly_cost);
+                $(inputs).eq(3).attr('readonly', 'readonly').val(resp.action[0].hc_cost_type);
+                $(inputs).eq(4).attr('readonly', 'readonly').val(resp.action[0].training_cost);
+                $(inputs).eq(5).attr('readonly', 'readonly').val(resp.action[0].tc_cost_type);
+                $(inputs).eq(6).attr('readonly', 'readonly').val(resp.action[0].expenses);
+                $(inputs).eq(7).attr('readonly', 'readonly').val(resp.action[0].exp_cost_type);
+
+                $(parent).find('div.text-right button:contains("Submit")').hide();
+                $(parent).find('div.text-right button:contains("Cancel")').hide();
+                $(parent).find('div.text-right button:contains("Edit")').show();
+            }
+        });
+    });
+
     // goal preparation edit button
     $('.edit-goal-prep').each(function(i) {
-        //$(this).attr('data-edit', 'false');
-
         $(this).click(function() {
             if ($(this).attr('data-edit') === 'false') {
                 $(this).attr('data-edit', 'true')
@@ -277,23 +306,25 @@ $(document).ready(function() {
                     'id': 'gs-save-goal-button'
                 }).click(function(e) {
                     e.preventDefault();
-                    if(confirm('Proceed to save new goal?')) {
-                        $.ajax({
-                            url: '/edit-goal',
-                            method: 'POST',
-                            data: $('#gs-edit-goal').serialize(),
-                            success: function(resp) {
-                                if(resp.status === 'success') {
-                                    $('#gs-input-goal').attr('readonly', '').val(resp.goal);
-                                    $('#gs-edit-goal-button').attr('data-edit', 'false');
-                                    $('#gs-save-goal-button').remove();
-                                    $('#gs-cancel-goal-button').remove();
+                    createConfirmation('save new goal', function(confirm) {
+                        if(confirm) {
+                            $.ajax({
+                                url: '/edit-goal',
+                                method: 'POST',
+                                data: $('#gs-edit-goal').serialize(),
+                                success: function(resp) {
+                                    if(resp.status === 'success') {
+                                        $('#gs-input-goal').attr('readonly', '').val(resp.goal);
+                                        $('#gs-edit-goal-button').attr('data-edit', 'false');
+                                        $('#gs-save-goal-button').remove();
+                                        $('#gs-cancel-goal-button').remove();
+                                    }
                                 }
-                            }
-                        })
-                    }
+                            })
+                        }
+                    });
                 }),
-                $('<button>').addClass('btn btn-danger').html('<i class="fa fa-times fa-lg" aria-hidden="true">').attr({
+                $('<button>').addClass('btn btn-danger').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
                     'type': 'button',
                     'id': 'gs-cancel-goal-button'
                 }).click(function() {
@@ -314,12 +345,15 @@ $(document).ready(function() {
             if($(this).attr('data-edit') === 'false') {
                 $(this).parent().prepend([
                     $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
-                    $('<button>').addClass('btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg" aria-hidden="true">').click(function() {
+                    $('<button>').addClass('cancel-button btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
                         $('#edit-action-' + (i + 1) + ' :input[name=action]').attr('readonly', '').val(actions[i].action);
                         $('#edit-action-' + (i + 1) + ' :input[name=due_date]').attr('readonly', '').val(formatDate(actions[i].due_date, 'yyyy-mm-dd'));
                         $('#edit-action-' + (i + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(actions[i].hourly_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=training_cost]').attr('readonly', '').val(actions[i].training_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=expenses]').attr('readonly', '').val(actions[i].expenses);
+                        $('#edit-action-' + (i + 1) + ' :input[name=hc_cost_type]').attr('readonly', '').val(actions[i].hc_cost_type);
+                        $('#edit-action-' + (i + 1) + ' :input[name=tc_cost_type]').attr('readonly', '').val(actions[i].tc_cost_type);
+                        $('#edit-action-' + (i + 1) + ' :input[name=exp_cost_type]').attr('readonly', '').val(actions[i].exp_cost_type);
                         $(this).siblings().eq(1).attr('data-edit', 'false').show();
                         $(this).siblings().eq(0).remove();
                         $(this).remove();
@@ -336,31 +370,106 @@ $(document).ready(function() {
         }); 
     });
 
-    // delete action
-    $('.delete-action').submit(function(e) {
+    $('#actions-wrapper').on('submit', 'form.edit-action', function(e) {
         e.preventDefault();
-        if (confirm('Are you sure you want to delete this action?')) {
+        var parent = $(this);
+        $.ajax({
+            url: '/edit-action',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                console.log(resp);
+                var inputs = $(parent).find('input').not('button, input[type=hidden]');
+                console.log(inputs);
+                if (resp.status === 'success') {
+                    $(inputs).attr('readonly', 'readonly');
+                    $(inputs).eq(0).val(resp.action.action);
+                    $(inputs).eq(1).val(formatDate(resp.action.due_date, 'yyyy-mm-dd'));
+                    $(inputs).eq(2).val(resp.action.hourly_cost);
+                    $(inputs).eq(3).val(resp.action.hc_cost_type);
+                    $(inputs).eq(4).val(resp.action.training_cost);
+                    $(inputs).eq(5).val(resp.action.tc_cost_type);
+                    $(inputs).eq(6).val(resp.action.expenses);
+                    $(inputs).eq(7).val(resp.action.exp_cost_type);
+
+                    $(parent).find('button[type=submit], button.cancel-button').remove();
+                    $(parent).find('button.edit-action-button').attr('data-edit', 'false').show();
+
+                    updateOthers(resp);
+                    displayStatus('Action successfully updated', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+                } else {
+                    displayStatus('An error occurred while trying to updated the action', 'bg-danger', 'fa-exclamation-o');
+                    statusMessageTimeout();
+                }
+            }
+        });
+    });
+
+    $('#gs-add-action').submit(function(e) {
+        var parent = $(this);
+        e.preventDefault();
+        if (actionCount < 4) {
             $.ajax({
-                url: '/delete-action',
+                url: '/edit-add-action',
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function(resp) {
-                    for (var i = 0; i < actions.length; i++) {
-                        if (actions[i].a_id === resp.a_id) {
-                            actions.splice(i, 1);
-                            actionCount = actions.length;
-                        }
+                    createActionAccordion(resp);
+
+
+                    addTo(resp);
+                    actions.push(resp.action[0]);
+                    
+                    if (actions.length >= 4) {
+                        $('#edit-add-new-action-div').addClass('d-none');
                     }
 
-                    $('#action-div-' + resp.a_id).animate({height: 0, opacity: 0}, 'slow', function() {
-                        $(this).remove();
-                        $('.edit-action-header').each(function(i) {
-                            $(this).html('Action ' + (i + 1));
-                        });
-                    });
+                    $(parent).find('input').not('button, input[type=hidden]').val('');
+
+                    displayStatus('Action successfully added', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
                 }
             });
+        } else {
+            displayStatus('Nice try! Don\'t be lazy and complete your actions first', 'bg-warning', 'fa-warning');
+            statusMessageTimeout();
         }
+    });
+
+    // delete action
+    $('#actions-wrapper').on('submit', 'form.delete-action', function(e) {
+        e.preventDefault();
+        createConfirmation('delete action', function(confirm) {
+            if (confirm) {
+                $.ajax({
+                    url: '/delete-action',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(resp) {
+                        for (var i = 0; i < actions.length; i++) {
+                            if (actions[i].a_id === resp.a_id) {
+                                actions.splice(i, 1);
+                                actionCount = actions.length;
+                            }
+                        }
+
+                        $('#edit-add-new-action-div').removeClass('d-none');
+
+                        $('#action-div-' + resp.a_id).animate({height: 0, opacity: 0}, 'slow', function() {
+                            $(this).remove();
+                            $('.edit-action-header').each(function(i) {
+                                $(this).html('Action ' + (i + 1));
+                            });
+                            displayStatus('Action successfully deleted', 'bg-success', 'fa-check');
+                            statusMessageTimeout();
+                        });
+
+                        deleteRemaining(resp.a_id);
+                    }
+                });
+            }
+        });
     });
 
     // get number of submitted actions
@@ -390,7 +499,7 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp === 'invalid') {
-                    displayStatus(1);
+                    displayStatus('All fields are required', 'bg-danger', 'fa-exclamation-circle');
 
                     var statusTimeout = statusMessageTimeout();
 
@@ -418,7 +527,7 @@ $(document).ready(function() {
             data: $('#goal-prep-update').serialize(),
             success: function(resp) {
                 if (resp === 'fail') {
-                    displayStatus(1);
+                    displayStatus('All fields are required', 'bg-danger', 'fa-exclamation-circle');
 
                     var statusTimeout = statusMessageTimeout();
 
@@ -434,28 +543,76 @@ $(document).ready(function() {
         });
     });
 
-    $('#gs-delete-goal-button').click(function() {
-        if (confirm('Are you sure you want to delete your goal? (All actions, check-ins, and goal review will be deleted as well)')) {
-            $.ajax({
-                url: '/delete-goal',
-                method: 'POST',
-                data: {
-                    g_id: goals[0].g_id,
-                    user: userData.emp_id
-                },
-                success: function(resp) {
-                    displayStatus(6);
+    $('#gs-delete-goal-button').click(function(e) {
+        createConfirmation('delete goal', function(confirm) {
+            if (confirm) {
+                $('body').find('.delete-goal-confirmation').remove();
+                $('body').css('overflow-y', '');
 
-                    setTimeout(function() {
-                        $('#status-message').animate({
-                            'top': '-50px'
-                        });
+                $.ajax({
+                    url: '/delete-goal',
+                    method: 'POST',
+                    data: {
+                        g_id: goals[0].g_id,
+                        user: userData.emp_id
+                    },
+                    success: function(resp) {
+                        displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
 
-                        location.reload();
-                    }, 1000);
-                }
-            });
-        }
+                        setTimeout(function() {
+                            $('#status-message').animate({
+                                'top': '-50px'
+                            });
+
+                            location.reload();
+                        }, 1000);
+                    }
+                });
+            }
+        });
+        /* var offSetTop = $(window).scrollTop();
+        $('body').css('overflow-y', 'hidden');
+
+        $('body').append(
+            $('<div>').addClass('position-absolute w-100 h-100 d-flex justify-content-center align-items-center delete-goal-confirmation').css({'top': offSetTop, 'background-color': 'rgba(0, 0, 0, 0.75)', 'z-index': 5}).append(
+                $('<div>').addClass('card').append([
+                    $('<div>').addClass('card-body').append([
+                        $('<h5>').html('Are you sure you want to delete your goal?'),
+                        $('<div>').addClass('alert alert-danger').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>All actions, check-ins, and goal review will be deleted as well')
+                    ]),
+                    $('<div>').addClass('card-footer text-right').append(
+                        $('<button>').addClass('btn btn-primary mr-1').attr('type', 'button').html('<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Yes').click(function() {
+                            $('body').find('.delete-goal-confirmation').remove();
+                            $('body').css('overflow-y', '');
+
+                            $.ajax({
+                                url: '/delete-goal',
+                                method: 'POST',
+                                data: {
+                                    g_id: goals[0].g_id,
+                                    user: userData.emp_id
+                                },
+                                success: function(resp) {
+                                    displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
+
+                                    setTimeout(function() {
+                                        $('#status-message').animate({
+                                            'top': '-50px'
+                                        });
+
+                                        location.reload();
+                                    }, 1000);
+                                }
+                            });
+                        }),
+                        $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-ban fa-lg mr-1" aria-hidden="true"></i>No').click(function() {
+                            $('body').find('.delete-goal-confirmation').remove();
+                            $('body').css('overflow-y', '');
+                        })
+                    )
+                ])
+            )
+        ) */
     });
 
     var table = $('#employee-table').DataTable({
@@ -505,9 +662,15 @@ $(document).ready(function() {
                                     var statusState = ' Approved';
                                 } else if (resp[i].actions[index].status === 'Declined') {
                                     var statusClass = 'btn-danger';
-                                    var buttonHTML = '<i class="fa fa-times mr-1" aria-hidden="true"></i>';
+                                    var buttonHTML = '<i class="fa fa-ban mr-1" aria-hidden="true"></i>'
                                     var statusState = ' Declined';
                                 }
+
+                                console.log(resp[i].actions[index].hc_cost_type);
+
+                                var hc_cost_type = resp[i].actions[index].hc_cost_type ? '/' + resp[i].actions[index].hc_cost_type : null;
+                                var tc_cost_type = resp[i].actions[index].tc_cost_type ? '/' + resp[i].actions[index].tc_cost_type : null;
+                                var exp_cost_type = resp[i].actions[index].exp_cost_type ? ' for ' + resp[i].actions[index].exp_cost_type : null;
 
                                 var actionCards = $('<div>').addClass('card-group').append([
                                     $('<div>').addClass('card').append(
@@ -516,15 +679,15 @@ $(document).ready(function() {
                                     ),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].hourly_cost),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].hourly_cost + hc_cost_type),
                                     ]),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].training_cost),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].training_cost + tc_cost_type),
                                     ]),
                                     $('<div>').addClass('card').append([
                                         $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(resp[i].actions[index].expenses),
+                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].expenses + exp_cost_type)
                                     ])
                                 ])
 
@@ -538,7 +701,7 @@ $(document).ready(function() {
                                             'template': "<div class=\"popover\" role=\"tooltip\"><div class=\"arrow\"></div><h3 class=\"popover-header\"></h3><div class=\"popover-body\"></div></div>",
                                             'content': actionCards
                                         }),
-                                        $('<form>').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
+                                        $('<form>').addClass('set-status-form').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
                                             $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp[i].actions[index].a_id}),
                                             $('<select>').addClass('form-control form-control-sm').attr('name', 'status').append([
                                                 $('<option>').text(''),
@@ -547,25 +710,67 @@ $(document).ready(function() {
                                                 $('<option>').attr('value', 'Declined').text('Decline')
                                             ])
                                         ]).change(function() {
-                                            //$('#action-status-loading').addClass('d-flex justify-content-center align-items-center');
-                                            $.ajax({
-                                                url: '/submit-action-status',
-                                                method: 'POST',
-                                                data: $(this).serialize(),
-                                                success: function(resp) {
-                                                    console.log(resp);
-                                                    console.log($(this).parent().eq(0));
-                                                    if (resp.status === 'success') {
-                                                        if (resp.value === 'Approved') {
-                                                            $('#action-status-button-' + resp.a_id).removeClass('btn-warning btn-danger').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>Approved');
-                                                        } else if (resp.value === 'Declined') {
-                                                            $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-times mr-1" aria-hidden="true"></i>Declined');
-                                                        } else if (resp.value === 'Submitted') {
-                                                            $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-danger').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Pending');
+                                            var parent = $(this);
+                                            if ($(this).find('select :selected').attr('value') === 'Declined') {
+                                                $('#hrv-employee').append(
+                                                    $('<div>').addClass('position-absolute d-flex justify-content-center align-items-center mx-auto my-auto').attr('id', 'submit-decline-message').css({'top': '0', 'bottom': '0', 'left': '0', 'right': '0'}).append(
+                                                        $('<div>').addClass('card w-50 bg-white border border-dark rounded').append([
+                                                            $('<div>').addClass('card-header').append(
+                                                                $('<h5>').html('Submit Message for Declining')
+                                                            ),
+                                                            $('<div>').addClass('card-body').append(
+                                                                $('<input>').addClass('form-control').attr({'type': 'text', 'id': 'hr_comment'})
+                                                            ),
+                                                            $('<div>').addClass('card-footer text-right').append([
+                                                                $('<button>').addClass('btn btn-primary mr-1').attr('type', 'button').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit').click(function() {
+                                                                    $.ajax({
+                                                                        url: '/submit-action-status',
+                                                                        method: 'POST',
+                                                                        data: {
+                                                                            data: $(parent).serializeArray(),
+                                                                            message: $('#hr_comment').val()
+                                                                        },
+                                                                        success: function(resp) {
+                                                                            console.log(resp);
+                                                                            if (resp.status === 'success') {
+                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>Declined');
+                                                                                $('#submit-decline-message').remove();
+                                                                            } else {
+                                                                                displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                }),
+                                                                $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
+                                                                    $('#submit-decline-message').remove();
+                                                                    $(parent).find('select').val('Default');
+                                                                })
+                                                            ])
+                                                        ])
+                                                    )
+                                                )
+                                            } else {
+                                                $.ajax({
+                                                    url: '/submit-action-status',
+                                                    method: 'POST',
+                                                    data: {
+                                                        data: $(parent).serializeArray(),
+                                                        message: null
+                                                    },
+                                                    success: function(resp) {
+                                                        console.log(resp);
+                                                        if (resp.status === 'success') {
+                                                            if (resp.value === 'Approved') {
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>Approved');
+                                                            } else if (resp.value === 'Submitted') {
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Pending');
+                                                            }
+                                                        } else {
+                                                            displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
                                                         }
                                                     }
-                                                }
-                                            });
+                                                });
+                                            }
                                         })
                                     ])
                                 )
@@ -603,79 +808,286 @@ $(document).ready(function() {
     expandCollapse('#expand-all-button', '#employee-table', table, 'expand');
     expandCollapse('#collapse-all-button', '#employee-table', table, 'collapse');
 
-    var reportLoaded = false;
-    $('#hrv-report-link').click(function() {
-        if (!reportLoaded) {
-            $.ajax({
-                url: '/get-employee-names',
-                method: 'GET',
-                success: function(resp) {
-                    for (var i = 0; i < resp.length; i++) {
-                        $('#report-employee-select').append([
-                            $('<option>').attr('value', resp[i].emp_id).text(resp[i].first_name + ' ' + resp[i].last_name)
-                        ]);
-                    }
-                }
-            });
+    $('#report-division-select').on('click', function() {
+        $('#report-department-select').empty();
+        $('#report-employee-select').empty();
+    });
 
+    $('#report-department-select').on('click', function() {
+        $('#report-employee-select').empty();
+    });
+
+    $('#get-dept-button').click(function() {
+        $('#report-department-select').empty();
+        $('#report-employee-select').empty();
+
+        var divisionObj = $('#report-division-select').serializeArray();
+        var divisions = [];
+        for (let item of divisionObj) {
+            divisions.push(item.value);
+        }
+
+        if (divisions.length > 0) {
+            if ($('#by-department').find('.field-loading-screen').hasClass('bg-warning-light')) {
+                $('#by-department').find('.field-loading-screen').removeClass('bg-warning-light').addClass('bg-dark-light');
+            }
+
+            if ($('#by-department').find('.field-loading-screen').hasClass('d-none')) {
+                $('#by-department').find('.field-loading-screen').removeClass('d-none').addClass('d-flex');
+            }
+
+            $('#by-department').find('.w-50').html('<div><i class="fa fa-spinner fa-pulse fa-fw fa-5x" aria-hidden="true"></i></div><div>Loading...</div>');
             $.ajax({
-                url: '/get-fields',
-                method: 'GET',
+                url: '/get-department-fields',
+                method: 'POST',
+                data: {
+                    divisions: divisions
+                },
                 success: function(resp) {
-                    for (table in resp) {
-                        var tableName = table.replace('prep_details', 'Preparation').replace(/_/g, ' ');
-                        $('#report-field-select').append([
-                            $('<optgroup>').addClass('text-capitalize').attr({'value': table, 'label': tableName}).append(
-                                function() {
-                                    for (var i = 0; i < resp[table].length; i++) {
-                                        $(this).append(
-                                            $('<option>').attr({'value': resp[table][i], 'data-group': $(this).attr('value')}).text(resp[table][i])
-                                        )
-                                    }
-                                }
+                    if (resp.status === 'success') {
+                        $('#by-department').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                        for (let dept of resp.departments) {
+                            $('#report-department-select').append(
+                                $('<option>').attr('value', dept).text(dept)
                             )
-                        ]);
+                        }
                     }
                 }
             });
 
-            reportLoaded = true;
+            deptFieldsLoaded = true;
+        } else {
+            var loading = $('#by-department').find('.field-loading-screen');
+            $(loading).removeClass('bg-dark-light').addClass('bg-warning-light');
+            $(loading).find('.w-50').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>Divisions not selected');
         }
     });
 
-    selectAllOrNone('#report-employee-select', 0, true, 'normal');
-    selectAllOrNone('#report-employee-select', 1, false, 'normal');
-    selectAllOrNone('#report-field-select', 0, true, 'nested');
-    selectAllOrNone('#report-field-select', 1, false, 'nested');
+    $('#get-employee-button').click(function() {
+        $('#report-employee-select').empty();
+
+        var deptObj = $('#report-department-select').serializeArray();
+        var departments = [];
+        for (let dept of deptObj) {
+            departments.push(dept.value);
+        }
+
+        if (departments.length > 0) {
+            if ($('#by-employee').find('.field-loading-screen').hasClass('bg-warning-light')) {
+                $('#by-employee').find('.field-loading-screen').removeClass('bg-warning-light').addClass('bg-dark-light');
+            }
+
+            if ($('#by-employee').find('.field-loading-screen').hasClass('d-none')) {
+                $('#by-employee').find('.field-loading-screen').removeClass('d-none').addClass('d-flex');
+
+                $('#by-employee').find('.w-50').html('<div><i class="fa fa-spinner fa-pulse fa-fw fa-5x" aria-hidden="true"></i></div><div>Loading...</div>');
+            }
+
+            $.ajax({
+                url: '/get-employee-names',
+                method: 'POST',
+                data: {
+                    departments: departments
+                },
+                success: function(resp) {
+                    console.log(resp);
+                    if (resp.status === 'success') {
+                        for (let employee of resp.employees) {
+                            $('#by-employee').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                            $('#report-employee-select').append(
+                                $('<option>').attr('value', employee.id).text(employee.name)
+                            )
+                        }
+                        employeeFieldsLoaded = true;
+                    } else {
+                        $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-danger-light');
+                        $('#by-employee').find('.w-50').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>No emloyees found')
+                    }
+                }
+            })
+        } else {
+            $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-warning-light');
+            $('#by-employee').find('.w-50').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>Departments not selected')
+        }
+    });
+
+    var divisionFieldsLoaded = false;
+    $('#hrv-report-link').click(function() {
+        $.ajax({
+            url: '/get-report-period',
+            method: 'GET',
+            success: function(resp) {
+                console.log(resp);
+                if (resp.status === 'success') {
+                    for (let date of resp.dates) {
+                        $('#report-period-select').append(
+                            $('<option>').attr('value', formatDate(date.start_date, 'yyyy-mm-dd') + '_' + formatDate(date.end_date, 'yyyy-mm-dd')).html(formatDate(date.start_date, 'MMMM dd, yyyy') + ' - ' + formatDate(date.end_date, 'MMMM dd, yyyy'))
+                        )
+                    }
+                } else {
+                    $('#report-period-div').html('<div class="alert alert-danger">Failed to retrieve date period</div>')
+                }
+            }
+        });
+
+        if (!divisionFieldsLoaded) {
+            $.ajax({
+                url: '/get-division-fields',
+                method: 'GET',
+                success: function(resp) {
+                    console.log(resp);
+                    for (let division of resp) {
+                        $('#report-division-select').append(
+                            $('<option>').attr('value', division).text(division)
+                        )
+                    }
+
+                    $('#by-division').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                    divisionFieldsLoaded = true;
+                }
+            });
+
+            /* $.ajax({
+                url: '/get-fields',
+                method: 'GET',
+                success: function(resp) {
+                    console.log(resp);
+                    if (resp.status === 'success') {
+                        for (let group in resp.fields) {
+                            let optgroup = $('<optgroup>').addClass('text-capitalize').attr('label', group.replace(/_/g, ' '));
+
+                            for (let field of resp.fields[group]) {
+                                $(optgroup).append(
+                                    $('<option>').attr('value', field).text(field)
+                                )
+                            }
+                            $('#report-field-select').append(optgroup);
+                        }
+                    }
+                }
+            }); */
+        }
+    });
+
+    selectAllOrNone('#by-division', true, 'Select All');
+    selectAllOrNone('#by-division', false, 'Select None');
+    selectAllOrNone('#by-department', true, 'Select All');
+    selectAllOrNone('#by-department', false, 'Select None');
+    selectAllOrNone('#by-employee', true, 'Select All');
+    selectAllOrNone('#by-employee', false, 'Select None');
+    selectAllOrNone('#field-select', true, 'Select All');
+    selectAllOrNone('#field-select', false, 'Select None');
+
+    var reportTable = $('#report-table').DataTable({
+        'dom': "Blftipr",
+        'buttons': [
+            {
+                'extend': 'excelHtml5',
+                'text': 'Export',
+                'title': formatDate(actions[0].start_date, 'yyyy-mm-dd') + ' - ' + formatDate(actions[0].end_date, 'yyyy-mm-dd'),
+                'exportOptions': {
+                    'columns': ':visible'
+                },
+                'customize': function(xlsx) {
+                    var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+                    $('row c[r^="F"]', sheet).attr('s', '30');
+                    $('row c[r^="G"]', sheet).attr('s', '30');
+                    $('row c[r^="H"]', sheet).attr('s', '30');
+                    $('row c[r^="I"]', sheet).attr('s', '30');
+                    $('row c[r^="J"]', sheet).attr('s', '30');
+
+                    $('row c[r^="K"]', sheet).attr('s', '35');
+                    $('row c[r^="L"]', sheet).attr('s', '35');
+                    $('row c[r^="M"]', sheet).attr('s', '35');
+                    $('row c[r^="N"]', sheet).attr('s', '35');
+                    $('row c[r^="O"]', sheet).attr('s', '35');
+
+                    $('row c[r^="P"]', sheet).attr('s', '40');
+                    $('row c[r^="Q"]', sheet).attr('s', '40');
+                    $('row c[r^="R"]', sheet).attr('s', '40');
+                    $('row c[r^="S"]', sheet).attr('s', '40');
+                    $('row c[r^="T"]', sheet).attr('s', '40');
+
+                    $('row c[r^="U"]', sheet).attr('s', '45');
+                    $('row c[r^="V"]', sheet).attr('s', '45');
+                    $('row c[r^="W"]', sheet).attr('s', '45');
+                    $('row c[r^="X"]', sheet).attr('s', '45');
+                    $('row c[r^="Y"]', sheet).attr('s', '45');
+                }
+            },
+            {
+                extend: 'collection',
+                text: 'Show columns',
+                buttons: [ 'columnsVisibility' ],
+                visibility: true
+            }
+        ],
+        'columns': [
+            {'width': '125px'},
+            {'width': '125px'},
+            {'width': '125px'},
+            {'width': '125px'},
+            {'width': '125px'},
+            {'width': '300px'},
+            {'width': '75px', 'title': 'Due Date'},
+            {'width': '75px', 'title': 'Wage Cost'},
+            {'width': '75px', 'title': 'Training Cost'},
+            {'width': '75px', 'title': 'Expenses'},
+            {'width': '300px'},
+            {'width': '75px', 'title': 'Due Date'},
+            {'width': '75px', 'title': 'Wage Cost'},
+            {'width': '75px', 'title': 'Training Cost'},
+            {'width': '75px', 'title': 'Expenses'},
+            {'width': '300px'},
+            {'width': '75px', 'title': 'Due Date'},
+            {'width': '75px', 'title': 'Wage Cost'},
+            {'width': '75px', 'title': 'Training Cost'},
+            {'width': '75px', 'title': 'Expenses'},
+            {'width': '300px'},
+            {'width': '75px', 'title': 'Due Date'},
+            {'width': '75px', 'title': 'Wage Cost'},
+            {'width': '75px', 'title': 'Training Cost'},
+            {'width': '75px', 'title': 'Expenses'}
+        ],
+        'scrollY': '50vh',
+        'scrollX': true,
+        'scrollCollapse': true,
+        'paging': false
+    }).columns.adjust();
+
+    $('#report-table_wrapper div.btn-group a').removeClass('btn-secondary').addClass('btn-outline-primary');
+
+/*     new $.fn.dataTable.FixedColumns(reportTable, {
+        leftColumns: 3,
+        heightMatch: 'auto'
+    }); */
+
+    $('#close-report-button').click(function() {
+        reportTable.clear().draw();
+        $('#build-table-loading').removeClass('d-none').addClass('d-flex');
+        $('#report-table-div').addClass('d-none');
+        $('#show-report').hide();
+        $('body').css('overflow-y', '');
+    });
 
     $('#report-form').submit(function(e) {
         e.preventDefault();
-
+        $('#show-report').show();
+        $('body').css('overflow-y', 'hidden');
+        window.scrollTo(0, 0);
+        var arr = $(this).serializeArray();
+        console.log(arr);
         var prev;
         var obj = {};
-        var arr = $(this).serializeArray();
-        var tables = {};
-        var data = [];
-        $(arr).each(function(i) {
-            if ($(this).attr('name') === 'employees') {
-                data.push($(this).attr('value'));
+        for (let field of arr) {
+            if (prev !== field.name) {
+                obj[field.name] = [field.value];
+                prev = field.name;
+            } else {
+                obj[field.name].push(field.value);
             }
-        });
-        obj['employees'] = data;
-
-        $('#report-field-select').children().each(function(i) {
-            $('option:selected', this).each(function(index) {
-                if ($(this).attr('data-group') !== prev) {
-                    tables[$(this).attr('data-group')] = [
-                        $(this).attr('value')
-                    ]
-                    prev = $(this).attr('data-group');
-                } else {
-                    tables[$(this).attr('data-group')].push($(this).attr('value'))
-                }
-            });
-        });
-        obj['tables'] = tables;
+        }
 
         $.ajax({
             url: '/get-report',
@@ -683,6 +1095,41 @@ $(document).ready(function() {
             data: obj,
             success: function(resp) {
                 console.log(resp);
+                for (let id in resp) {
+                    var row = [resp[id].lastName, resp[id].firstName, resp[id].jobTitle, resp[id].division, resp[id].department]
+                    for (var i = 0; i < 4; i++) {
+                        if (!resp[id].pdp[i]) {
+                            var action = null;
+                            var due_date = null;
+                            var hourly_cost = null;
+                            var hc_cost_type = null;
+                            var training_cost = null;
+                            var tc_cost_type = null;
+                            var expenses = null;
+                            var exp_cost_type = null;
+                        } else {
+                            var action = resp[id].pdp[i].action;
+                            var due_date = formatDate(resp[id].pdp[i].due_date, 'dd-M-yy');
+                            var hc_cost_type = resp[id].pdp[i].hc_cost_type ? '/' + resp[id].pdp[i].hc_cost_type : null;
+                            var tc_cost_type = resp[id].pdp[i].tc_cost_type ? '/' + resp[id].pdp[i].tc_cost_type : null;
+                            var exp_cost_type = resp[id].pdp[i].exp_cost_type ? ' for ' + resp[id].pdp[i].exp_cost_type : null;
+                            var hourly_cost = resp[id].pdp[i].hourly_cost + hc_cost_type;
+                            var training_cost = resp[id].pdp[i].training_cost + tc_cost_type;
+                            var expenses = resp[id].pdp[i].expenses + exp_cost_type;
+                        }
+                        
+                        row.push(action);
+                        row.push(due_date);
+                        row.push(hourly_cost);
+                        row.push(training_cost);
+                        row.push(expenses);
+                    }
+
+                    reportTable.row.add(row).draw();
+                }
+                $('#build-table-loading').removeClass('d-flex').addClass('d-none');
+                $('#report-table-div').removeClass('d-none');
+                reportTable.columns.adjust().draw();
             }
         });
     });

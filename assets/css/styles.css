@@ -99,6 +99,11 @@ h1, h2, h3, h4, h5, h6, label {
     min-height: 275px;
 }
 
+#add-action-button {
+    top: 10px;
+    z-index: 2;
+}
+
 #accordion-overview a:hover {
     text-decoration: none;
 }
@@ -217,4 +222,37 @@ td.details-control {
 
 #select-report-nav .nav-link.active {
     background-color: rbg(255, 255, 255);
+}
+
+#show-report {
+    top: 0;
+    left: 0;
+    overflow: auto;
+    display: none;
+}
+
+body div.dt-button-collection {
+    overflow-y: auto;
+    height: calc(100vh - 200px);
+}
+
+body div.dt-button-collection .dt-button.active {
+    color: #000;
+}
+
+body div.dt-button-collection .dt-button.active:after {
+    content: '\2714';
+    float: right;
+}
+
+.DTFC_LeftBodyWrapper {
+    background-color: #FFF;
+}
+
+.DTFC_LeftBodyLiner {
+    overflow: hidden;
+}
+
+#show-report table {
+    table-layout: fixed;
 }
