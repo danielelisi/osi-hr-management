@@ -35,8 +35,9 @@ router.post('/login-api', function(req, resp) {
                 username = 'pdp@osl.com';
                 password = '4FhQWaJxdX';
             }
-
-            username = username + '@osl.com';
+            else {
+                username = username + '@osl.com';
+            }
 
             // First, authenticate user credentials
             ad.authenticate(username, password, function(err, auth) {
