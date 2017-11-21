@@ -17,8 +17,8 @@ console.log(empList.length);
 
 sql.connect(dbConfig, function(err) {
 
-    let dbQuery = 'INSERT INTO employee (emp_id, username, first_name, last_name, emp_number, manager_id, is_approved, emp_type) ' +
-        'VALUES (@emp_id, @username, @first_name, @last_name, @emp_number, @manager_id, @is_approved, @emp_type)';
+    let dbQuery = 'INSERT INTO employee (emp_id, username, first_name, last_name, emp_number, manager_id) ' +
+        'VALUES (@emp_id, @username, @first_name, @last_name, @emp_number, @manager_id)';
 
 
     empList.forEach( function(employee, index) {
@@ -31,8 +31,6 @@ sql.connect(dbConfig, function(err) {
         dbRequest.input('last_name', employee.lastName);
         dbRequest.input('emp_number', employee.emp_number);
         dbRequest.input('manager_id', employee.manager_id);
-        dbRequest.input('emp_type', 2);
-        dbRequest.input('is_approved', 1);
 
         dbRequest.query(dbQuery, function(err, result) {
             if(err) console.log(err);
