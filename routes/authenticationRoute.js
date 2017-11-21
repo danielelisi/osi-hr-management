@@ -79,35 +79,39 @@ router.post('/login-api', function(req, resp) {
     }
 
     function pdpLogin(userEmail) {
-
         console.log(`Starting pdpLogin`);
+
         let dbRequest = new sql.Request(sql.globalConnection);
 
         dbRequest.input('username', userEmail);
+
+        console.log(`Query DB with userEmail: ${userEmail}`);
         // Check if email is in the employee table
         dbRequest.query('SELECT * FROM employee WHERE username = @username', function (err, result) {
-            console.log(`Query DB with userEmail: ${userEmail}`);
             if (err) {
                 console.log(err)
             }
 
-            if (result.recordset.length > 0 && result.recordset[0].is_approved === true) {
+            let emp_id = result.recordset[0].emp_id;
+
+            if (result.recordset.length > 0) {
+                console.log(`Username ${userEmail} found in DB`);
+
                 // Store type of employee in cookie session
-                if (result.recordset[0].emp_type === 1) {
-                    req.session.auth = 'Employee';
-                } else if (result.recordset[0].emp_type === 2) {
-                    req.session.auth = 'Manager';
-                } else if (result.recordset[0].emp_type === 3) {
-                    req.session.auth = 'HR';
-                }
+                employeeType(emp_id, function(emp_type) {
 
-                if (userEmail.includes('@osimaritime.com')) {
-                    fetchBamboo(userEmail);
-                } else {
-                    req.session.emp_id = result.recordset[0].emp_id;
+                    req.session.auth = emp_type;
+                    console.log(req.session.auth);
 
-                    resp.redirect('/view');
-                }
+
+                    if (userEmail.includes('@osimaritime.com')) {
+                        fetchBamboo(userEmail);
+                    } else {
+                        req.session.emp_id = result.recordset[0].emp_id;
+
+                        resp.redirect('/view');
+                    }
+                });
             }
             else {
                 console.log('OSIMARITIME EMAIL NOT FOUND IN DATABASE');
@@ -155,9 +159,36 @@ router.post('/login-api', function(req, resp) {
                     break;
                 }
             }
-
-            console.log('NOT FOUND IN BAMBOOHR');
         });
+    }
+
+    function employeeType(emp_id, callback) {
+
+        if (emp_id === 1) {
+            console.log(`THIS USER IS HR`);
+            callback('HR');
+        }
+        else {
+            let dbRequest = new sql.Request(sql.globalConnection);
+
+            dbRequest.input('emp_id', emp_id);
+            dbRequest.query('SELECT COUNT(username) AS employee_number FROM employee WHERE manager_id=@emp_id', function(err, result) {
+                if(err) {
+                    console.log(err);
+                }
+
+                let employee_number = result.recordset[0].employee_number;
+                console.log(`MANAGER OF #${employee_number} EMPLOYEES`);
+
+                if (employee_number > 0) {
+                    console.log(`THIS USER IS A MANAGER`);
+                    callback('Manager');
+                } else {
+                    console.log(`THIS USER IS AN EMPLOYEE`);
+                    callback('Employee')
+                }
+            });
+        }
     }
 });
 
