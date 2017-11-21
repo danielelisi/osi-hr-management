@@ -34,15 +34,29 @@
                             each v, idx in goal_review
                                 if action[index].a_id === goal_review[idx].gr_a_id
                                     - gr_submitted = true
-                                    .alert.alert-success.mb-1
-                                        div
-                                            i.fa.fa-comment-o.fa-lg.mr-1(aria-hidden='true')
-                                            b Employee Comment: 
-                                            span #{goal_review[idx].employee_gr_comment}
-                                        div
-                                            i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
-                                            b Submitted on: 
-                                            span #{formatDateCode(goal_review[idx].submitted_on)}
+                                    .alert.alert-success.d-flex.justify-content-between
+                                        .w-75
+                                            div
+                                                i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                                b Employee Comment: 
+                                                span #{goal_review[idx].employee_gr_comment}
+                                            div
+                                                i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                                b Submitted on: 
+                                                span #{formatDateCode(goal_review[idx].submitted_on)}
+                                        .w-25
+                                            .text-center
+                                                if action[index].action_review_status === 'Completed'
+                                                    i.fa.fa-check.fa-2x(aria-hidden='true')
+                                                else if action[index].action_review_status === 'Not Started'
+                                                    i.fa.fa-times.fa-2x(aria-hidden='true')
+                                                else if action[index].action_review_status === 'No Update'
+                                                    i.fa.fa-question.fa-2x(aria-hidden='true')
+                                                else if action[index].action_review_status === 'Cancelled'
+                                                    i.fa.fa-ban.fa-2x(aria-hidden='true')
+                                                else if action[index].action_review_status === 'Started'
+                                                    i.fa.fa-play-circle-o.fa-2x(aria-hidden='true')
+                                            .text-center #{action[index].action_review_status}
                         if !gr_submitted
                             #employee-gr-comments
                             //-- complete
@@ -54,13 +68,13 @@
                                                 i.fa.fa-comment-o.fa-lg.mr-1(aria-hidden='true')
                                                 span Employee Comment
                                             input(type='hidden', name='a_id', value=action[index].a_id)
-                                            input.form-control(type='text', placeholder="How effective was this action? Did you learn what you expected to?", name='comment')
+                                            input.form-control(type='text', placeholder="How effective was this action? Did you learn what you expected to?", name='comment', required)
                                         .w-34
                                             label.d-block.font-weight-bold.text-dark-blue
                                                 i.fa.fa-line-chart.fa-lg-mr-1(aria-hidden='true')
                                                 span Progression
-                                            select.form-control(name='progress')
-                                                option(value='Default')
+                                            select.form-control(name='progress', required)
+                                                option --- Progress As of Today ---
                                                 option(value='Not Started') Not Started
                                                 option(value='Started') Started
                                                 option(value='Completed') Completed
@@ -75,10 +89,13 @@
                     if goal_review.length > 0
                         each val, idx in goal_review
                             if action[index].a_id === goal_review[idx].gr_a_id && goal_review[idx].manager_gr_comment
-                                .card-footer.bg-info-light.d-flex.justify-content-start.align-items-center
-                                    .mr-3
-                                        i.fa.fa-commenting.fa-2x(aria-hidden='true')
+                                .card-footer.bg-info-light
                                     div
-                                        label.d-block.font-weight-bold.mb-0 Manager Comment:
-                                        | #{goal_review[idx].manager_gr_comment}
+                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                        span.font-weight-bold Manager Comment: 
+                                        span #{goal_review[idx].manager_gr_comment}
+                                    div
+                                        i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                        span.font-weight-bold Date Submitted: 
+                                        span #{formatDate(goal_review[idx].reviewed_on)}
                                 - break

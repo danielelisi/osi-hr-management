@@ -116,3 +116,12 @@
 .h-20 {
     height: 20%;
 }
+
+/* view height and view width */
+.vh-100 {
+    height: 100vh;
+}
+
+.vw-100 {
+    width: 100vw;
+}

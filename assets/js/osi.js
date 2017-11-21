@@ -1,29 +1,21 @@
 var actionCount = actions.length; // number of actions currently in the DOM
 
 $(document).ready(function() {
-    // populate period select drop down
-    $.ajax({
-        url: '/populate-period-select',
-        method: 'GET',
-        success: function(resp) {
-            if (resp.length > 0) {
-                for (var i = 0; i < resp.length; i++) {
-                    if (i === (resp.length - 1)) {
-                        $('#period-select').append($('<option>', {
-                            id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
-                        }).attr('selected', 'selected'));
-                    } else {
-                        $('#period-select').append($('<option>', {
-                            id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
-                        }));
-                    }
-                }
-            }
-        }
+    populatePeriodSelect();
+
+    $('#get-goal-period').submit(function(e) {
+        e.preventDefault();
+        var loading = $('<div>').addClass('position-absolute vh-100 vw-100 bg-black-tint-75 d-flex flex-column justify-content-center align-items-center text-white').css('z-index', 7).append([
+            $('<i>').addClass('fa fa-spinner fa-pulse fa-5x').attr('aria-hidden', 'true'),
+            $('<span>').html('Getting data for that period...')
+        ])
+
+        window.scroll(0, 0);
+        $('body').css('overflow-y', 'hidden').prepend(
+            loading
+        )
+
+        location.href = '/view?period=' + $('#period-select').val();
     });
 
     var addActionStatus;
@@ -73,8 +65,9 @@ $(document).ready(function() {
                 if (resp.status === 'success') {
                     displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
                     statusMessageTimeout();
+                    createSubmittedMessage(resp.comment, formatDate(resp.date, 'MMMM dd, yyyy'), resp.progress, $(parent).siblings().eq(0));
 
-                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    /* $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow'); */
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
                     displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
@@ -415,9 +408,9 @@ $(document).ready(function() {
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function(resp) {
+                    $('#period-select').empty();
+                    populatePeriodSelect();
                     createActionAccordion(resp);
-
-
                     addTo(resp);
                     actions.push(resp.action[0]);
                     
@@ -440,13 +433,16 @@ $(document).ready(function() {
     // delete action
     $('#actions-wrapper').on('submit', 'form.delete-action', function(e) {
         e.preventDefault();
+        var parent = $(this);
         createConfirmation('delete action', function(confirm) {
             if (confirm) {
                 $.ajax({
                     url: '/delete-action',
                     method: 'POST',
-                    data: $(this).serialize(),
+                    data: $(parent).serialize(),
                     success: function(resp) {
+                        $('#period-select').empty();
+                        populatePeriodSelect();
                         for (var i = 0; i < actions.length; i++) {
                             if (actions[i].a_id === resp.a_id) {
                                 actions.splice(i, 1);
@@ -984,7 +980,6 @@ $(document).ready(function() {
             {
                 'extend': 'excelHtml5',
                 'text': 'Export',
-                'title': formatDate(actions[0].start_date, 'yyyy-mm-dd') + ' - ' + formatDate(actions[0].end_date, 'yyyy-mm-dd'),
                 'exportOptions': {
                     'columns': ':visible'
                 },
