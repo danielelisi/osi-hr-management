@@ -171,7 +171,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
 
     dbRequest.input('emp_id', req.session.emp_id);
     if(req.session.auth === 'HR') {
-        dbRequest.query('SELECT * FROM employee', function(err, result) {
+        dbRequest.query('SELECT * FROM employee ORDER BY first_name', function(err, result) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
@@ -179,7 +179,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
             }
         });
     } else {
-        dbRequest.query('SELECT * FROM employee WHERE manager_id = @emp_id', function (err, result) {
+        dbRequest.query('SELECT * FROM employee WHERE manager_id = @emp_id ORDER BY first_name', function (err, result) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
