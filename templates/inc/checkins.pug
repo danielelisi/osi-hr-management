@@ -34,9 +34,14 @@
                             each v, idx in checkin
                                 if action[index].a_id === checkin[idx].c_a_id && checkin[idx].employee_checkin_comment
                                     .alert.alert-success
-                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
-                                        b Employee Comment: 
-                                        span #{checkin[idx].employee_checkin_comment}
+                                        div
+                                            i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Employee Comment: 
+                                            span #{checkin[idx].employee_checkin_comment}
+                                        div
+                                            i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Date Submitted: 
+                                            span #{formatDate(checkin[idx].checkin_date)}
                                     - ck_submitted = true
                         if !ck_submitted
                             //-- this is complete
@@ -60,10 +65,13 @@
                     if checkin.length > 0
                         each val, idx in checkin
                             if action[index].a_id === checkin[idx].c_a_id && checkin[idx].manager_checkin_comment
-                                .card-footer.bg-info-light.d-flex.justify-content-start.align-items-center
-                                    .mr-3
-                                        i.fa.fa-commenting.fa-2x(aria-hidden='true')
+                                .card-footer.bg-info-light
                                     div
-                                        label.d-block.font-weight-bold.mb-0 Manager Comment:
-                                        | #{checkin[idx].manager_checkin_comment}
+                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                        span.font-weight-bold Manager Comment: 
+                                        span #{checkin[idx].manager_checkin_comment}
+                                    div
+                                        i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                        span.font-weight-bold Date Submitted: 
+                                        span #{formatDate(checkin[idx].m_check_in_date)}
                                 - break

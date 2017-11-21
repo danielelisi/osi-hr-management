@@ -175,7 +175,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
-                resp.send('fail');
+                resp.send('HR request fail');
             }
         });
     } else {
@@ -183,7 +183,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
-                resp.send('fail');
+                resp.send('Manager request fail');
             }
         });
     }
@@ -780,8 +780,10 @@ app.post('/edit-add-action', function(req, resp) {
 app.post('/delete-action', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
+    console.log(req.body);
     dbRequest.input('a_id', req.body.a_id);
     dbRequest.query('DELETE FROM actions Output Deleted.a_id WHERE a_id = @a_id', function(err, result) {
+        console.log(result);
         if(result !== undefined && result.rowsAffected.length > 0) {
             resp.send({status: 'success', a_id: result.recordset[0].a_id});
         } else {
@@ -850,7 +852,8 @@ app.post('/submit-goal-review/:who', function(req, resp) {
                 resp.send({status: 'fail'});
             } else if (result !== undefined && result.recordset.length === 0) {
                 dbRequest.query('INSERT INTO goal_review (gr_a_id, employee_gr_comment, submitted_on) Output Inserted.* VALUES (@a_id, @comment, @date)', function(e, r) {
-                    dbRequest.query('INSERT INTO actions (action_review_status) Output Inserted.* VALUES (@progress)', function(error, res) {
+                    dbRequest.query('UPDATE actions SET action_review_status = @progress Output Inserted.* WHERE a_id = @a_id', function(error, res) {
+                        console.log(res);
                         if (err) {
                             console.log(err);
                             resp.send({status: 'fail'});
