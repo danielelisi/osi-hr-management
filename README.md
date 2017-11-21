@@ -27,3 +27,12 @@ ENV_MACHINE=
 Once installed the dependencies and set the environment variables, run the command `npm start` from the project root directory to start the server.
  
 Now you can access the app though localhost:port (ie - http://localhost:9000)
+
+## Development Notes
+
+#### How to create a database request
+To create new db requests in the code initialize a request with:
+  1. `let dbRequest = new sql.Request(sql.globalConnection);`  
+`let` is used for function scope variables. It allows the request to automatically close once the function is completed
+  2. Now you can issue a new statement with `dbRequest.query()`
+  3. For more information on how to use the `mssql` module, check the docs [here](https://www.npmjs.com/package/mssql)
