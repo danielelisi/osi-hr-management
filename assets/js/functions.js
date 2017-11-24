@@ -628,11 +628,11 @@ function expandCollapse(button, parentTable, dataTable, type) {
     if (type === 'collapse') {
         var addClass = 'hidden';
         var removeClass = 'shown';
-        var buttonHTML = '<i class="pntr fa fa-plus-circle text-green text-border" aria-hidden="true">';
+        var buttonHTML = '<button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus" aria-hidden="true"></i></button>';
     } else if (type === 'expand') {
         var addClass = 'shown';
         var removeClass = 'hidden';
-        var buttonHTML = '<i class="pntr fa fa-minus-circle text-red text-border" aria-hidden="true">';
+        var buttonHTML = '<button class="btn btn-secondary btn-sm" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button>';
     }
 
     $(button).click(function() {
