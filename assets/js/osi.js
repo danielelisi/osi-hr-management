@@ -677,7 +677,7 @@ $(document).ready(function() {
                 'className': 'details-control',
                 'orderable': false,
                 'data': null,
-                'defaultContent': "<i class='pntr fa fa-minus-circle text-red text-border' aria-hidden='true'></i>",
+                'defaultContent': "<button class='btn btn-secondary btn-sm' type='button'><i class='fa fa-minus' aria-hidden='true'></i></button>",
                 'width': '10%'
             },
             null,
@@ -853,11 +853,11 @@ $(document).ready(function() {
         if (row.child.isShown()) {
             row.child.hide();
             tr.addClass('hidden').removeClass('shown');
-            $(this).html('<i class="pntr fa fa-plus-circle text-green text-border" aria-hidden="true">')
+            $(this).html('<button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus" aria-hidden="true"></i></button>')
         } else {
             row.child.show();
             tr.addClass('shown').removeClass('hidden');
-            $(this).html('<i class="pntr fa fa-minus-circle text-red text-border" aria-hidden="true">')
+            $(this).html('<button class="btn btn-secondary btn-sm" type="button"><i class="fa fa-minus" aria-hidden="true"></i></button>')
         }  
     });
 
@@ -1066,12 +1066,6 @@ $(document).ready(function() {
         'dom': "Blftipr",
         'buttons': [
             {
-                extend: 'collection',
-                text: 'Show columns',
-                buttons: [ 'columnsVisibility' ],
-                visibility: true
-            },
-            {
                 'extend': 'excelHtml5',
                 'text': 'Export',
                 'exportOptions': {
@@ -1083,30 +1077,48 @@ $(document).ready(function() {
                 'customize': function(xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
 
-                    $('row c[r^="F"]', sheet).attr('s', '30');
-                    $('row c[r^="G"]', sheet).attr('s', '30');
-                    $('row c[r^="H"]', sheet).attr('s', '30');
                     $('row c[r^="I"]', sheet).attr('s', '30');
                     $('row c[r^="J"]', sheet).attr('s', '30');
+                    $('row c[r^="K"]', sheet).attr('s', '30');
+                    $('row c[r^="L"]', sheet).attr('s', '30');
+                    $('row c[r^="M"]', sheet).attr('s', '30');
+                    $('row c[r^="N"]', sheet).attr('s', '30');
+                    $('row c[r^="O"]', sheet).attr('s', '30');
+                    $('row c[r^="P"]', sheet).attr('s', '30');
 
-                    $('row c[r^="K"]', sheet).attr('s', '35');
-                    $('row c[r^="L"]', sheet).attr('s', '35');
-                    $('row c[r^="M"]', sheet).attr('s', '35');
-                    $('row c[r^="N"]', sheet).attr('s', '35');
-                    $('row c[r^="O"]', sheet).attr('s', '35');
+                    $('row c[r^="Q"]', sheet).attr('s', '35');
+                    $('row c[r^="R"]', sheet).attr('s', '35');
+                    $('row c[r^="S"]', sheet).attr('s', '35');
+                    $('row c[r^="T"]', sheet).attr('s', '35');
+                    $('row c[r^="U"]', sheet).attr('s', '35');
+                    $('row c[r^="V"]', sheet).attr('s', '35');
+                    $('row c[r^="W"]', sheet).attr('s', '35');
+                    $('row c[r^="X"]', sheet).attr('s', '35');
 
-                    $('row c[r^="P"]', sheet).attr('s', '40');
-                    $('row c[r^="Q"]', sheet).attr('s', '40');
-                    $('row c[r^="R"]', sheet).attr('s', '40');
-                    $('row c[r^="S"]', sheet).attr('s', '40');
-                    $('row c[r^="T"]', sheet).attr('s', '40');
+                    $('row c[r^="Y"]', sheet).attr('s', '40');
+                    $('row c[r^="Z"]', sheet).attr('s', '40');
+                    $('row c[r^="AA"]', sheet).attr('s', '40');
+                    $('row c[r^="AB"]', sheet).attr('s', '40');
+                    $('row c[r^="AC"]', sheet).attr('s', '40');
+                    $('row c[r^="AD"]', sheet).attr('s', '40');
+                    $('row c[r^="AE"]', sheet).attr('s', '40');
+                    $('row c[r^="AF"]', sheet).attr('s', '40');
 
-                    $('row c[r^="U"]', sheet).attr('s', '45');
-                    $('row c[r^="V"]', sheet).attr('s', '45');
-                    $('row c[r^="W"]', sheet).attr('s', '45');
-                    $('row c[r^="X"]', sheet).attr('s', '45');
-                    $('row c[r^="Y"]', sheet).attr('s', '45');
+                    $('row c[r^="AG"]', sheet).attr('s', '45');
+                    $('row c[r^="AH"]', sheet).attr('s', '45');
+                    $('row c[r^="AI"]', sheet).attr('s', '45');
+                    $('row c[r^="AJ"]', sheet).attr('s', '45');
+                    $('row c[r^="AK"]', sheet).attr('s', '45');
+                    $('row c[r^="AL"]', sheet).attr('s', '45');
+                    $('row c[r^="AM"]', sheet).attr('s', '45');
+                    $('row c[r^="AN"]', sheet).attr('s', '45');
                 }
+            },
+            {
+                extend: 'collection',
+                text: 'Show columns',
+                buttons: [ 'columnsVisibility' ],
+                visibility: true
             }
         ],
         'columns': [
@@ -1208,8 +1220,8 @@ $(document).ready(function() {
                 var sd;
                 var ed;
                 for (let id in resp) {
-                    var emp_num = resp[id].emp_number;
-                    var manager_name = resp[id].manager_name;
+                    var emp_num = resp[id].emp_number ? resp[id].emp_number : null;
+                    var manager_name = resp[id].manager_name ? resp[id].manager_name : null;
 
                     if (resp[id].pdp.length > 0) {
                         sd = resp[id].pdp[0].start_date;

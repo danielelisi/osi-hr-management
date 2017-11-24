@@ -3,8 +3,10 @@
         thead
             tr
                 th.text-center
-                    i#expand-all-button.pntr.fa.fa-plus-circle.text-green.text-border.mr-2(aria-hidden='true', title='Expand All', data-toggle='tooltip')
-                    i#collapse-all-button.pntr.fa.fa-minus-circle.text-red.text-border(aria-hidden='true', title='Collapse All', data-toggle='tooltip')
+                    button#expand-all-button.btn.btn-primary.btn-sm.mr-1(type='button', title='Expand All', data-toggle='tooltip')
+                        i.fa.fa-plus(aria-hidden='true')
+                    button#collapse-all-button.btn.btn-secondary.btn-sm(type='button', title='Collapse All', data-toggle='tooltip')
+                        i.fa.fa-minus(aria-hidden='true')
                 th First Name
                 th Last Name
                 th Department
