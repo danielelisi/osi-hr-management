@@ -72,72 +72,48 @@ function addAction(id, count, header, from) {
                 ),
                 $('<div>').attr('id', 'collapse-set-' + id + '-' + num).addClass('action-body collapse bg-transparent show').attr('role', 'tabpanel').attr('aria-labelledby', 'set-' + id + '-' + num).append(
                     $('<div>').addClass('goal-actions card-body').append(
-                        $('<div>').addClass('form-group').append(
-                            $('<label>').addClass('d-inline-block font-weight-bold text-dark-blue').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header)
-                        ).append(
+                        $('<div>').addClass('form-group mb-3').append([
+                            $('<label>').addClass('d-inline-block font-weight-bold text-dark-blue').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + header),
                             $('<input>').addClass('goal-action form-control').attr('type', 'text').attr('name', 'action').attr('required', 'required')
-                        )
+                        ])
                     ).append(
-                        $('<div>').addClass('form-inline mt-4').append(
-                            $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:')
-                        ).append(
+                        $('<div>').addClass('form-inline mb-3').append([
+                            $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:'),
                             $('<input>').addClass('date-select form-control').attr('type', 'date').attr('name', 'due_date').attr('required', 'required')
-                        )
+                        ])
                     ).append(
-                        $('<div>').addClass('card-deck mt-3').append(
+                        $('<div>').addClass('card-deck mb-3').append([
                             $('<div>').addClass('card bg-transparent').append(
-                                $('<div>').addClass('card-body text-center').append(
-                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Wage Cost')
-                                ).append(
-                                    $('<div>').addClass('d-flex justify-content-between input-group').append([
-                                        $('<span>').addClass('input-group-addon').html('$'),
-                                        $('<input>').addClass('form-control w-15').attr('type', 'number').attr('name', 'hourly_cost'),
-                                        $('<span>').addClass('input-group-addon').html('/'),
-                                        $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'Optional'}).attr('name', 'hc_cost_type').tooltip({
-                                            trigger: 'focus',
-                                            title: '<i>eg. "hour", "month", etc.</i>',
-                                            html: true
-                                        })
-                                    ])
-                                )
-                            )
-                        ).append(
+                                $('<div>').addClass('card-body text-center').append([
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Wage Cost'),
+                                    $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'hourly_cost')
+                                ])
+                            ),
                             $('<div>').addClass('card bg-transparent').append(
-                                $('<div>').addClass('card-body text-center').append(
-                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i> Training Cost')
-                                ).append(
-                                    $('<div>').addClass('d-flex justify-content-between input-group').append([
-                                        $('<span>').addClass('input-group-addon').html('$'),
-                                        $('<input>').addClass('form-control w-15').attr('type', 'number').attr('name', 'training_cost'),
-                                        $('<span>').addClass('input-group-addon').html('/'),
-                                        $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'Optional'}).attr('name', 'tc_cost_type').tooltip({
-                                            trigger: 'focus',
-                                            title: '<i>eg. "course", "day", etc.</i>',
-                                            html: true
-                                        })
-                                    ])
-                                )
-                            )
-                        ).append(
+                                $('<div>').addClass('card-body text-center').append([
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i> Training Cost'),
+                                    $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'training_cost')
+                                ])
+                            ),
                             $('<div>').addClass('card bg-transparent').append(
-                                $('<div>').addClass('card-body text-center').append(
-                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html ('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses')
-                                ).append(
-                                    $('<div>').addClass('d-flex justify-content-between input-group').append([
-                                        $('<span>').addClass('input-group-addon').html('$'),
-                                        $('<input>').addClass('form-control w-15').attr('type', 'number').attr('name', 'expenses'),
-                                        $('<span>').addClass('input-group-addon').html('for'),
-                                        $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'Optional'}).attr('name', 'exp_cost_type').tooltip({
-                                            trigger: 'focus',
-                                            title: '<i>eg. "transit", "lodging" etc.</i>',
-                                            html: true
-                                        })
-                                    ])
-                                )
+                                $('<div>').addClass('card-body text-center').append([
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses'),
+                                    $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'expenses'),
+                                ])
                             )
-                        )
-                    ).append(
-                        $('<div>').addClass('text-right mt-2').append([
+                        ]),
+                        $('<div>').addClass('d-flex justify-content-between align-items-center mb-3').append([
+                            $('<div>').addClass('w-10').append([
+                                $('<label>').addClass('font-weight-bold text-dark-blue mb-0').append([
+                                    $('<i>').addClass('fa fa-sticky-note-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').html('Notes')
+                                ])
+                            ]),
+                            $('<div>').addClass('w-90').append(
+                                $('<input>').addClass('form-control').attr({'type': 'text', 'name': 'cost_notes', 'placeholder': 'Explain briefly what the indicated costs are for. (eg. "hourly", "per class", "transporation", etc.)'})
+                            )
+                        ]),
+                        $('<div>').addClass('text-right').append([
                             $('<button>').attr('type', 'button').html('<i class="fa fa-trash fa-lg mr-1" aria-hidden="true"></i>Remove').addClass('btn btn-danger').on('click', function() {
                                 $(this).parent().parent().parent().parent().parent().remove();
                                 actionCount--;
@@ -230,7 +206,7 @@ function createCheckins(resp, form_url, i) {
             if (resp.action[i].a_id === resp.checkin[index].c_a_id && resp.checkin[index].manager_checkin_comment) {
                 managerSubmitted = $('<div>').addClass('alert alert-success mb-3').append([
                     $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting fa-lg mr-1').attr('aria-hidden', 'true'),
+                        $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
                         $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
                         $('<span>').html(resp.checkin[index].manager_checkin_comment)
                     ]),
@@ -302,7 +278,10 @@ function createCheckins(resp, form_url, i) {
         $('<div>').addClass('card bg-transparent mb-1').append(
             $('<a>').addClass(collapsed).attr('data-toggle', 'collapse').attr('data-parent', '#ev-checkin-actions').attr('href', '#collapse-ev-checkin-actions-' + resp.action[i].a_id).append(
                 $('<div>').addClass('card-header bg-white').attr('role', 'tab').attr('id', 'ev-ca-' + resp.action[i].a_id).append(
-                    $('<h6>').addClass('d-inline-block mb-0').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[i].action)
+                    $('<h6>').addClass('d-inline-block mb-0').append([
+                        $('<i>').addClass('fa fa-dot-circle-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                        $('<span>').html(resp.action[i].action)
+                    ])
                 )
             )
         ).append(
@@ -349,7 +328,7 @@ function createGoalReview(resp, form_url, i) {
                     ]),
                     $('<div>').append([
                         $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Progress: '),
+                        $('<span>').addClass('font-weight-bold').html('Final Status: '),
                         $('<span>').html(resp.action[i].action_review_status)
                     ])
                 ])
@@ -369,7 +348,7 @@ function createGoalReview(resp, form_url, i) {
             if (resp.action[i].a_id === resp.goal_review[index].gr_a_id && resp.goal_review[index].manager_gr_comment) {
                 grManagerComment = $('<div>').addClass('alert alert-success').append([
                     $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting fa-lg mr-1').attr('aria-hidden', 'true'),
+                        $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
                         $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
                         $('<span>').html(resp.goal_review[index].manager_gr_comment)
                     ]),
@@ -498,7 +477,10 @@ function createGoalReview(resp, form_url, i) {
         $('<div>').addClass('card bg-transparent mb-1').append(
             $('<a>').addClass(collapsed).attr('data-toggle', 'collapse').attr('data-parent', '#ev-gr-actions').attr('href', '#collapse-ev-gr-actions-' + resp.action[i].a_id).append(
                 $('<div>').addClass('card-header bg-white').attr('role', 'tab').attr('id', 'ev-gra-' + resp.action[i].a_id).append(
-                    $('<h6>').addClass('d-inline-block mb-0').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[i].action)
+                    $('<h6>').addClass('d-inline-block mb-0').append([
+                        $('<i>').addClass('fa fa-dot-circle-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                        $('<span>').html(resp.action[i].action)
+                    ])
                 )
             ) 
         ).append(
@@ -549,7 +531,7 @@ function createEmployeeActions(obj, i) {
             $('<form>').addClass('edit-emp-action-form').attr({'method': 'POST', 'action': '/edit-employee-action'}).append([
                 $('<div>').addClass('card-body').append([
                     $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': obj.action[i].a_id}),
-                    $('<input>').addClass('form-control mb-2').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly'}).val(obj.action[i].action),
+                    $('<input>').addClass('form-control mb-3').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly'}).val(obj.action[i].action),
                     $('<div>').addClass('d-flex justify-content-between mb-2').append([
                         $('<div>').addClass('w-24 input-group').append([
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
@@ -560,31 +542,35 @@ function createEmployeeActions(obj, i) {
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
-                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'hourly_cost'}).val(obj.action[i].hourly_cost),
-                            $('<span>').addClass('input-group-addon').html('/'),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'readonly': 'readonly', 'name': 'hc_cost_type'}).val(obj.action[i].hc_cost_type)
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'hourly_cost'}).val(obj.action[i].hourly_cost)
                         ).tooltip({
                             trigger: 'hover',
                             title: 'Wage Cost'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
-                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'training_cost'}).val(obj.action[i].training_cost),
-                            $('<span>').addClass('input-group-addon').html('/'),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'readonly': 'readonly', 'name': 'tc_cost_type'}).val(obj.action[i].tc_cost_type)
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'training_cost'}).val(obj.action[i].training_cost)
                         ).tooltip({
                             trigger: 'hover',
                             title: 'Training Cost'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
-                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'expenses'}).val(obj.action[i].expenses),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'readonly': 'readonly', 'name': 'exp_cost_type'}).val(obj.action[i].exp_cost_type)
-                        ),
-                    ]).tooltip({
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'expenses'}).val(obj.action[i].expenses)
+                        ).tooltip({
                             trigger: 'hover',
                             title: 'Expenses'
-                        }),
+                        })
+                    ]),
+                    $('<div>').addClass('input-group mb-3').append([
+                        $('<span>').addClass('input-group-addon').append(
+                            $('<i>').addClass('fa fa-sticky-note-o fa-lg mr-1').attr('aria-hidden', 'true')
+                        ),
+                        $('<input>').addClass('form-control').attr({'type': 'text', 'readonly': 'readonly', 'name': 'cost_notes', 'value': obj.action[i].cost_notes})
+                    ]).tooltip({
+                        trigger: 'hover',
+                        title: 'Notes'
+                    }),
                     $('<div>').addClass('text-right').append([
                         $('<button>').addClass('btn btn-info').attr('type', 'button').html('<i class="fa fa-edit fa-lg mr-1" aria-hidden="true"></i>Edit').click(function() {
                             $('#ev-action-' + obj.action[i].a_id).find('input').not('input[type=hidden]').removeAttr('readonly');
@@ -597,11 +583,9 @@ function createEmployeeActions(obj, i) {
                             $(inputs).eq(0).attr('readonly', 'readonly').val(obj.action[i].action);
                             $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd'));
                             $(inputs).eq(2).attr('readonly', 'readonly').val(obj.action[i].hourly_cost);
-                            $(inputs).eq(3).attr('readonly', 'readonly').val(obj.action[i].hc_cost_type);
-                            $(inputs).eq(4).attr('readonly', 'readonly').val(obj.action[i].training_cost);
-                            $(inputs).eq(5).attr('readonly', 'readonly').val(obj.action[i].tc_cost_type);
-                            $(inputs).eq(6).attr('readonly', 'readonly').val(obj.action[i].expenses);
-                            $(inputs).eq(7).attr('readonly', 'readonly').val(obj.action[i].exp_cost_type);
+                            $(inputs).eq(3).attr('readonly', 'readonly').val(obj.action[i].training_cost);
+                            $(inputs).eq(4).attr('readonly', 'readonly').val(obj.action[i].expenses);
+                            $(inputs).eq(5).attr('readonly', 'readonly').val(obj.action[i].cost_notes);
 
                             $(this).parent().find('button:contains("Edit")').show();
                             $(this).parent().find('button:contains("Submit")').hide();
@@ -688,8 +672,8 @@ function createActionAccordion(resp) {
         $('<div>').addClass('card-body').append(
             $('<form>').attr({'method': 'POST', 'action': '/edit-action', 'id': 'edit-action-' + (actionCount + 1)}).append([
                 $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
-                $('<input>').addClass('d-inline-block form-control').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly', 'value': resp.action[0].action}),
-                $('<div>').addClass('d-flex justify-content-between mt-2 mb-2').append([
+                $('<input>').addClass('d-inline-block form-control mb-3').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly', 'value': resp.action[0].action}),
+                $('<div>').addClass('d-flex justify-content-between mb-3').append([
                     $('<div>').addClass('input-date w-24 input-group d-flex flex-row').attr({'data-toggle': 'tooltip', 'title': 'Due Date'}).append([
                         $('<span>').addClass('input-group-addon').append(
                             $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
@@ -721,9 +705,36 @@ function createActionAccordion(resp) {
                         ])
                     )
                 ]),
+                $('<div>').addClass('input-group mb-3').append([
+                    $('<span>').addClass('input-group-addon').append(
+                        $('<i>').addClass('fa fa-sticky-note-o fa-lg').attr('aria-hidden', 'true')
+                    ),
+                    $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].cost_notes, 'name': 'cost_notes', 'readonly': 'readonly'})
+                ]),
                 $('<div>').addClass('edit-action-controls form-group text-right').append(
                     $('<button>').addClass('edit-action-button btn btn-info').attr({'type': 'button', 'data-edit': 'false'}).html("<i class=\"fa fa-edit fa-lg mr-1\" aria-hidden=\"true\"></i>Edit").click(function() {
-                        if($(this).attr('data-edit') === 'false') {
+                        $(this).hide();
+                        var editButton = $(this);
+                        var textControl = $(this).parent();
+                        $(textControl).append([
+                            $('<button>').addClass('submit btn btn-primary mr-1').attr('type', 'submit').append([
+                                $('<i>').addClass('fa fa-level-down fa-rotate-90 fa-lg mr-1'),
+                                $('<span>').html('Submit')
+                            ]).click(function() {
+                                $(this).hide();
+                                $(textControl).find('button.cancel').hide();
+                                $(editButton).show();
+                            }),
+                            $('<button>').addClass('cancel btn btn-danger').attr('type', 'button').append([
+                                $('<i>').addClass('fa fa-times fa-lg mr-1'),
+                                $('<span>').html('Cancel')
+                            ]).click(function() {
+                                $(this).hide();
+                                $(textControl).find('button.submit').hide();
+                                $(editButton).show();
+                            })
+                        ])
+                        /* if($(this).attr('data-edit') === 'false') {
                             $(this).hide();
                             $(this).parent().prepend([
                                 $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
@@ -745,7 +756,7 @@ function createActionAccordion(resp) {
 
                             $(this).hide();
                             $(this).attr('data-edit', 'true');
-                        }
+                        } */
                     })
                 )
             ])
@@ -764,8 +775,8 @@ function deleteRemaining(a_id) {
         $('#overview-action-wrapper').append(
             $('<div>').addClass('alert alert-info mx-auto mt-5 w-75 font-weight-bold text-center').html('<i class="fa fa-info-circle fa-lg mr-1" aria-hidden="true"></i>Add actions to begin achieving your goal')
         )
-        $('#checkin-link').addClass('disabled').attr({'data-placement': 'top', 'title': 'You need actions to access this tab'});
-        $('#goal-review-link').addClass('disabled').attr({'data-placement': 'top', 'title': 'You need actions to access this tab'});
+        $('#checkin-link').addClass('disabled').attr({'data-placement': 'top', 'data-original-title': 'You need actions to access this tab'});
+        $('#goal-review-link').addClass('disabled').attr({'data-placement': 'top', 'data-original-title': 'You need actions to access this tab'});
     }
 }
 
@@ -774,40 +785,56 @@ function addTo(resp) {
 
     var append =  $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'overview-action-div-' + resp.action[0].a_id).append([
         $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-overview', 'href': '#collapse-overview-' + resp.action[0].a_id, 'aria-expanded': 'true', 'aria-controls': 'collapse-overview-' + resp.action[0].a_id}).append(
-            $('<div>').addClass('card-header bg-white d-flex align-items-center').attr({'role': 'tab', 'id': 'overview-action-' + resp.action[0].a_id}).append([
-                $('<h6>').addClass('d-inline-block mb-0 font-weight-bold mr-auto').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action),
-                $('<span>').addClass('badge badge-pill badge-warning mr-2').html('Pending')
+            $('<div>').addClass('card-header bg-white d-flex justify-content-between align-items-center').attr({'role': 'tab', 'id': 'overview-action-' + resp.action[0].a_id}).append([
+                $('<h6>').addClass('mb-0').append([
+                    $('<i>').addClass('fa fa-dot-circle-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                    $('<span>').addClass('action-name').html(resp.action[0].action)
+                ]),
+                $('<span>').addClass('badge badge-pill badge-warning ml-auto mr-2').html('Pending')
             ])
         ),
         $('<div>').addClass('collapse bg-transparent show').attr({'role': 'tabpanel', 'aria-labelledby': 'overview-action-' + resp.action[0].a_id, 'id': 'collapse-overview-' + resp.action[0].a_id}).append(
-            $('<div>').addClass('card-body').append(
-                $('<div>').addClass('action-items card-deck').append([
+            $('<div>').addClass('card-body').append([
+                $('<div>').addClass('action-items card-deck mb-3').append([
                     $('<div>').addClass('card bg-transparent').append(
                         $('<div>').addClass('card-body text-center').append([
                             $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>Due Date'),
-                            $('<span>').html(formatDate(resp.action[0].due_date, 'dd-M-yy'))
+                            $('<span>').addClass('due-date').html(formatDate(resp.action[0].due_date, 'dd-M-yy'))
                         ])
                     ),
                     $('<div>').addClass('card bg-transparent').append(
                         $('<div>').addClass('card-body text-center').append([
                             $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>Wage Cost'),
-                            $('<span>').html('$' + resp.action[0].hourly_cost, resp.action.hc_cost_type ? ' per ' + resp.action.hc_cost_type : null)
+                            $('<span>').addClass('hourly-cost').html('$' + resp.action[0].hourly_cost)
                         ])
                     ),
                     $('<div>').addClass('card bg-transparent').append(
                         $('<div>').addClass('card-body text-center').append([
                             $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>Training Cost'),
-                            $('<span>').html('$' + resp.action[0].training_cost, resp.action.tc_cost_type ? ' per ' + resp.action.tc_cost_type : null)
+                            $('<span>').addClass('training-cost').html('$' + resp.action[0].training_cost)
                         ])
                     ),
                     $('<div>').addClass('card bg-transparent').append(
                         $('<div>').addClass('card-body text-center').append([
                             $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>Expenses'),
-                            $('<span>').html('$' + resp.action[0].expenses, resp.action.exp_cost_type ? ' per ' + resp.action.exp_cost_type : null)
+                            $('<span>').addClass('expenses').html('$' + resp.action[0].expenses)
                         ])
                     )
-                ])
-            )
+                ]),
+                $('<div>').addClass('card bg-transparent').append(
+                    $('<div>').addClass('card-body d-flex justify-content').append([
+                        $('<div>').addClass('w-10').append(
+                            $('<label>').addClass('font-weiht-bold text-dark-blue').append([
+                                $('<i>').addClass('fa fa-sticky-note-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').html('Notes')
+                            ]),
+                        ),
+                        $('<div>').addClass('w-85').append(
+                            $('<span>').addClass('notes').html(resp.action[0].cost_notes)
+                        )
+                    ])
+                )
+            ])
         )
     ])
 
@@ -837,22 +864,31 @@ function addTo(resp) {
                     $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
                 )
             ),
-            $('<div>').addClass('collapse bg-transparent').attr({'role': 'tabpanel', 'aria-labelledby': 'checkin-action-' + resp.action[0].a_id, 'id': 'collapse-checkin-action-' + resp.action[0].a_id}).append(
+            $('<div>').addClass('collapse bg-transparent show').attr({'role': 'tabpanel', 'aria-labelledby': 'checkin-action-' + resp.action[0].a_id, 'id': 'collapse-checkin-action-' + resp.action[0].a_id}).append(
                 $('<div>').addClass('card-body').append([
                     $('<div>').addClass('employee-ck-comments'),
                     $('<form>').addClass('employee-checkin').attr({'method': 'POST', 'action': '/submit-checkin/employee'}).append(
                         $('<div>').addClass('card mt-2 bg-transparent').append([
-                            $('<div>').addClass('card-body').append([
-                                $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-comment-o fa-lg mr-1" aria-hidden="true"></i>Employee Comment'),
-                                $('<div>').addClass('d-inline-block w-85 align-top').append([
+                            $('<div>').addClass('card-body d-flex justify-content-between align-items-end').append([
+                                $('<div>').addClass('w-49').append([
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-comment-o fa-lg mr-1" aria-hidden="true"></i>Employee Comment'),
                                     $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
                                     $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'How are you doing with this action?', 'name': 'comment'})
                                 ]),
-                                $('<div>').addClass('d-inline-block w-15 align-top').append(
-                                    $('<div>').addClass('d-flex justify-content-around').append([
-                                        $('<button>').addClass('no-bg').attr('type', 'reset').html('<i class="fa fa-times fa-lg" aria-hidden="true"></i>'),
-                                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
+                                $('<div>').addClass('w-34').append([
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-comment-o fa-lg mr-1" aria-hidden="true"></i>Progress'),
+                                    $('<select>').addClass('form-control').attr('name', 'progress').append([
+                                        $('<option>'),
+                                        $('<option>').attr('value', 'Cancelled').text('Cancelled'),
+                                        $('<option>').attr('value', 'Completed').text('Completed'),
+                                        $('<option>').attr('value', 'No Update').text('No Update'),
+                                        $('<option>').attr('value', 'Not Started').text('Not Started'),
+                                        $('<option>').attr('value', 'Started').text('Started'),
                                     ])
+                                ]),
+                                $('<div>').addClass('w-15').append(
+                                    $('<button>').addClass('btn btn-secondary mr-1').attr('type', 'reset').html('<i class="fa fa-eraser fa-lg" aria-hidden="true"></i>'),
+                                    $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                                 )
                             ])
                         ])
@@ -869,7 +905,7 @@ function addTo(resp) {
                     $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
                 )
             ),
-            $('<div>').addClass('collapse bg-transparent').attr({'role': 'tabpanel', 'aria-labelledby': 'goal-review-' + resp.action[0].a_id, 'id': 'collapse-goal-review-' + resp.action[0].a_id}).append(
+            $('<div>').addClass('collapse bg-transparent show').attr({'role': 'tabpanel', 'aria-labelledby': 'goal-review-' + resp.action[0].a_id, 'id': 'collapse-goal-review-' + resp.action[0].a_id}).append(
                 $('<div>').addClass('card-body').append([
                     $('<div>').addClass('employee-gr-comments'),
                     $('<form>').addClass('employee-goal-review').attr({'method': 'POST', 'action': '/submit-goal-review/employee'}).append(
@@ -881,21 +917,19 @@ function addTo(resp) {
                                     $('<input>').addClass('form-control').attr({'type': 'text', 'placeholder': 'How effective was this action? Did you learn what you expected to?', 'name': 'comment', 'required': 'required'})
                                 ]),
                                 $('<div>').addClass('w-34').append([
-                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-line-chart fa-lg mr-1" aria-hidden="true"></i>Progress'),
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-line-chart fa-lg mr-1" aria-hidden="true"></i>Final Status'),
                                     $('<select>').addClass('form-control').attr({'name': 'progress', 'required': 'required'}).append([
-                                        $('<option>').text('--- Progress As of Today ---'),
-                                        $('<option>').attr('value', 'Not Started').text('Not Started'),
-                                        $('<option>').attr('value', 'Started').text('Started'),
-                                        $('<option>').attr('value', 'Completed').text('Completed'),
+                                        $('<option>'),
                                         $('<option>').attr('value', 'Cancelled').text('Cancelled'),
+                                        $('<option>').attr('value', 'Completed').text('Completed'),
                                         $('<option>').attr('value', 'No Update').text('No Update'),
+                                        $('<option>').attr('value', 'Not Started').text('Not Started'),
+                                        $('<option>').attr('value', 'Started').text('Started')
                                     ])
                                 ]),
                                 $('<div>').addClass('w-15').append(
-                                    $('<div>').addClass('d-flex justify-content-around').append([
-                                        $('<button>').addClass('no-bg').attr('type', 'reset').html('<i class="fa fa-times fa-lg" aria-hidden="true"></i>'),
-                                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
-                                    ])
+                                    $('<button>').addClass('btn btn-secondary').attr('type', 'reset').html('<i class="fa fa-eraser fa-lg" aria-hidden="true"></i>'),
+                                    $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                                 )
                             ])
                         ])
@@ -906,19 +940,20 @@ function addTo(resp) {
     )
 
     if (actions.length > 0) {
-        $('#checkin-link').removeClass('disabled').removeAttr('data-placement').removeAttr('title');
-        $('#goal-review-link').removeClass('disabled').removeAttr('data-placement').removeAttr('title');
+        $('#checkin-link').removeClass('disabled').removeAttr('data-original-title').removeAttr('title');
+        $('#goal-review-link').removeClass('disabled').removeAttr('data-original-title').removeAttr('title');
     }
 }
 
 function updateOthers(resp) {
     // update action divs in Overview tab
     var overviewActions = $('#overview-action-div-' + resp.action.a_id);
-    $(overviewActions).find('span.overview-action-title').html(resp.action.action);
-    $(overviewActions).find('div.action-items .card .card-body span').eq(0).html(formatDate(resp.action.due_date, 'dd-M-yy'));
-    $(overviewActions).find('div.action-items .card .card-body span').eq(1).html('$' + resp.action.hourly_cost + ' per ' + resp.action.hc_cost_type);
-    $(overviewActions).find('div.action-items .card .card-body span').eq(2).html('$' + resp.action.training_cost + ' per ' + resp.action.tc_cost_type);
-    $(overviewActions).find('div.action-items .card .card-body span').eq(3).html('$' + resp.action.expenses + ' for ' + resp.action.exp_cost_type);
+    $(overviewActions).find('span.action-name').html(resp.action.action);
+    $(overviewActions).find('span.due-date').eq(0).html(formatDate(resp.action.due_date, 'dd-M-yy'));
+    $(overviewActions).find('span.hourly-cost').eq(1).html('$' + resp.action.hourly_cost);
+    $(overviewActions).find('span.training-cost').eq(2).html('$' + resp.action.training_cost);
+    $(overviewActions).find('span.expenses').eq(3).html('$' + resp.action.expenses);
+    $(overviewActions).find('span.notes').html(resp.action.cost_notes)
 
     // update action divs in Check-in tab
     $('#checkin-action-div-' + resp.action.a_id).find('.card-header span').html(resp.action.action);
@@ -959,37 +994,24 @@ function createConfirmation(confirmation, callback) {
     )
 }
 
-function createSubmittedMessage(message, date, progress, appendTo) {
-    if (progress === 'Completed') {
-        var progressIcon = 'fa-check';
-    } else if (progress === 'Not Started') {
-        var progressIcon = 'fa-times';
-    } else if (progress === 'No Update') {
-        var progressIcon = 'fa-question';
-    } else if (progress === 'Cancelled') {
-        var progressIcon = 'fa-ban';
-    } else if (progress === 'Started') {
-        var progressIcon = 'fa-play-circle-o';
-    }
-
-    $('<div>').addClass('alert alert-success d-flex justify-content-between').css('display', 'none').append(
-        $('<div>').addClass('w-75').append([
-            $('<div>').append([
-                $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                $('<span>').html('<b>Emloyee Comment:</b> ' + message)
-            ]),
-            $('<div>').append([
-                $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                $('<span>').html('<b>Date Submitted:</b> ' + date)
-            ])
+function goalReviewSubmittedMessage(message, date, progress, appendTo) {
+    $('<div>').addClass('alert alert-success').css('display', 'none').append([
+        $('<div>').append([
+            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+            $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+            $('<span>').html(message)
         ]),
-        $('<div>').addClass('w-25').append([
-            $('<div>').addClass('text-center').append(
-                $('<i>').addClass('fa ' + progressIcon + ' fa-2x').attr('aria-hidden', 'true'),
-            ),
-            $('<div>').addClass('text-center').html(progress)
-        ])
-    ).appendTo(appendTo).slideDown('slow');
+        $('<div>').append([
+            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+            $('<span>').html(date)
+        ]),
+        $('<div>').append(
+            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+            $('<span>').addClass('font-weight-bold').html('Final Status: '),
+            $('<span>').html(progress)
+        )
+    ]).appendTo(appendTo).slideDown('slow');
 }
 
 function populatePeriodSelect() {
@@ -997,7 +1019,7 @@ function populatePeriodSelect() {
         url: '/populate-period-select',
         method: 'GET',
         success: function(resp) {
-            if (resp.length > 0) {
+            if (resp !== 'fail') {
                 for (var i = 0; i < resp.length; i++) {
                     if (i === (resp.length - 1)) {
                         $('#period-select').append($('<option>', {

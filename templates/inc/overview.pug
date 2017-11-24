@@ -34,7 +34,7 @@
                                 .card-header.bg-white.d-flex.align-items-center(role='tab', id='overview-action-' + (index + 1))
                                     h6.d-inline-block.mb-0.font-weight-bold.mr-auto
                                         i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-                                        span.overview-action-title #{action[index].action}
+                                        span.action-name #{action[index].action}
                                     if action[index].status === 'Submitted'
                                         span.badge.badge-pill.badge-warning.mr-2 Pending
                                     else if action[index].status === 'Approved'
@@ -43,37 +43,45 @@
                                         span.badge.badge-pill.badge-danger.mr-2 Declined
                             .collapse.bg-transparent(role='tabpanel', aria-labelledby='overview-action-' + (index + 1), id='collapse-overview-' + (index + 1), class=show)
                                 .card-body
-                                    .action-items.card-deck
+                                    .action-items.card-deck.mb-3
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
-                                                    | Due Date
-                                                span #{formatShortDate(action[index].due_date)}
+                                                    span Due Date
+                                                span.due-date #{formatShortDate(action[index].due_date)}
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-clock-o.fa-lg.mr-1(aria-hidden='true')
-                                                    | Wage Cost
-                                                span $#{action[index].hourly_cost}
-                                                if (action[index].hc_cost_type)
-                                                    |  per #{action[index].hc_cost_type}
+                                                    span Wage Cost
+                                                span.hourly-cost $#{action[index].hourly_cost}
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-dollar.fa-lg.mr-1(aria-hidden='true')
-                                                    | Training Cost
-                                                span $#{action[index].training_cost}
-                                                if (action[index].hc_cost_type)
-                                                    |  per #{action[index].tc_cost_type}
+                                                    span Training Cost
+                                                span.training-cost $#{action[index].training_cost}
                                         .card.bg-transparent
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-money.fa-lg.mr-1(aria-hidden='true')
-                                                    | Expenses
-                                                span $#{action[index].expenses}
-                                                if (action[index].hc_cost_type)
-                                                    |  for #{action[index].exp_cost_type}
+                                                    span Expenses
+                                                span.expenses $#{action[index].expenses}
+                                    .card.bg-transparent.mb-3
+                                        .card-body.d-flex.justify-content-between
+                                            .w-10
+                                                label.font-weight-bold.text-dark-blue
+                                                    i.fa.fa-sticky-note-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span Notes
+                                            .w-90
+                                                span.notes #{action[index].cost_notes}
+                                    if action[index].status === 'Declined' && action[index].hr_comment
+                                        .alert.alert-danger
+                                            label.font-weight-bold.text-dark-blue.mr-3
+                                                i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                                span Reason for Decline
+                                            span #{action[index].hr_comment}
             else
                 .alert.alert-info.mx-auto.mt-5.w-75.font-weight-bold.text-center
                     i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')

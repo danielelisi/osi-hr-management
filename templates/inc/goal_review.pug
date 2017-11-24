@@ -34,29 +34,19 @@
                             each v, idx in goal_review
                                 if action[index].a_id === goal_review[idx].gr_a_id
                                     - gr_submitted = true
-                                    .alert.alert-success.d-flex.justify-content-between
-                                        .w-75
-                                            div
-                                                i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
-                                                b Employee Comment: 
-                                                span #{goal_review[idx].employee_gr_comment}
-                                            div
-                                                i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                                b Submitted on: 
-                                                span #{formatDateCode(goal_review[idx].submitted_on)}
-                                        .w-25
-                                            .text-center
-                                                if action[index].action_review_status === 'Completed'
-                                                    i.fa.fa-check.fa-2x(aria-hidden='true')
-                                                else if action[index].action_review_status === 'Not Started'
-                                                    i.fa.fa-times.fa-2x(aria-hidden='true')
-                                                else if action[index].action_review_status === 'No Update'
-                                                    i.fa.fa-question.fa-2x(aria-hidden='true')
-                                                else if action[index].action_review_status === 'Cancelled'
-                                                    i.fa.fa-ban.fa-2x(aria-hidden='true')
-                                                else if action[index].action_review_status === 'Started'
-                                                    i.fa.fa-play-circle-o.fa-2x(aria-hidden='true')
-                                            .text-center #{action[index].action_review_status}
+                                    .alert.alert-success
+                                        div
+                                            i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Employee Comment: 
+                                            span #{goal_review[idx].employee_gr_comment}
+                                        div
+                                            i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Submitted on: 
+                                            span #{formatDateCode(goal_review[idx].submitted_on)}
+                                        div
+                                            i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Final Status: 
+                                            span #{action[index].action_review_status}
                         if !gr_submitted
                             #employee-gr-comments
                             //-- complete
@@ -71,20 +61,20 @@
                                             input.form-control(type='text', placeholder="How effective was this action? Did you learn what you expected to?", name='comment', required)
                                         .w-34
                                             label.d-block.font-weight-bold.text-dark-blue
-                                                i.fa.fa-line-chart.fa-lg-mr-1(aria-hidden='true')
-                                                span Progression
+                                                i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                                span Final Status
                                             select.form-control(name='progress', required)
-                                                option --- Progress As of Today ---
+                                                option
+                                                option(value='Cancelled') Cancelled
+                                                option(value='Completed') Completed
+                                                option(value='No Update') No Update
                                                 option(value='Not Started') Not Started
                                                 option(value='Started') Started
-                                                option(value='Completed') Completed
-                                                option(value='Cancelled') Cancelled
-                                                option(value='No Update') No Update
                                         .w-15
-                                            button.no-bg(type='reset')
-                                                i.fa.fa-times.fa-lg(aria-hidden='true')
+                                            button.btn.btn-secondary.mr-1(type='reset')
+                                                    i.fa.fa-eraser.fa-lg(aria-hidden='true')
                                             button.btn.btn-primary(type='submit')
-                                                i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-2(aria-hidden='true')
+                                                i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')
                                                 | Submit
                     if goal_review.length > 0
                         each val, idx in goal_review
