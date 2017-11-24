@@ -93,11 +93,14 @@ app.get('/view', function(req, resp) {
         let dbRequest = new sql.Request(sql.globalConnection);
 
         dbRequest.input('emp_id', req.session.emp_id);
+
+        // if period in url query
         if (req.query.period) {
             let dp = req.query.period.split('_');
             dbRequest.input('start_date', dp[0]);
             dbRequest.input('end_date', dp[1]);
         } else {
+            // get period from global variable
             dbRequest.input('start_date', start_date);
             dbRequest.input('end_date', end_date);
         }
@@ -131,6 +134,7 @@ app.get('/view', function(req, resp) {
                             var gr = [];
                         }
 
+                        // Select actions based on period global variable
                         dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id WHERE start_date = @start_date AND end_date = @end_date AND g_emp_id = @emp_id', function(err, result) {
                             if (result !== undefined && result.recordset.length > 0) {
                                 var action = result.recordset;
@@ -171,7 +175,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
 
     dbRequest.input('emp_id', req.session.emp_id);
     if(req.session.auth === 'HR') {
-        dbRequest.query('SELECT * FROM employee', function(err, result) {
+        dbRequest.query('SELECT * FROM employee ORDER BY first_name', function(err, result) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
@@ -179,7 +183,7 @@ app.get('/populate-manager-employee-select', function(req, resp) {
             }
         });
     } else {
-        dbRequest.query('SELECT * FROM employee WHERE manager_id = @emp_id', function (err, result) {
+        dbRequest.query('SELECT * FROM employee WHERE manager_id = @emp_id ORDER BY first_name', function (err, result) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send(result.recordset);
             } else {
@@ -248,6 +252,7 @@ app.post('/get-employee-goal', function(req, resp) {
                                 var em = {}
                             }
 
+                            //
                             dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id WHERE start_date = @start_date AND end_date = @end_date AND g_emp_id = @emp_id', function(err, result) {
                                 if (result !== undefined && result.recordset.length > 0) {
                                     var action = result.recordset;
@@ -922,6 +927,7 @@ app.post('/submit-goal-review/:who', function(req, resp) {
 
 app.post('/submit-action-status', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
+
     console.log(req.body);
     dbRequest.input('a_id', req.body.data[0].value);
     dbRequest.input('status', req.body.data[1].value);
