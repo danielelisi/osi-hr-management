@@ -927,6 +927,7 @@ app.post('/submit-goal-review/:who', function(req, resp) {
 
 app.post('/submit-action-status', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
+
     console.log(req.body);
     dbRequest.input('a_id', req.body.data[0].value);
     dbRequest.input('status', req.body.data[1].value);
