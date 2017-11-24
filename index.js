@@ -286,7 +286,7 @@ app.get('/populate-employee-table', function(req, resp) {
 
     dbRequest.input('start_date', start_date);
     dbRequest.input('emp_id', req.session.emp_id);
-    dbRequest.query('SELECT emp_id, first_name, last_name, a_id, action, a_g_id, due_date, hourly_cost, training_cost, expenses, status, hc_cost_type, tc_cost_type, exp_cost_type ' +
+    dbRequest.query('SELECT emp_id, first_name, last_name, a_id, action, a_g_id, due_date, hourly_cost, training_cost, expenses, status, cost_notes ' +
         'FROM employee LEFT OUTER JOIN goals ON employee.emp_id = goals.g_emp_id LEFT OUTER JOIN actions ON goals.g_id = actions.a_g_id ' +
         'WHERE start_date = @start_date OR start_date IS NULL', function(err, result) {
         if(err) {console.log(err);}
@@ -309,9 +309,7 @@ app.get('/populate-employee-table', function(req, resp) {
                         hourly_cost: result.recordset[i].hourly_cost,
                         training_cost: result.recordset[i].training_cost,
                         expenses: result.recordset[i].expenses,
-                        hc_cost_type: result.recordset[i].hc_cost_type,
-                        tc_cost_type: result.recordset[i].tc_cost_type,
-                        exp_cost_type: result.recordset[i].exp_cost_type
+                        cost_notes: result.recordset[i].cost_notes
                     }
                 ];
                 obj.push(user);
@@ -326,9 +324,7 @@ app.get('/populate-employee-table', function(req, resp) {
                     hourly_cost: result.recordset[i].hourly_cost,
                     training_cost: result.recordset[i].training_cost,
                     expenses: result.recordset[i].expenses,
-                    hc_cost_type: result.recordset[i].hc_cost_type,
-                    tc_cost_type: result.recordset[i].tc_cost_type,
-                    exp_cost_type: result.recordset[i].exp_cost_type
+                    cost_notes: result.recordset[i].cost_notes
                 };
                 obj[prevIteration].actions.push(a);
             }
@@ -359,12 +355,10 @@ app.post('/edit-employee-action', function(req, resp) {
         dbRequest.input('action', req.body.action);
         dbRequest.input('due_date', req.body.due_date);
         dbRequest.input('hourly_cost', req.body.hourly_cost);
-        dbRequest.input('hc_cost_type', req.body.hc_cost_type);
         dbRequest.input('training_cost', req.body.training_cost);
-        dbRequest.input('tc_cost_type', req.body.tc_cost_type);
         dbRequest.input('expenses', req.body.expenses);
-        dbRequest.input('exp_cost_type', req.body.exp_cost_type);
-        dbRequest.query('UPDATE actions SET action = @action, due_date = @due_date, hourly_cost = @hourly_cost, hc_cost_type = @hc_cost_type, training_cost = @training_cost, tc_cost_type = @tc_cost_type, expenses = @expenses, exp_cost_type = @exp_cost_type Output Inserted.* WHERE a_id = @a_id', function(err, result) {
+        dbRequest.input('cost_notes', req.body.cost_notes);
+        dbRequest.query('UPDATE actions SET action = @action, due_date = @due_date, hourly_cost = @hourly_cost, training_cost = @training_cost, expenses = @expenses, cost_notes = @cost_notes Output Inserted.* WHERE a_id = @a_id', function(err, result) {
             if (err) {console.log(err)}
             if(result !== undefined && result.recordset.length > 0) {
                 resp.send({status: 'success', action: result.recordset});
@@ -489,6 +483,8 @@ app.post('/get-report', function(req, resp) {
                         jobTitle: employee.fields.jobTitle,
                         department: employee.fields.department,
                         division: employee.fields.division,
+                        manager_name: null,
+                        emp_number: null,
                         pdp: []
                     }
                 }
@@ -509,11 +505,10 @@ app.post('/get-report', function(req, resp) {
         var queryString = '(' + newstr + ')';
         dbRequest.input('start_date', thisStartDate);
         dbRequest.input('end_date', thisEndDate);
-        dbRequest.query('SELECT * FROM employee JOIN goals ON employee.emp_id = goals.g_emp_id LEFT OUTER JOIN actions ON goals.g_id = actions.a_g_id LEFT OUTER JOIN checkins ON actions.a_id = checkins.c_a_id LEFT OUTER JOIN goal_review ON actions.a_id = goal_review.gr_a_id WHERE employee.emp_id IN (' + newstr + ') AND actions.start_date = @start_date AND actions.end_date = @end_date', function(err, result) {
+        dbRequest.query('SELECT * FROM employee LEFT OUTER JOIN goals ON employee.emp_id = goals.g_emp_id LEFT OUTER JOIN actions ON goals.g_id = actions.a_g_id LEFT OUTER JOIN checkins ON actions.a_id = checkins.c_a_id LEFT OUTER JOIN goal_review ON actions.a_id = goal_review.gr_a_id WHERE employee.emp_id IN (' + newstr + ') AND actions.start_date = @start_date AND actions.end_date = @end_date', function(err, result) {
             if (err) {console.log(err)}
 
             if (result !== undefined && result.recordset.length > 0) {
-                var prev;
                 for (let item of result.recordset) {
                     for (let employee in selectedEmployees) {
                         if (parseInt(employee) === parseInt(item.emp_id)) {
@@ -522,7 +517,23 @@ app.post('/get-report', function(req, resp) {
                     }
                 }
 
-                resp.send(selectedEmployees);
+                dbRequest.query('SELECT * FROM employee', function(err, result) {
+                    if (err) {console.log(err)}
+
+                    if (result !== undefined && result.recordset.length > 0) {
+                        for (let item of result.recordset) {
+                            for (let employee in selectedEmployees) {
+                                if (parseInt(employee) === parseInt(item.emp_id)) {
+                                    var emp_id = item.emp_id;
+                                    selectedEmployees[employee].emp_number = item.emp_number;
+                                    selectedEmployees[employee].manager_name = item.manager_name;
+                                }
+                            }
+                        }
+                    }
+
+                    resp.send(selectedEmployees);
+                });
             }
         });
     });
@@ -563,7 +574,7 @@ app.post('/submit-goal-prep', function(req, resp) {
                 if (typeof req.body.answer === 'object') {
                     var tx = new sql.Transaction(sql.globalConnection);
                     tx.begin(function(err) {
-                        const table = new sql.Table('goal_prep_details');
+                        let table = new sql.Table('goal_prep_details');
                         table.create = true;
                         table.columns.add('question', sql.VarChar(sql.Max), {nullable: false});
                         table.columns.add('answer', sql.VarChar(sql.Max), {nullable: false});
@@ -600,7 +611,8 @@ app.post('/submit-goal-prep', function(req, resp) {
 
 // update goal preparations
 app.post('/update-goal-prep', function(req, resp) {
-
+    console.log(req.body);
+    
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('gpd_gp_id', req.body.gpd_gp_id[0]);
@@ -612,14 +624,44 @@ app.post('/update-goal-prep', function(req, resp) {
     dbRequest.input('answer2', req.body.answer[1]);
     dbRequest.input('answer3', req.body.answer[2]);
     dbRequest.input('answer4', req.body.answer[3]);
-    dbRequest.query('UPDATE goal_prep_details SET answer = CASE gpd_id WHEN @gpd_id1 THEN @answer1 WHEN @gpd_id2 THEN @answer2 WHEN @gpd_id3 THEN @answer3 WHEN @gpd_id4 THEN @answer4 END', function(err, result) {
+
+    dbRequest.query('UPDATE goal_prep_details SET answer = @answer1 Output Inserted.* WHERE gpd_id = @gpd_id1', function(err, result) {
+        if (err) {console.log(err); resp.send({status: 'fail'})};
+        var first = {
+            gpd_id: result.recordset[0].gpd_id,
+            answer: result.recordset[0].answer
+        }
+        dbRequest.query('UPDATE goal_prep_details SET answer = @answer2 Output Inserted.* WHERE gpd_id = @gpd_id2', function(err, result) {
+            if(err) {console.log(err); resp.send({status: 'fail'})};
+            var second = {
+                gpd_id: result.recordset[0].gpd_id,
+                answer: result.recordset[0].answer
+            }
+            dbRequest.query('UPDATE goal_prep_details SET answer = @answer3 Output Inserted.* WHERE gpd_id = @gpd_id3', function(err, result) {
+                if (err) {console.log(err); resp.send({status: 'fail'})};
+                var third = {
+                    gpd_id: result.recordset[0].gpd_id,
+                    answer: result.recordset[0].answer
+                }
+                dbRequest.query('UPDATE goal_prep_details SET answer = @answer4 Output Inserted.* WHERE gpd_id = @gpd_id4', function(err, result) {
+                    if (err) {console.log(err); resp.send({status: 'fail'})};
+                    var fourth = {
+                        gpd_id: result.recordset[0].gpd_id,
+                        answer: result.recordset[0].answer
+                    }
+                    resp.send({status: 'success', result: [first, second, third, fourth]});
+                });
+            });
+        });
+    });
+    /* dbRequest.query('UPDATE goal_prep_details SET answer = CASE gpd_id WHEN @gpd_id1 THEN @answer1 WHEN @gpd_id2 THEN @answer2 WHEN @gpd_id3 THEN @answer3 WHEN @gpd_id4 THEN @answer4 END', function(err, result) {
         if (err) {
             console.log(err);
             resp.send('fail');
         } else if (result !== undefined && result.rowsAffected.length > 0) {
             resp.send('success');
         }
-    });
+    }); */
 });
 
 // save goal changes
@@ -646,16 +688,14 @@ app.post('/save-goal-changes', function(req, resp) {
                     table.columns.add('a_g_id', sql.Int(), {nullable: false});
                     table.columns.add('due_date', sql.Date(), {nullable: false});
                     table.columns.add('hourly_cost', sql.Int(), {nullable: true});
-                    table.columns.add('hc_cost_type', sql.VarChar(sql.Max), {nullable: true});
                     table.columns.add('training_cost', sql.Int(), {nullable: true});
-                    table.columns.add('tc_cost_type', sql.VarChar(sql.Max), {nullable: true});
                     table.columns.add('expenses', sql.Int(), {nullable: true});
-                    table.columns.add('exp_cost_type', sql.VarChar(sql.Max), {nullable: true});
+                    table.columns.add('cost_notes', sql.VarChar(sql.Max), {nullable: true});
 
                     var index = 0;
                     for (var i = 0; i < req.body.action.length; i++) {
                         var dateParts = req.body.due_date[index].split('-');
-                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[0], dateParts[1] - 1, dateParts[2]), req.body.hourly_cost[index], req.body.hc_cost_type[index], req.body.training_cost[index], req.body.tc_cost_type[index], req.body.expenses[index], req.body.exp_cost_type[index]);
+                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[0], dateParts[1] - 1, dateParts[2]), req.body.hourly_cost[index], req.body.training_cost[index], req.body.expenses[index], req.body.cost_notes[index]);
                         index++;
                     }
 
@@ -677,12 +717,10 @@ app.post('/save-goal-changes', function(req, resp) {
                 dbRequest.input('a_g_id', parseInt(a_g_id));
                 dbRequest.input('due_date', new Date(dateParts[0], dateParts[1] -1, dateParts[2]));
                 dbRequest.input('hourly_cost', req.body.hourly_cost);
-                dbRequest.input('hc_cost_type', req.body.hc_cost_type);
                 dbRequest.input('training_cost', req.body.training_cost);
-                dbRequest.input('tc_cost_type', req.body.tc_cost_type);
                 dbRequest.input('expenses', req.body.expenses);
-                dbRequest.input('exp_cost_type', req.body.exp_cost_type);
-                dbRequest.query('INSERT INTO actions (action, created_on, a_g_id, due_date, hourly_cost, training_cost, expenses, hc_cost_type, tc_cost_type, exp_cost_type) VALUES (@action, @created_on, @a_g_id, @due_date, @hourly_cost, @training_cost, @expenses, @hc_cost_type, @tc_cost_type, @exp_cost_type)', function(err, result) {
+                dbRequest.input('cost_notes', req.body.cost_notes);
+                dbRequest.query('INSERT INTO actions (action, created_on, a_g_id, due_date, hourly_cost, training_cost, expenses, cost_notes) VALUES (@action, @created_on, @a_g_id, @due_date, @hourly_cost, @training_cost, @expenses, @cost_notes)', function(err, result) {
                     resp.redirect('/view');
                 });
             }
@@ -738,10 +776,8 @@ app.post('/edit-action', function(req, resp) {
     dbRequest.input('hourly_cost', req.body.hourly_cost);
     dbRequest.input('training_cost', req.body.training_cost);
     dbRequest.input('expenses', req.body.expenses);
-    dbRequest.input('hc_cost_type', req.body.hc_cost_type);
-    dbRequest.input('tc_cost_type', req.body.tc_cost_type);
-    dbRequest.input('exp_cost_type', req.body.exp_cost_type);
-    dbRequest.query('UPDATE actions SET action=@action, due_date=@due_date, hourly_cost=@hourly_cost, training_cost=@training_cost, expenses=@expenses, hc_cost_type=@hc_cost_type, tc_cost_type=@tc_cost_type, exp_cost_type=@exp_cost_type Output Inserted.* WHERE a_id=@a_id', function(err,result){
+    dbRequest.input('cost_notes', req.body.cost_notes);
+    dbRequest.query('UPDATE actions SET action = @action, due_date = @due_date, hourly_cost = @hourly_cost, training_cost = @training_cost, expenses = @expenses, cost_notes = @cost_notes Output Inserted.* WHERE a_id=@a_id', function(err,result){
         if(err) {
             // the weird numbers are for color coded console.log
             console.log(`\x1b[41m DB ERROR EDITING THE ACTION:\x1b[0m ${err}`);
@@ -763,15 +799,13 @@ app.post('/edit-add-action', function(req, resp) {
     dbRequest.input('action', req.body.action);
     dbRequest.input('due_date', req.body.due_date);
     dbRequest.input('hourly_cost', req.body.hourly_cost);
-    dbRequest.input('hc_cost_type', req.body.hc_cost_type);
     dbRequest.input('training_cost', req.body.training_cost);
-    dbRequest.input('tc_cost_type', req.body.tc_cost_type);
     dbRequest.input('expenses', req.body.expenses);
-    dbRequest.input('exp_cost_type', req.body.exp_cost_type);
+    dbRequest.input('cost_notes', req.body.cost_notes);
     dbRequest.input('g_id', req.body.g_id);
 
     //Add values to this query when available
-    dbRequest.query('INSERT INTO actions (action, due_date, hourly_cost, training_cost, expenses, a_g_id, hc_cost_type, tc_cost_type, exp_cost_type) Output Inserted.* VALUES (@action, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @hc_cost_type, @tc_cost_type, @exp_cost_type)', function(err, result) {
+    dbRequest.query('INSERT INTO actions (action, due_date, hourly_cost, training_cost, expenses, a_g_id, cost_notes) Output Inserted.* VALUES (@action, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @cost_notes)', function(err, result) {
         if(result !== undefined && result.rowsAffected.length > 0) {
             resp.send({status: 'success', action: result.recordset})
         } else {
@@ -803,17 +837,18 @@ app.post('/submit-checkin/:who', function(req, resp) {
 
     dbRequest.input('a_id', req.body.a_id);
     dbRequest.input('comment', req.body.comment);
+    dbRequest.input('progress', req.body.progress);
     dbRequest.input('date', new Date());
     if (req.params.who === 'employee') {
         dbRequest.query('SELECT * FROM checkins WHERE c_a_id = @a_id', function(err, result) {
             if (result !== undefined && result.recordset.length > 0) {
                 resp.send({status: 'fail'});
             } else if (result !== undefined && result.recordset.length === 0) {
-                dbRequest.query('INSERT INTO checkins (c_a_id, employee_checkin_comment, checkin_date) Output Inserted.* VALUES (@a_id, @comment, @date)', function(er, res) {
+                dbRequest.query('INSERT INTO checkins (c_a_id, employee_checkin_comment, checkin_date, progress) Output Inserted.* VALUES (@a_id, @comment, @date, @progress)', function(er, res) {
                     if (er) {
                         resp.send({status: 'fail'});
                     } else if (res !== undefined && res.rowsAffected.length > 0) {
-                        resp.send({status: 'success', comment: res.recordset[0].employee_checkin_comment, date: res.recordset[0].checkin_date});
+                        resp.send({status: 'success', checkin: res.recordset});
                     }
                 });
             }
@@ -832,7 +867,7 @@ app.post('/submit-checkin/:who', function(req, resp) {
                     }
 
                     if (res.rowsAffected.length > 0) {
-                        resp.send({status: 'success', comment: res.recordset[0].manager_checkin_comment, date: res.recordset[0].m_check_in_date});
+                        resp.send({status: 'success', checkin: res.recordset});
                     } else {
                         resp.send({status: 'fail'});
                     }
@@ -863,7 +898,7 @@ app.post('/submit-goal-review/:who', function(req, resp) {
                             console.log(err);
                             resp.send({status: 'fail'});
                         } else if (r !== undefined && r.rowsAffected.length > 0) {
-                            resp.send({status: 'success', comment: r.recordset[0].employee_gr_comment, date: r.recordset[0].submitted_on, progress: res.recordset[0].action_review_status});
+                            resp.send({status: 'success', goal_review: r.recordset, final_status: res.recordset});
                         }
                     })
                 });
@@ -882,7 +917,7 @@ app.post('/submit-goal-review/:who', function(req, resp) {
                         console.log(e);
                         resp.send({status: 'fail'});
                     } else if (r !== undefined && r.rowsAffected.length > 0) {
-                        resp.send({status: 'success', comment: r.recordset[0].manager_gr_comment, date: r.recordset[0].reviewed_on})
+                        resp.send({status: 'success', goal_review: r.recordset})
                     }
                 });
             }
@@ -891,7 +926,6 @@ app.post('/submit-goal-review/:who', function(req, resp) {
 });
 
 app.post('/submit-action-status', function(req, resp) {
-
     let dbRequest = new sql.Request(sql.globalConnection);
 
     console.log(req.body);

@@ -43,7 +43,24 @@ $(document).ready(function() {
                     displayStatus('Check-in submitted', 'bg-success', 'fa-check');
                     statusMessageTimeout();
 
-                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
+                        $('<div>').append([
+                            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+                            $('<span>').html(resp.checkin[0].employee_checkin_comment)
+                        ]),
+                        $('<div>').append([
+                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                            $('<span>').html(formatDate(resp.checkin[0].checkin_date, 'MMMM dd, yyyy'))
+                        ]),
+                        $('<div>').append([
+                            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').addClass('font-weight-bold').html('Progress: '),
+                            $('<span>').html(resp.checkin[0].progress)
+                        ])
+                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
                     displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
@@ -62,12 +79,12 @@ $(document).ready(function() {
             method: 'POST',
             data: $(this).serialize(),
             success: function(resp) {
+                console.log(resp);
                 if (resp.status === 'success') {
                     displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
                     statusMessageTimeout();
-                    createSubmittedMessage(resp.comment, formatDate(resp.date, 'MMMM dd, yyyy'), resp.progress, $(parent).siblings().eq(0));
+                    goalReviewSubmittedMessage(resp.goal_review[0].employee_gr_comment, formatDate(resp.goal_review[0].submitted_on, 'MMMM dd, yyyy'), resp.final_status[0].action_review_status, $(parent).siblings().eq(0));
 
-                    /* $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Employee Comment:</b> ' + resp.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(resp.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow'); */
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
                     displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
@@ -109,6 +126,7 @@ $(document).ready(function() {
                                     text: formatDate(resp[i].start_date, 'MMMM dd, yyyy') + ' - ' + formatDate(resp[i].end_date, 'MMMM dd, yyyy')
                                 }))
                             });
+                            $('#manager-employee-date-select option:last').prop('selected', 'selected');
                         }
                     }
                 });
@@ -190,7 +208,19 @@ $(document).ready(function() {
                                     displayStatus('Check-in submitted', 'bg-success', 'fa-check');
                                     statusMessageTimeout();
 
-                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                            $('<span>').html(res.checkin[0].manager_checkin_comment)
+                                        ]),
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                            $('<span>').html(formatDate(res.checkin[0].m_check_in_date, 'MMMM dd, yyyy'))
+                                        ]),
+                                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
+
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
                                     displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
@@ -212,8 +242,30 @@ $(document).ready(function() {
                                 if (res.status === 'success') {
                                     displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
                                     statusMessageTimeout();
+                                    
+                                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                            $('<span>').html(res.goal_review[0].manager_gr_comment)
+                                        ]),
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                            $('<span>').html(formatDate(res.goal_review[0].reviewed_on, 'MMMM dd, yyyy'))
+                                        ]),
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
+                                            $('<span>').html(res.goal_review[0].progress)
+                                        ]),
+                                        $('<div>').append([
+                                            $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                            $('<span>').addClass('font-weight-bold').html('Effectiveness: '),
+                                            $('<span>').html(res.goal_review[0].effectiveness)
+                                        ])
+                                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
 
-                                    $('<div class="alert alert-success" style="display: none;"><div><i class="fa fa-commenting-o fa-lg mr-1" aria-hidden="true"></i><b>Manager Comment:</b> ' + res.comment + '</div><div><i class="fa fa-calendar-check-o fa-lg mr-1" aria-hidden="true"></i><b>Date Submitted:</b> ' + formatDate(res.date, 'MMMM dd, yyyy') + '</div></div>').appendTo($(parent).siblings().eq(0)).slideDown('slow');
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
                                     displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
@@ -236,19 +288,24 @@ $(document).ready(function() {
             method: 'POST',
             data: $(this).serialize(),
             success: function(resp) {
-                var inputs = $(parent).find('input').not('input[type=hidden]');
-                $(inputs).eq(0).attr('readonly', 'readonly').val(resp.action[0].action);
-                $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
-                $(inputs).eq(2).attr('readonly', 'readonly').val(resp.action[0].hourly_cost);
-                $(inputs).eq(3).attr('readonly', 'readonly').val(resp.action[0].hc_cost_type);
-                $(inputs).eq(4).attr('readonly', 'readonly').val(resp.action[0].training_cost);
-                $(inputs).eq(5).attr('readonly', 'readonly').val(resp.action[0].tc_cost_type);
-                $(inputs).eq(6).attr('readonly', 'readonly').val(resp.action[0].expenses);
-                $(inputs).eq(7).attr('readonly', 'readonly').val(resp.action[0].exp_cost_type);
+                if (resp.status === 'success') {
+                    var inputs = $(parent).find('input').not('input[type=hidden]');
+                    $(inputs).eq(0).attr('readonly', 'readonly').val(resp.action[0].action);
+                    $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
+                    $(inputs).eq(2).attr('readonly', 'readonly').val(resp.action[0].hourly_cost);
+                    $(inputs).eq(3).attr('readonly', 'readonly').val(resp.action[0].training_cost);
+                    $(inputs).eq(4).attr('readonly', 'readonly').val(resp.action[0].expenses);
+                    $(inputs).eq(5).attr('readonly', 'readonly').val(resp.action[0].cost_notes);
 
-                $(parent).find('div.text-right button:contains("Submit")').hide();
-                $(parent).find('div.text-right button:contains("Cancel")').hide();
-                $(parent).find('div.text-right button:contains("Edit")').show();
+                    $(parent).find('div.text-right button:contains("Submit")').hide();
+                    $(parent).find('div.text-right button:contains("Cancel")').hide();
+                    $(parent).find('div.text-right button:contains("Edit")').show();
+
+                    $('#ev-ca-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
+                    $('#ev-gra-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
+                    displayStatus('Employee action updated', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+                }
             }
         });
     });
@@ -344,9 +401,7 @@ $(document).ready(function() {
                         $('#edit-action-' + (i + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(actions[i].hourly_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=training_cost]').attr('readonly', '').val(actions[i].training_cost);
                         $('#edit-action-' + (i + 1) + ' :input[name=expenses]').attr('readonly', '').val(actions[i].expenses);
-                        $('#edit-action-' + (i + 1) + ' :input[name=hc_cost_type]').attr('readonly', '').val(actions[i].hc_cost_type);
-                        $('#edit-action-' + (i + 1) + ' :input[name=tc_cost_type]').attr('readonly', '').val(actions[i].tc_cost_type);
-                        $('#edit-action-' + (i + 1) + ' :input[name=exp_cost_type]').attr('readonly', '').val(actions[i].exp_cost_type);
+                        $('#edit-action-' + (i + 1) + ' :input[name=cost_notes]').attr('readonly', '').val(actions[i].cost_notes);
                         $(this).siblings().eq(1).attr('data-edit', 'false').show();
                         $(this).siblings().eq(0).remove();
                         $(this).remove();
@@ -379,11 +434,9 @@ $(document).ready(function() {
                     $(inputs).eq(0).val(resp.action.action);
                     $(inputs).eq(1).val(formatDate(resp.action.due_date, 'yyyy-mm-dd'));
                     $(inputs).eq(2).val(resp.action.hourly_cost);
-                    $(inputs).eq(3).val(resp.action.hc_cost_type);
-                    $(inputs).eq(4).val(resp.action.training_cost);
-                    $(inputs).eq(5).val(resp.action.tc_cost_type);
-                    $(inputs).eq(6).val(resp.action.expenses);
-                    $(inputs).eq(7).val(resp.action.exp_cost_type);
+                    $(inputs).eq(3).val(resp.action.training_cost);
+                    $(inputs).eq(4).val(resp.action.expenses);
+                    $(inputs).eq(5).val(resp.action.cost_notes);
 
                     $(parent).find('button[type=submit], button.cancel-button').remove();
                     $(parent).find('button.edit-action-button').attr('data-edit', 'false').show();
@@ -411,7 +464,6 @@ $(document).ready(function() {
                     $('#period-select').empty();
                     populatePeriodSelect();
                     createActionAccordion(resp);
-                    addTo(resp);
                     actions.push(resp.action[0]);
                     
                     if (actions.length >= 4) {
@@ -420,6 +472,7 @@ $(document).ready(function() {
 
                     $(parent).find('input').not('button, input[type=hidden]').val('');
 
+                    addTo(resp);
                     displayStatus('Action successfully added', 'bg-success', 'fa-check');
                     statusMessageTimeout();
                 }
@@ -516,13 +569,15 @@ $(document).ready(function() {
     // update goal preparation
     $('#goal-prep-update').submit(function(e) {
         e.preventDefault();
+        var parent = $(this);
 
         $.ajax({
             url: '/update-goal-prep',
             method: 'POST',
-            data: $('#goal-prep-update').serialize(),
+            data: $(this).serialize(),
             success: function(resp) {
-                if (resp === 'fail') {
+                console.log(resp);
+                if (resp.status === 'fail') {
                     displayStatus('All fields are required', 'bg-danger', 'fa-exclamation-circle');
 
                     var statusTimeout = statusMessageTimeout();
@@ -534,6 +589,10 @@ $(document).ready(function() {
                     });
 
                     dismissStatus(statusTimeout);
+                } else if (resp.status === 'success') {
+                    displayStatus('Goal preparation updated successfully', 'bg-success', 'fa-check');
+                    statusMessageTimeout();
+                    $(parent).find('input').not('input[type=hidden], button').attr('readonly', 'readonly');
                 }
             }
         });
@@ -662,34 +721,35 @@ $(document).ready(function() {
                                     var statusState = ' Declined';
                                 }
 
-                                console.log(resp[i].actions[index].hc_cost_type);
 
-                                var hc_cost_type = resp[i].actions[index].hc_cost_type ? '/' + resp[i].actions[index].hc_cost_type : null;
-                                var tc_cost_type = resp[i].actions[index].tc_cost_type ? '/' + resp[i].actions[index].tc_cost_type : null;
-                                var exp_cost_type = resp[i].actions[index].exp_cost_type ? ' for ' + resp[i].actions[index].exp_cost_type : null;
-
-                                var actionCards = $('<div>').addClass('card-group').append([
-                                    $('<div>').addClass('card').append(
-                                        $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html(formatDate(resp[i].actions[index].due_date, 'yyyy-mm-dd')),
-                                    ),
-                                    $('<div>').addClass('card').append([
-                                        $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].hourly_cost + hc_cost_type),
+                                var actionCards = $('<div>').append([
+                                    $('<div>').addClass('card-group mb-2').append([
+                                        $('<div>').addClass('card').append(
+                                            $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
+                                            $('<div>').addClass('card-body text-center').html(formatDate(resp[i].actions[index].due_date, 'yyyy-mm-dd')),
+                                        ),
+                                        $('<div>').addClass('card').append([
+                                            $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
+                                            $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].hourly_cost),
+                                        ]),
+                                        $('<div>').addClass('card').append([
+                                            $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
+                                            $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].training_cost),
+                                        ]),
+                                        $('<div>').addClass('card').append([
+                                            $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
+                                            $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].expenses)
+                                        ])
                                     ]),
-                                    $('<div>').addClass('card').append([
-                                        $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].training_cost + tc_cost_type),
-                                    ]),
-                                    $('<div>').addClass('card').append([
-                                        $('<div>').addClass('card-header text-center font-weight-bold').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
-                                        $('<div>').addClass('card-body text-center').html('$' + resp[i].actions[index].expenses + exp_cost_type)
+                                    $('<div>').addClass('d-flex justify-content-start align-items-center').append([
+                                        $('<i>').addClass('fa fa-sticky-note-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                        $('<span>').html(resp[i].actions[index].cost_notes)
                                     ])
-                                ])
+                                ]);
 
                                 var action = $('<div>').addClass('action-container w-22 p-1 rounded mx-auto').append(
                                     $('<form>').addClass('form-inline justify-content-around').append([
-                                        $('<button>').addClass('btn ' + statusClass + ' btn-sm').attr('id', 'action-status-button-' + resp[i].actions[index].a_id).attr('type', 'button').html(buttonHTML + actionIdx + statusState ).popover({
+                                        $('<button>').addClass('btn ' + statusClass + ' btn-sm mb-1').attr('id', 'action-status-button-' + resp[i].actions[index].a_id).attr('type', 'button').html(buttonHTML + actionIdx + statusState ).popover({
                                             'title': resp[i].actions[index].action,
                                             'placement': 'top',
                                             'trigger': 'hover focus',
@@ -697,7 +757,7 @@ $(document).ready(function() {
                                             'template': "<div class=\"popover\" role=\"tooltip\"><div class=\"arrow\"></div><h3 class=\"popover-header\"></h3><div class=\"popover-body\"></div></div>",
                                             'content': actionCards
                                         }),
-                                        $('<form>').addClass('set-status-form').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
+                                        $('<form>').addClass('set-status-form mb-1').attr({'method': 'POST', 'action': '/submit-action-status'}).append([
                                             $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp[i].actions[index].a_id}),
                                             $('<select>').addClass('form-control form-control-sm').attr('name', 'status').append([
                                                 $('<option>').text(''),
@@ -729,7 +789,7 @@ $(document).ready(function() {
                                                                         success: function(resp) {
                                                                             console.log(resp);
                                                                             if (resp.status === 'success') {
-                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>Declined');
+                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Declined');
                                                                                 $('#submit-decline-message').remove();
                                                                             } else {
                                                                                 displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
@@ -757,9 +817,9 @@ $(document).ready(function() {
                                                         console.log(resp);
                                                         if (resp.status === 'success') {
                                                             if (resp.value === 'Approved') {
-                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>Approved');
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Approved');
                                                             } else if (resp.value === 'Submitted') {
-                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Pending');
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Pending');
                                                             }
                                                         } else {
                                                             displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
@@ -813,6 +873,9 @@ $(document).ready(function() {
         $('#report-employee-select').empty();
     });
 
+    var loadingDept = false;
+    var loadingEmpNames = false;
+
     $('#get-dept-button').click(function() {
         $('#report-department-select').empty();
         $('#report-employee-select').empty();
@@ -833,25 +896,34 @@ $(document).ready(function() {
             }
 
             $('#by-department').find('.w-50').html('<div><i class="fa fa-spinner fa-pulse fa-fw fa-5x" aria-hidden="true"></i></div><div>Loading...</div>');
-            $.ajax({
-                url: '/get-department-fields',
-                method: 'POST',
-                data: {
-                    divisions: divisions
-                },
-                success: function(resp) {
-                    if (resp.status === 'success') {
-                        $('#by-department').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
-                        for (let dept of resp.departments) {
-                            $('#report-department-select').append(
-                                $('<option>').attr('value', dept).text(dept)
-                            )
+            if (!loadingDept) {
+                loadingDept = true;
+                $.ajax({
+                    url: '/get-department-fields',
+                    method: 'POST',
+                    data: {
+                        divisions: divisions
+                    },
+                    success: function(resp) {
+                        if (resp.status === 'success') {
+                            $('#by-department').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                            for (let dept of resp.departments) {
+                                $('#report-department-select').append(
+                                    $('<option>').attr('value', dept).text(dept)
+                                )
+                            }
+                        } else {
+                            var loading = $('#by-department').find('.field-loading-screen');
+                            $(loading).removeClass('bg-dark-light').addClass('bg-warning-light');
+                            $(loading).find('.w-50').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>No departments found');
                         }
+                        loadingDept = false;
                     }
-                }
-            });
-
-            deptFieldsLoaded = true;
+                });
+            } else {
+                displayStatus('Divisions are being loaded. Please wait...', 'bg-warning', 'fa-warning');
+                statusMessageTimeout();
+            }
         } else {
             var loading = $('#by-department').find('.field-loading-screen');
             $(loading).removeClass('bg-dark-light').addClass('bg-warning-light');
@@ -879,28 +951,35 @@ $(document).ready(function() {
                 $('#by-employee').find('.w-50').html('<div><i class="fa fa-spinner fa-pulse fa-fw fa-5x" aria-hidden="true"></i></div><div>Loading...</div>');
             }
 
-            $.ajax({
-                url: '/get-employee-names',
-                method: 'POST',
-                data: {
-                    departments: departments
-                },
-                success: function(resp) {
-                    console.log(resp);
-                    if (resp.status === 'success') {
-                        for (let employee of resp.employees) {
-                            $('#by-employee').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
-                            $('#report-employee-select').append(
-                                $('<option>').attr('value', employee.id).text(employee.name)
-                            )
+            if (!loadingEmpNames) {
+                loadingEmpNames = true;
+                $.ajax({
+                    url: '/get-employee-names',
+                    method: 'POST',
+                    data: {
+                        departments: departments
+                    },
+                    success: function(resp) {
+                        console.log(resp);
+                        if (resp.status === 'success') {
+                            for (let employee of resp.employees) {
+                                $('#by-employee').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                                $('#report-employee-select').append(
+                                    $('<option>').attr('value', employee.id).text(employee.name)
+                                )
+                            }
+
+                        } else {
+                            $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-danger-light');
+                            $('#by-employee').find('.w-50').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>No emloyees found')
                         }
-                        employeeFieldsLoaded = true;
-                    } else {
-                        $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-danger-light');
-                        $('#by-employee').find('.w-50').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>No emloyees found')
+                        loadingEmpNames = false;
                     }
-                }
-            })
+                });
+            } else {
+                displayStatus('Employees are being loaded. Please wait...', 'bg-warning', 'fa-warning');
+                statusMessageTimeout();
+            }
         } else {
             $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-warning-light');
             $('#by-employee').find('.w-50').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>Departments not selected')
@@ -920,6 +999,8 @@ $(document).ready(function() {
                             $('<option>').attr('value', formatDate(date.start_date, 'yyyy-mm-dd') + '_' + formatDate(date.end_date, 'yyyy-mm-dd')).html(formatDate(date.start_date, 'MMMM dd, yyyy') + ' - ' + formatDate(date.end_date, 'MMMM dd, yyyy'))
                         )
                     }
+
+                    $('#report-period-select option:last').prop('selected', 'selected');
                 } else {
                     $('#report-period-div').html('<div class="alert alert-danger">Failed to retrieve date period</div>')
                 }
@@ -974,14 +1055,30 @@ $(document).ready(function() {
     selectAllOrNone('#field-select', true, 'Select All');
     selectAllOrNone('#field-select', false, 'Select None');
 
+    $('#report-table tfoot th').each(function() {
+        var title = $('#report-table thead th').eq($(this).index()).text();
+        $(this).append(
+            $('<input>').attr({'type': 'text', 'placeholder': 'Search "' + title + '"'}).addClass('form-control')
+        );
+    });
+
     var reportTable = $('#report-table').DataTable({
         'dom': "Blftipr",
         'buttons': [
             {
+                extend: 'collection',
+                text: 'Show columns',
+                buttons: [ 'columnsVisibility' ],
+                visibility: true
+            },
+            {
                 'extend': 'excelHtml5',
                 'text': 'Export',
                 'exportOptions': {
-                    'columns': ':visible'
+                    'columns': ':visible',
+                    'modifier': {
+                        'search': 'applied'
+                    }
                 },
                 'customize': function(xlsx) {
                     var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -1010,46 +1107,63 @@ $(document).ready(function() {
                     $('row c[r^="X"]', sheet).attr('s', '45');
                     $('row c[r^="Y"]', sheet).attr('s', '45');
                 }
-            },
-            {
-                extend: 'collection',
-                text: 'Show columns',
-                buttons: [ 'columnsVisibility' ],
-                visibility: true
             }
         ],
         'columns': [
-            {'width': '125px'},
-            {'width': '125px'},
-            {'width': '125px'},
-            {'width': '125px'},
-            {'width': '125px'},
-            {'width': '300px'},
-            {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Wage Cost'},
-            {'width': '75px', 'title': 'Training Cost'},
-            {'width': '75px', 'title': 'Expenses'},
-            {'width': '300px'},
-            {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Wage Cost'},
-            {'width': '75px', 'title': 'Training Cost'},
-            {'width': '75px', 'title': 'Expenses'},
-            {'width': '300px'},
-            {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Wage Cost'},
-            {'width': '75px', 'title': 'Training Cost'},
-            {'width': '75px', 'title': 'Expenses'},
-            {'width': '300px'},
-            {'width': '75px', 'title': 'Due Date'},
-            {'width': '75px', 'title': 'Wage Cost'},
-            {'width': '75px', 'title': 'Training Cost'},
-            {'width': '75px', 'title': 'Expenses'}
+            {'width': '50px'}, // emp #
+            {'width': '125px'}, // last name
+            {'width': '125px'}, // first name
+            {'width': '125px'},  // job title
+            {'width': '125px'}, // division
+            {'width': '125px'}, // department
+            {'width': '125px'}, // manager
+            {'width': '300px'}, // goal
+            {'width': '300px'}, // action 1
+            {'width': '100px'}, // status
+            {'width': '100px'}, // final status
+            {'width': '75px'}, // due date
+            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // training cost
+            {'width': '75px'}, // expenses
+            {'width': '75px'}, // total cost
+            {'width': '300px'}, // action 2
+            {'width': '100px'}, // status
+            {'width': '100px'}, // final status
+            {'width': '75px'}, // due date
+            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // training cost
+            {'width': '75px'}, // expenses
+            {'width': '75px'}, // total cost
+            {'width': '300px'}, // action 3
+            {'width': '100px'}, // status
+            {'width': '100px'}, // final status
+            {'width': '75px'}, // due date
+            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // training cost
+            {'width': '75px'}, // expenses
+            {'width': '75px'}, // total cost
+            {'width': '300px'}, // action 4
+            {'width': '100px'}, // status
+            {'width': '100px'}, // final status
+            {'width': '75px'}, // due date
+            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // training cost
+            {'width': '75px'}, // expenses
+            {'width': '75px'}, // total cost
         ],
         'scrollY': '50vh',
         'scrollX': true,
         'scrollCollapse': true,
         'paging': false
     }).columns.adjust();
+
+    reportTable.columns().every(function() {
+        var column = this;
+
+        $('input', this.footer()).on('keyup change', function() {
+            column.search(this.value).draw();
+        });
+    });
 
     $('#report-table_wrapper div.btn-group a').removeClass('btn-secondary').addClass('btn-outline-primary');
 
@@ -1062,6 +1176,7 @@ $(document).ready(function() {
         reportTable.clear().draw();
         $('#build-table-loading').removeClass('d-none').addClass('d-flex');
         $('#report-table-div').addClass('d-none');
+        $('#show-report').find('.card-header:first span').empty();
         $('#show-report').hide();
         $('body').css('overflow-y', '');
     });
@@ -1090,39 +1205,57 @@ $(document).ready(function() {
             data: obj,
             success: function(resp) {
                 console.log(resp);
+                var sd;
+                var ed;
                 for (let id in resp) {
-                    var row = [resp[id].lastName, resp[id].firstName, resp[id].jobTitle, resp[id].division, resp[id].department]
+                    var emp_num = resp[id].emp_number;
+                    var manager_name = resp[id].manager_name;
+
+                    if (resp[id].pdp.length > 0) {
+                        sd = resp[id].pdp[0].start_date;
+                        ed = resp[id].pdp[0].end_date;
+                        var goal = resp[id].pdp[0].goal;
+                    } else {
+                        var goal = null;
+                    }
+
+                    var row = [emp_num, resp[id].lastName, resp[id].firstName, resp[id].jobTitle, resp[id].division, resp[id].department,  manager_name, goal]
                     for (var i = 0; i < 4; i++) {
                         if (!resp[id].pdp[i]) {
                             var action = null;
+                            var status = null;
+                            var final_status = null
                             var due_date = null;
                             var hourly_cost = null;
-                            var hc_cost_type = null;
                             var training_cost = null;
-                            var tc_cost_type = null;
                             var expenses = null;
-                            var exp_cost_type = null;
+                            var total_cost = null
                         } else {
                             var action = resp[id].pdp[i].action;
+                            var status = resp[id].pdp[i].status;
+                            var final_status = resp[id].pdp[i].action_review_status;
                             var due_date = formatDate(resp[id].pdp[i].due_date, 'dd-M-yy');
-                            var hc_cost_type = resp[id].pdp[i].hc_cost_type ? '/' + resp[id].pdp[i].hc_cost_type : null;
-                            var tc_cost_type = resp[id].pdp[i].tc_cost_type ? '/' + resp[id].pdp[i].tc_cost_type : null;
-                            var exp_cost_type = resp[id].pdp[i].exp_cost_type ? ' for ' + resp[id].pdp[i].exp_cost_type : null;
-                            var hourly_cost = resp[id].pdp[i].hourly_cost + hc_cost_type;
-                            var training_cost = resp[id].pdp[i].training_cost + tc_cost_type;
-                            var expenses = resp[id].pdp[i].expenses + exp_cost_type;
+                            var hourly_cost = resp[id].pdp[i].hourly_cost;
+                            var training_cost = resp[id].pdp[i].training_cost;
+                            var expenses = resp[id].pdp[i].expenses;
+                            var total_cost = parseInt(hourly_cost) + parseInt(training_cost) + parseInt(expenses);
                         }
                         
                         row.push(action);
+                        row.push(status);
+                        row.push(final_status);
                         row.push(due_date);
                         row.push(hourly_cost);
                         row.push(training_cost);
                         row.push(expenses);
+                        row.push(total_cost);
                     }
 
                     reportTable.row.add(row).draw();
                 }
+
                 $('#build-table-loading').removeClass('d-flex').addClass('d-none');
+                $('#show-report').find('.card-header:first h3').html(formatDate(sd, 'MMMM dd, yyyy') + ' - ' + formatDate(ed, 'MMMM dd, yyyy'));
                 $('#report-table-div').removeClass('d-none');
                 reportTable.columns.adjust().draw();
             }

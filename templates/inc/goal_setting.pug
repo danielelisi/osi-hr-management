@@ -50,7 +50,7 @@
                             | Add Action
                     .form-group.text-right
                         button.btn.btn-primary(type='submit') 
-                            i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-2(aria-hidden='true')
+                            i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')
                             | Submit
     //-- edit goal and action view
     else if goal.length > 0 && goal_prep.length > 0
@@ -93,8 +93,8 @@
                                 //-- needs to be coded
                                 form.edit-action(method='POST', action='/edit-action', id='edit-action-' + (index + 1))
                                     input(type='hidden', name='a_id' value=action[index].a_id)
-                                    input.d-inline-block.form-control(type='text', name='action', readonly, value=action[index].action)
-                                    .d-flex.justify-content-between.mt-2.mb-2
+                                    input.d-inline-block.form-control.mb-3(type='text', name='action', readonly, value=action[index].action)
+                                    .d-flex.justify-content-between.mb-3
                                         .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date')
                                             span.input-group-addon
                                                 i.fa.fa-calendar-times-o.fa-lg(aria-hidden='true')
@@ -104,21 +104,20 @@
                                                 span.input-group-addon
                                                     i.fa.fa-clock-o.fa-lg(aria-hidden='true')
                                                 input.form-control(type='number', value=action[index].hourly_cost, name='hourly_cost', readonly)
-                                                span.input-group-addon /
-                                                input.form-control(type='text', value=action[index].hc_cost_type, name='hc_cost_type', readonly)
                                         .w-24                                
                                             .input-group(data-toggle='tooltip', title='Training Cost')
                                                 span.input-group-addon
                                                     i.fa.fa-dollar.fa-lg(aria-hidden='true')
                                                 input.form-control(type='number', value=action[index].training_cost, name='training_cost', readonly)
-                                                span.input-group-addon /
-                                                input.form-control(type='text', value=action[index].tc_cost_type, name='tc_cost_type', readonly)
                                         .w-24
                                             .input-group(data-toggle='tooltip', title='Expenses')
                                                 span.input-group-addon
                                                     i.fa.fa-money.fa-lg(aria-hidden='true')
                                                 input.form-control(type='number', value=action[index].expenses, name='expenses', readonly)
-                                                input.form-control(type='text', value=action[index].exp_cost_type, name='exp_cost_type', readonly)
+                                    .input-group.mb-3(data-toggle='tooltip', title='Notes')
+                                        span.input-group-addon
+                                            i.fa.fa-sticky-note-o.fa-lg
+                                        input.form-control(type='text', name='cost_notes', placeholder='Explain briefly what the indicated costs are for. (eg. "hourly", "per class", "transporation", etc.)', value=action[index].cost_notes, readonly)
                                     .edit-action-controls.form-group.text-right
                                         button.edit-action-button.btn.btn-info(type='button', data-edit='false')
                                             i.fa.fa-edit.fa-lg.mr-1(aria-hidden='true')
@@ -134,17 +133,17 @@
                 .card-body
                     form#gs-add-action(method='POST', action='/edit-add-action')
                         input(type='hidden', name='g_id', value=goal[0].g_id)
-                        .form-group
+                        .form-group.mb-3
                             label.font-weight-bold.text-dark-blue
                                 i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
                                 | Action
                             input.form-control(type='text', name='action', required)
-                        .form-inline.mt-4
+                        .form-inline.mb-3
                             label.font-weight-bold.text-dark-blue.mr-2
                                 i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
                                 | Due Date:
                             input.d-flex.flex-row.form-control(type='date', name='due_date', required)
-                        .card-deck.mt-3
+                        .card-deck.mb-3
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
@@ -153,8 +152,6 @@
                                     .input-group
                                         span.input-group-addon $
                                         input.form-control(type='number', name='hourly_cost')
-                                        span.input-group-addon /
-                                        input.form-control(type='text', name='hc_cost_type', data-toggle='tooltip', title='<i>eg. "hour", "month", etc.</i>', data-html='true')
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
@@ -163,8 +160,6 @@
                                     .input-group
                                         span.input-group-addon $
                                         input.form-control(type='number', name='training_cost')
-                                        span.input-group-addon /
-                                        input.form-control(type='text', name='tc_cost_type', data-toggle='tooltip', title='<i>eg. "course", "class", etc.</i>', data-html='true')
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
@@ -173,9 +168,14 @@
                                     .input-group
                                         span.input-group-addon $
                                         input.form-control(type='number', name='expenses')
-                                        span.input-group-addon for
-                                        input.form-control(type='text', name='exp_cost_type', data-toggle='tooltip', title='<i>eg. "transit", "lodging", etc.</i>', data-html='true')
-                        .text-right.mt-2
+                        .d-flex.justify-content-between.align-items-center.mb-3
+                            .w-10
+                                label.font-weight-bold.text-dark-blue.mb-0
+                                    i.fa.fa-sticky-note-o.fa-lg.mr-1(aria-hidden='true')
+                                    span Notes
+                            .w-90
+                                input.form-control(type='text', name='cost_notes', placeholder='Explain briefly what the indicated costs are for. (eg. "hourly", "per class", "transporation", etc.)')
+                        .text-right
                             button.btn.btn-primary.mr-1(type='submit')
-                                i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-2(aria-hidden='true')
+                                i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')
                                 | Submit

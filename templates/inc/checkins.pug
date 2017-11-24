@@ -42,26 +42,41 @@
                                             i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
                                             span.font-weight-bold Date Submitted: 
                                             span #{formatDate(checkin[idx].checkin_date)}
+                                        div
+                                            i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                            span.font-weight-bold Progress: 
+                                            span #{checkin[idx].progress}
+                                            
                                     - ck_submitted = true
                         if !ck_submitted
                             //-- this is complete
                             .employee-ck-comments
                             form.employee-checkin(method='POST', action='/submit-checkin/employee')
                                 .card.mt-2.bg-transparent
-                                    .card-body
-                                        label.d-block.font-weight-bold.text-dark-blue 
-                                            i.fa.fa-comment-o.fa-lg.mr-1(aria-hidden='true')
-                                            | Employee Comment
-                                        .d-inline-block.w-85.align-top
+                                    .card-body.d-flex.justify-content-between.align-items-end
+                                        .w-49
+                                            label.d-block.font-weight-bold.text-dark-blue 
+                                                i.fa.fa-comment-o.fa-lg.mr-1(aria-hidden='true')
+                                                span Employee Comment
                                             input(type='hidden', name='a_id', value=action[index].a_id)
                                             input.form-control(type='text', placeholder="How are you doing with this action?", name='comment')
-                                        .d-inline-block.w-15.align-top
-                                            .d-flex.justify-content-around
-                                                button.no-bg(type='reset')
-                                                    i.fa.fa-times.fa-lg(aria-hidden='true')
-                                                button.btn.btn-primary(type='submit')
-                                                    i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-2(aria-hidden='true') 
-                                                    | Submit
+                                        .w-34
+                                            label.d-block.font-weight-bold.text-dark-blue
+                                                i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                                span Progress
+                                            select.form-control(name='progress')
+                                                option
+                                                option(value='Cancelled') Cancelled
+                                                option(value='Completed') Completed
+                                                option(value='No Update') No Update
+                                                option(value='Not Started') Not Started
+                                                option(value='Started') Started
+                                        .w-15
+                                            button.btn.btn-secondary.mr-1(type='reset')
+                                                i.fa.fa-eraser.fa-lg(aria-hidden='true')
+                                            button.btn.btn-primary(type='submit')
+                                                i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true') 
+                                                span Submit
                     if checkin.length > 0
                         each val, idx in checkin
                             if action[index].a_id === checkin[idx].c_a_id && checkin[idx].manager_checkin_comment
