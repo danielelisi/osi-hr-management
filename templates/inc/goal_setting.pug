@@ -43,8 +43,8 @@
                         input#set-goal.form-control(type='text', name='goal', placeholder='Enter your goal here', required)
                     #action-wrapper
                         h6.p-2.text-dark-blue.mb-3.h-line.font-weight-bold
-                            i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-                            | Add an Action
+                            i.fa.fa-plus.fa-lg.mr-1(aria-hidden='true')
+                            | Add Actions
                         button#add-action-button.position-sticky.btn.btn-success.mb-3(type='button')
                             i.fa.fa-plus.fa-lg.mr-1(aria-hidden='true')
                             | Add Action
@@ -58,22 +58,22 @@
             .card-header.bg-white.d-flex.justify-content-between.align-items-center
                 h6.font-weight-bold.text-dark-blue.mb-0
                     i.fa.fa-bullseye.fa-lg.mr-1(aria-hidden='true')
-                    | Goal
-                button#gs-delete-goal-button.btn.btn-danger.btn-sm(type='button')
-                    i.fa.fa-trash.fa-lg.mr-1(aria-hidden='true')
-                    | Delete
+                    span Goal
             .card-body
                 //-- complete
                 form#gs-edit-goal(method='POST', action='/edit-goal')
                     input(type='hidden', value=goal[0].g_id, name='g_id')
                     textarea#gs-input-goal.form-control.mb-2(row='4', readonly, name='gs_goal') #{goal[0].goal}
                     .text-right
-                        button#gs-edit-goal-button.btn.btn-info(type='button', data-edit='false')
+                        button#gs-edit-goal-button.btn.btn-info.mr-1(type='button', data-edit='false')
                             i.fa.fa-edit.fa-lg.mr-1(aria-hidden='true')
-                            | Edit
+                            span Edit
+                        button#gs-delete-goal-button.btn.btn-danger(type='button')
+                            i.fa.fa-trash.fa-lg.mr-1(aria-hidden='true')
+                            span Delete
         h6.p-2.text-dark-blue.mb-3.h-line.font-weight-bold
             i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-            | Actions
+            span Actions
         .card.bg-transparent.mb-3
             #actions-wrapper.card-body.relative
                 if action.length > 0
@@ -83,12 +83,6 @@
                                 h6.font-weight-bold.text-dark-blue.mb-0 
                                     i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
                                     span.edit-action-header Action #{index + 1}
-                                //-- complete
-                                form.delete-action(method='POST', action='/delete-action')
-                                    input(type='hidden', name='a_id', value=action[index].a_id)
-                                    button.delete-action-button.btn.btn-danger.btn-sm(type='submit') 
-                                        i.fa.fa-trash-o.mr-1(aria-hidden='true')
-                                        | Delete
                             .card-body
                                 //-- needs to be coded
                                 form.edit-action(method='POST', action='/edit-action', id='edit-action-' + (index + 1))
@@ -98,36 +92,45 @@
                                         .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date')
                                             span.input-group-addon
                                                 i.fa.fa-calendar-times-o.fa-lg(aria-hidden='true')
-                                            input.d-flex.flex-row.form-control(type='date', value=formatDateCode(action[index].due_date), name='due_date', readonly)
+                                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, readonly, value=formatDateCode(action[index].due_date))
                                         .w-24
-                                            .input-group(data-toggle='tooltip', title='Wage Cost')
+                                            .input-group(data-toggle='tooltip', title='Budgeted Hours')
                                                 span.input-group-addon
                                                     i.fa.fa-clock-o.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].hourly_cost, name='hourly_cost', readonly)
+                                                input.form-control(type='number', value=action[index].hourly_cost, name='hourly_cost', readonly, data-toggle='tooltip', title='Budgeted Hours - Enter the number of hours it will take to complete this action.')
                                         .w-24                                
                                             .input-group(data-toggle='tooltip', title='Training Cost')
                                                 span.input-group-addon
                                                     i.fa.fa-dollar.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].training_cost, name='training_cost', readonly)
+                                                input.form-control(type='number', value=action[index].training_cost, name='training_cost', readonly, data-toggle='tooltip', title='Training Cost - Include cost of tuition and books or supplies.')
                                         .w-24
                                             .input-group(data-toggle='tooltip', title='Expenses')
                                                 span.input-group-addon
                                                     i.fa.fa-money.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].expenses, name='expenses', readonly)
+                                                input.form-control(type='number', value=action[index].expenses, name='expenses', readonly, data-toggle='tooltip', title='Input any additional costs, such as travel.')
                                     .input-group.mb-3(data-toggle='tooltip', title='Notes')
                                         span.input-group-addon
                                             i.fa.fa-sticky-note-o.fa-lg
                                         input.form-control(type='text', name='cost_notes', placeholder='Explain briefly what the indicated costs are for. (eg. "hourly", "per class", "transporation", etc.)', value=action[index].cost_notes, readonly)
                                     .edit-action-controls.form-group.text-right
-                                        button.edit-action-button.btn.btn-info(type='button', data-edit='false')
+                                        button.edit-action-button.btn.btn-info.mr-1(type='button', data-edit='false')
                                             i.fa.fa-edit.fa-lg.mr-1(aria-hidden='true')
-                                            | Edit
+                                            span Edit
+                                        button.delete-action-button.btn.btn-danger(type='button') 
+                                            i.fa.fa-trash-o.mr-1(aria-hidden='true')
+                                            span Delete
+                                        button.submit-edit-action-button.btn.btn-primary.mr-1(type='submit', style='display: none;')
+                                            i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')
+                                            span Submit
+                                        button.cancel-edit-action.btn.btn-secondary(type='button', style='display: none;')
+                                            i.fa.fa-times.fa-lg.mr-1(aria-hidden='true')
+                                            span Cancel
         //-- needs to be coded (I recommend looking at /save-goal-changes on how to bulk insert)
         if action.length === 4
             -var hide = 'd-none'
         #edit-add-new-action-div(class=hide)
             h6.p-2.text-dark-blue.mb-3.h-line.font-weight-bold
-                i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
+                i.fa.fa-plus.fa-lg.mr-1(aria-hidden='true')
                 | Add a New Action
             .card.bg-transparent
                 .card-body
@@ -142,13 +145,13 @@
                             label.font-weight-bold.text-dark-blue.mr-2
                                 i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
                                 | Due Date:
-                            input.d-flex.flex-row.form-control(type='date', name='due_date', required)
+                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required)
                         .card-deck.mb-3
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
                                         i.fa.fa-clock-o.fa-lg.mr-1(aria-hidden='true')
-                                        | Wage Cost
+                                        | Budgeted Hours
                                     .input-group
                                         span.input-group-addon $
                                         input.form-control(type='number', name='hourly_cost')

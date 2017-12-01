@@ -1,7 +1,35 @@
 var actionCount = actions.length; // number of actions currently in the DOM
 
 $(document).ready(function() {
+    if (goalPrep.length === 0) {
+        swal({
+            text: 'Please complete your goal preparations',
+            animation: false
+        });
+    }
+
+    if (goalPrep.length > 0 && goals.length === 0) {
+        swal({
+            text: 'Please set your goal and actions in Goal Setting',
+            animation: false
+        });
+    }
+
+    if (goalPrep.length > 0 && goals.length > 0 && actions.length === 0) {
+        swal({
+            text: 'Please add actions to your goal in Goal Setting',
+            animation: false
+        });
+    }
+
     populatePeriodSelect();
+
+    let pdpPeriod = getPdpPeriod();
+
+    $('.date-select').datepicker({
+        minDate: pdpPeriod.start_date,
+        maxDate: pdpPeriod.end_date
+    });
 
     $('#get-goal-period').submit(function(e) {
         e.preventDefault();
@@ -24,9 +52,7 @@ $(document).ready(function() {
             addAction('action', actionCount, 'Action', $(this).attr('data-from'));
             actionCount++;
         } else {
-            displayStatus('Cannot add more than 4 actions', 'bg-warning', 'fa-warning');
-            clearTimeout(addActionStatus);
-            addActionStatus = statusMessageTimeout();
+            swal('Error!', 'Cannot add more than 4 actions', 'error');
         }
     });
     // employee checkin submission
@@ -40,8 +66,7 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'success') {
-                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
+                    swal('Success!', 'Check-in successfully submitted', 'success');
 
                     $('<div>').addClass('alert alert-success').css('display', 'none').append([
                         $('<div>').append([
@@ -63,8 +88,7 @@ $(document).ready(function() {
                     
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
-                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                    statusMessageTimeout();
+                    swal('Error!', 'An error occurred while checking in', 'error');
                 }
             }
         });
@@ -81,14 +105,12 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'success') {
-                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
+                    swal('Success!', 'Goal review successfully submitted', 'success');
                     goalReviewSubmittedMessage(resp.goal_review[0].employee_gr_comment, formatDate(resp.goal_review[0].submitted_on, 'MMMM dd, yyyy'), resp.final_status[0].action_review_status, $(parent).siblings().eq(0));
 
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
-                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                    statusMessageTimeout();
+                    swal('Error!', 'An error occurred while submitting your goal review', 'error');
                 }
             }
         });
@@ -205,8 +227,7 @@ $(document).ready(function() {
                             data: $(parent).serialize(),
                             success: function(res) {
                                 if (res.status === 'success') {
-                                    displayStatus('Check-in submitted', 'bg-success', 'fa-check');
-                                    statusMessageTimeout();
+                                    swal('Success!', 'Check-in successfully submitted', 'success');
 
                                     $('<div>').addClass('alert alert-success').css('display', 'none').append([
                                         $('<div>').append([
@@ -223,8 +244,7 @@ $(document).ready(function() {
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
-                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                                    statusMessageTimeout();
+                                    swal('Error!', 'An error occurred while checking in', 'error');
                                 }  
                             }
                         });
@@ -240,8 +260,7 @@ $(document).ready(function() {
                             data: $(this).serialize(),
                             success: function(res) {
                                 if (res.status === 'success') {
-                                    displayStatus('Goal Review submitted', 'bg-success', 'fa-check');
-                                    statusMessageTimeout();
+                                    swal('Success!', 'Goal review successfully submitted', 'success');
                                     
                                     $('<div>').addClass('alert alert-success').css('display', 'none').append([
                                         $('<div>').append([
@@ -257,7 +276,7 @@ $(document).ready(function() {
                                         $('<div>').append([
                                             $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
                                             $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
-                                            $('<span>').html(res.goal_review[0].progress)
+                                            $('<span>').html(res.goal_review[0].progress + '%')
                                         ]),
                                         $('<div>').append([
                                             $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
@@ -268,8 +287,7 @@ $(document).ready(function() {
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
-                                    displayStatus('An error occurred', 'bg-danger', 'fa-exclamation-circle');
-                                    statusMessageTimeout();
+                                    swal('Error!', 'An error occurred while submitting your goal review', 'error');
                                 }  
                             }
                         });
@@ -303,8 +321,7 @@ $(document).ready(function() {
 
                     $('#ev-ca-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
                     $('#ev-gra-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
-                    displayStatus('Employee action updated', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
+                    swal('Success!', 'Employee\'s action successfully updated', 'success');
                 }
             }
         });
@@ -374,7 +391,7 @@ $(document).ready(function() {
                         }
                     });
                 }),
-                $('<button>').addClass('btn btn-danger').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
+                $('<button>').addClass('btn btn-secondary').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
                     'type': 'button',
                     'id': 'gs-cancel-goal-button'
                 }).click(function() {
@@ -390,37 +407,36 @@ $(document).ready(function() {
     });
 
     // edit action button function
-    $('.edit-action-button').each(function(i) {
-         $(this).click(function() {
-            if($(this).attr('data-edit') === 'false') {
-                $(this).parent().prepend([
-                    $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
-                    $('<button>').addClass('cancel-button btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
-                        $('#edit-action-' + (i + 1) + ' :input[name=action]').attr('readonly', '').val(actions[i].action);
-                        $('#edit-action-' + (i + 1) + ' :input[name=due_date]').attr('readonly', '').val(formatDate(actions[i].due_date, 'yyyy-mm-dd'));
-                        $('#edit-action-' + (i + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(actions[i].hourly_cost);
-                        $('#edit-action-' + (i + 1) + ' :input[name=training_cost]').attr('readonly', '').val(actions[i].training_cost);
-                        $('#edit-action-' + (i + 1) + ' :input[name=expenses]').attr('readonly', '').val(actions[i].expenses);
-                        $('#edit-action-' + (i + 1) + ' :input[name=cost_notes]').attr('readonly', '').val(actions[i].cost_notes);
-                        $(this).siblings().eq(1).attr('data-edit', 'false').show();
-                        $(this).siblings().eq(0).remove();
-                        $(this).remove();
-                    })
-                ])
+    /* $('#actions-wrapper').on('click', 'button.edit-action-button', function() {
+        if($(this).attr('data-edit') === 'false') {
+            $(this).parent().prepend([
+                $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
+                $('<button>').addClass('cancel-button btn btn-secondary').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
+                    $('#edit-action-' + (i + 1) + ' :input[name=action]').attr('readonly', '').val(actions[i].action);
+                    $('#edit-action-' + (i + 1) + ' :input[name=due_date]').attr('readonly', '').val(formatDate(actions[i].due_date, 'yyyy-mm-dd'));
+                    $('#edit-action-' + (i + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(actions[i].hourly_cost);
+                    $('#edit-action-' + (i + 1) + ' :input[name=training_cost]').attr('readonly', '').val(actions[i].training_cost);
+                    $('#edit-action-' + (i + 1) + ' :input[name=expenses]').attr('readonly', '').val(actions[i].expenses);
+                    $('#edit-action-' + (i + 1) + ' :input[name=cost_notes]').attr('readonly', '').val(actions[i].cost_notes);
+                    $(this).siblings().eq(1).attr('data-edit', 'false').show();
+                    $(this).siblings().eq(0).remove();
+                    $(this).remove();
+                })
+            ])
 
-                $('#edit-action-' + (i + 1) + ' :input').not(':button, :hidden').each(function() {
-                    $(this).removeAttr('readonly');
-                });
+            $('#edit-action-' + (i + 1) + ' :input').not(':button, :hidden').each(function() {
+                $(this).removeAttr('readonly');
+            });
 
-                $(this).hide();
-                $(this).attr('data-edit', 'true');
-            }
-        }); 
-    });
+            $(this).hide();
+            $(this).attr('data-edit', 'true');
+        }
+    }); */
 
     $('#actions-wrapper').on('submit', 'form.edit-action', function(e) {
         e.preventDefault();
         var parent = $(this);
+
         $.ajax({
             url: '/edit-action',
             method: 'POST',
@@ -439,14 +455,77 @@ $(document).ready(function() {
                     $(inputs).eq(5).val(resp.action.cost_notes);
 
                     $(parent).find('button[type=submit], button.cancel-button').remove();
-                    $(parent).find('button.edit-action-button').attr('data-edit', 'false').show();
+                    $(parent).find('button.edit-action-button').show();
+
+                    swal('Success!', 'The action is updated!', 'success');
 
                     updateOthers(resp);
-                    displayStatus('Action successfully updated', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
                 } else {
-                    displayStatus('An error occurred while trying to updated the action', 'bg-danger', 'fa-exclamation-o');
-                    statusMessageTimeout();
+                    swal('Error!', 'An error occurred while updating.', 'error');
+                }
+            }
+        });
+    });
+
+    $('#actions-wrapper').on('click', 'button.edit-action-button', function() {
+        let textControl = $(this).parent();
+        let inputs = $(textControl).parent().find('input').not('input[type=hidden]');
+        let editButton = $(textControl).find('button:contains("Edit")');
+        let deleteButton = $(textControl).find('button:contains("Delete")');
+        let submitButton = $(textControl).find('button:contains("Submit")');
+        let cancelButton = $(textControl).find('button:contains("Cancel")');
+        let oldValues = [];
+
+        $(inputs).each(function(i) {
+            oldValues.push($(inputs).eq(i).val());
+        });
+
+        $(inputs).removeAttr('readonly');
+
+        $(editButton).hide();
+        $(deleteButton).hide();
+        $(submitButton).show();
+        $(cancelButton).show();
+
+        $(cancelButton).click(function() {
+            $(editButton).show();
+            $(deleteButton).show();
+            $(submitButton).hide();
+            $(this).hide();
+
+            $(inputs).attr('readonly', 'readonly');
+            $(inputs).eq(0).val(oldValues[0]);
+            $(inputs).eq(1).val(oldValues[1]);
+            $(inputs).eq(2).val(oldValues[2]);
+            $(inputs).eq(3).val(oldValues[3]);
+            $(inputs).eq(4).val(oldValues[4]);
+            $(inputs).eq(5).val(oldValues[5]);
+        });
+    });
+
+    $('#add-action').submit(function(e) {
+        e.preventDefault();
+        
+        $.ajax({
+            url: '/save-goal-changes',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(resp) {
+                if (resp === 'success') {
+                    swal({
+                        title: 'Goal added!',
+                        html: 'Refreshing in 5 seconds... click <a href="/view">here</a> to refresh now.',
+                        timer: 5000,
+                        onOpen: () => {
+                            swal.showLoading()
+                        }
+                    }).then((result) => {
+                        if (result.dismiss === 'timer') {
+                            location.reload();
+                        }
+                    });
+                } else if (resp === 'fail') {
+                    swal('Error!', 'An error ocurred when saving goal', 'error');
                 }
             }
         });
@@ -473,22 +552,30 @@ $(document).ready(function() {
                     $(parent).find('input').not('button, input[type=hidden]').val('');
 
                     addTo(resp);
-                    displayStatus('Action successfully added', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
+                    swal('Success!', 'Your new action has been added', 'success');
                 }
             });
         } else {
-            displayStatus('Nice try! Don\'t be lazy and complete your actions first', 'bg-warning', 'fa-warning');
-            statusMessageTimeout();
+            swal('Error!', 'Nice try! Don\'t be lazy and complete your actions first :)', 'error');
         }
     });
 
     // delete action
-    $('#actions-wrapper').on('submit', 'form.delete-action', function(e) {
+    $('#actions-wrapper').on('click', 'button.delete-action-button', function(e) {
         e.preventDefault();
-        var parent = $(this);
-        createConfirmation('delete action', function(confirm) {
-            if (confirm) {
+        var parent = $(this).parent().parent();
+
+        swal({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            cancelButtonColor: '#868e96',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.value) {
                 $.ajax({
                     url: '/delete-action',
                     method: 'POST',
@@ -498,23 +585,28 @@ $(document).ready(function() {
                         populatePeriodSelect();
                         for (var i = 0; i < actions.length; i++) {
                             if (actions[i].a_id === resp.a_id) {
-                                actions.splice(i, 1);
-                                actionCount = actions.length;
+                                actions.splice(i, 1); // update the DOM object 'actions'
+                                actionCount = actions.length; // declare new action count
                             }
                         }
 
-                        $('#edit-add-new-action-div').removeClass('d-none');
+                        $('#edit-add-new-action-div').removeClass('d-none'); // show add action form again
 
+                        // remove the action from display
                         $('#action-div-' + resp.a_id).animate({height: 0, opacity: 0}, 'slow', function() {
                             $(this).remove();
                             $('.edit-action-header').each(function(i) {
                                 $(this).html('Action ' + (i + 1));
                             });
-                            displayStatus('Action successfully deleted', 'bg-success', 'fa-check');
-                            statusMessageTimeout();
                         });
 
-                        deleteRemaining(resp.a_id);
+                        deleteRemaining(resp.a_id); // delete actions from other tabs
+
+                        swal(
+                            'Deleted!',
+                            'The action has been deleted.',
+                            'success'
+                        )
                     }
                 });
             }
@@ -548,18 +640,9 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp === 'invalid') {
-                    displayStatus('All fields are required', 'bg-danger', 'fa-exclamation-circle');
-
-                    var statusTimeout = statusMessageTimeout();
-
-                    $('#goal-prep-button').click(function() {
-                        clearTimeout(statusTimeout);
-
-                        statusTimeout = statusMessageTimeout();
-                    });
-
-                    dismissStatus(statusTimeout);
+                    swal('Error!', 'All fields are required', 'error');
                 } else if (resp === 'success') {
+                    swal('Success!', 'Refreshing...', 'success');
                     location.reload();
                 }
             }
@@ -578,20 +661,9 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'fail') {
-                    displayStatus('All fields are required', 'bg-danger', 'fa-exclamation-circle');
-
-                    var statusTimeout = statusMessageTimeout();
-
-                    $('#goal-prep-button').click(function() {
-                        clearTimeout(statusTimeout);
-
-                        statusTimeout = statusMessageTimeout();
-                    });
-
-                    dismissStatus(statusTimeout);
+                    swal('Warning!', 'All fields are required', 'warning');
                 } else if (resp.status === 'success') {
-                    displayStatus('Goal preparation updated successfully', 'bg-success', 'fa-check');
-                    statusMessageTimeout();
+                    swal('Success!', 'Goal preparation successfully updated', 'success');
                     $(parent).find('input').not('input[type=hidden], button').attr('readonly', 'readonly');
                 }
             }
@@ -599,11 +671,16 @@ $(document).ready(function() {
     });
 
     $('#gs-delete-goal-button').click(function(e) {
-        createConfirmation('delete goal', function(confirm) {
-            if (confirm) {
-                $('body').find('.delete-goal-confirmation').remove();
-                $('body').css('overflow-y', '');
-
+        swal({
+            title: 'Are you sure you want to delete your goal?',
+            text: "All actions will be deleted and cannot be reverted.",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            cancelButtonColor: '#868e96',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
                 $.ajax({
                     url: '/delete-goal',
                     method: 'POST',
@@ -612,62 +689,22 @@ $(document).ready(function() {
                         user: userData.emp_id
                     },
                     success: function(resp) {
-                        displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
-
-                        setTimeout(function() {
-                            $('#status-message').animate({
-                                'top': '-50px'
-                            });
-
-                            location.reload();
-                        }, 1000);
+                        swal({
+                            title: 'Deleted!',
+                            html: 'Refreshing in 5 seconds or click <a href="/view">here</a> to refresh now.',
+                            timer: 5000,
+                            onOpen: () => {
+                                swal.showLoading()
+                            }
+                        }).then((result) => {
+                            if (result.dismiss === 'timer') {
+                                location.reload();
+                            }
+                        });
                     }
                 });
             }
         });
-        /* var offSetTop = $(window).scrollTop();
-        $('body').css('overflow-y', 'hidden');
-
-        $('body').append(
-            $('<div>').addClass('position-absolute w-100 h-100 d-flex justify-content-center align-items-center delete-goal-confirmation').css({'top': offSetTop, 'background-color': 'rgba(0, 0, 0, 0.75)', 'z-index': 5}).append(
-                $('<div>').addClass('card').append([
-                    $('<div>').addClass('card-body').append([
-                        $('<h5>').html('Are you sure you want to delete your goal?'),
-                        $('<div>').addClass('alert alert-danger').html('<i class="fa fa-warning fa-lg mr-1" aria-hidden="true"></i>All actions, check-ins, and goal review will be deleted as well')
-                    ]),
-                    $('<div>').addClass('card-footer text-right').append(
-                        $('<button>').addClass('btn btn-primary mr-1').attr('type', 'button').html('<i class="fa fa-check fa-lg mr-1" aria-hidden="true"></i>Yes').click(function() {
-                            $('body').find('.delete-goal-confirmation').remove();
-                            $('body').css('overflow-y', '');
-
-                            $.ajax({
-                                url: '/delete-goal',
-                                method: 'POST',
-                                data: {
-                                    g_id: goals[0].g_id,
-                                    user: userData.emp_id
-                                },
-                                success: function(resp) {
-                                    displayStatus('Goal successfully deleted. Refreshing...', 'bg-success', 'fa-check');
-
-                                    setTimeout(function() {
-                                        $('#status-message').animate({
-                                            'top': '-50px'
-                                        });
-
-                                        location.reload();
-                                    }, 1000);
-                                }
-                            });
-                        }),
-                        $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-ban fa-lg mr-1" aria-hidden="true"></i>No').click(function() {
-                            $('body').find('.delete-goal-confirmation').remove();
-                            $('body').css('overflow-y', '');
-                        })
-                    )
-                ])
-            )
-        ) */
     });
 
     var table = $('#employee-table').DataTable({
@@ -792,7 +829,7 @@ $(document).ready(function() {
                                                                                 $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Declined');
                                                                                 $('#submit-decline-message').remove();
                                                                             } else {
-                                                                                displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
+                                                                                swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
                                                                             }
                                                                         }
                                                                     });
@@ -822,7 +859,7 @@ $(document).ready(function() {
                                                                 $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Pending');
                                                             }
                                                         } else {
-                                                            displayStatus('An error occurred while trying to set this action\'s status', 'bg-warning', 'fa-warning')
+                                                            swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
                                                         }
                                                     }
                                                 });
@@ -921,8 +958,12 @@ $(document).ready(function() {
                     }
                 });
             } else {
-                displayStatus('Divisions are being loaded. Please wait...', 'bg-warning', 'fa-warning');
-                statusMessageTimeout();
+                swal({
+                    type: 'Warning',
+                    text: 'Divisions are being loaded. Please wait...',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
         } else {
             var loading = $('#by-department').find('.field-loading-screen');
@@ -977,8 +1018,12 @@ $(document).ready(function() {
                     }
                 });
             } else {
-                displayStatus('Employees are being loaded. Please wait...', 'bg-warning', 'fa-warning');
-                statusMessageTimeout();
+                swal({
+                    type: 'warning',
+                    title: 'Employees are being loaded. Please wait...',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
             }
         } else {
             $('#by-employee').find('.field-loading-screen').removeClass('bg-dark-light').addClass('bg-warning-light');
@@ -987,6 +1032,7 @@ $(document).ready(function() {
     });
 
     var divisionFieldsLoaded = false;
+    var loadingDivisions = false;
     $('#hrv-report-link').click(function() {
         $.ajax({
             url: '/get-report-period',
@@ -1007,7 +1053,9 @@ $(document).ready(function() {
             }
         });
 
-        if (!divisionFieldsLoaded) {
+        if (!divisionFieldsLoaded && !loadingDivisions) {
+            loadingDivisions = true;
+
             $.ajax({
                 url: '/get-division-fields',
                 method: 'GET',
@@ -1020,6 +1068,7 @@ $(document).ready(function() {
                     }
 
                     $('#by-division').find('.field-loading-screen').removeClass('d-flex').addClass('d-none');
+                    loadingDivisions = false;
                     divisionFieldsLoaded = true;
                 }
             });
@@ -1134,7 +1183,7 @@ $(document).ready(function() {
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
             {'width': '75px'}, // due date
-            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // Budgeted Hours
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
@@ -1142,7 +1191,7 @@ $(document).ready(function() {
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
             {'width': '75px'}, // due date
-            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // Budgeted Hours
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
@@ -1150,7 +1199,7 @@ $(document).ready(function() {
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
             {'width': '75px'}, // due date
-            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // Budgeted Hours
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
@@ -1158,7 +1207,7 @@ $(document).ready(function() {
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
             {'width': '75px'}, // due date
-            {'width': '75px'}, // wage cost
+            {'width': '75px'}, // Budgeted Hours
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost

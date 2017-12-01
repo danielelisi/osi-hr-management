@@ -43,21 +43,6 @@ app.use('/images', express.static('assets/images'));
 app.use('/css', express.static('assets/css'));
 app.use('/js', express.static('assets/js'));
 
-// create date period
-var currentDate = new Date();
-var currentYear = currentDate.getFullYear();
-var currentMonth = currentDate.getMonth() + 1;
-var currentDay = currentDate.getDate();
-var start_date;
-var end_date;
-if (parseInt(currentMonth) < 10 && parseInt(currentMonth) > 3) {
-    start_date = currentYear + '-04-01';
-    end_date = currentYear + '-09-30';
-}  else {
-    start_date = currentYear + '-10-01';
-    end_date = currentYear + 1 + '-03-31';
-}
-
 // Route Modules
 const authenticationRoutes = require('./routes/authenticationRoute');
 app.use(authenticationRoutes);
@@ -94,15 +79,16 @@ app.get('/view', function(req, resp) {
 
         dbRequest.input('emp_id', req.session.emp_id);
 
+        let currentPdpPeriod = createPdpPeriod();
         // if period in url query
         if (req.query.period) {
-            let dp = req.query.period.split('_');
-            dbRequest.input('start_date', dp[0]);
-            dbRequest.input('end_date', dp[1]);
+            let requestedPdpPeriod = req.query.period.split('_');
+            dbRequest.input('start_date', requestedPdpPeriod[0]);
+            dbRequest.input('end_date', requestedPdpPeriod[1]);
         } else {
             // get period from global variable
-            dbRequest.input('start_date', start_date);
-            dbRequest.input('end_date', end_date);
+            dbRequest.input('start_date', currentPdpPeriod.start_date);
+            dbRequest.input('end_date', currentPdpPeriod.end_date);
         }
         // Get goal preparation
         dbRequest.query('SELECT * FROM goal_prep JOIN goal_prep_details ON goal_prep.gp_id = goal_prep_details.gpd_gp_id WHERE gp_emp_id = @emp_id', function(err, result) {
@@ -142,7 +128,7 @@ app.get('/view', function(req, resp) {
                                 var action = [];
                             }
 
-                            resp.render('view', {user: req.session, goal: g, checkin: c, goal_review: gr, goal_prep: gp, action: action});
+                            resp.render('view', {user: req.session, goal: g, checkin: c, goal_review: gr, goal_prep: gp, action: action, current_period: currentPdpPeriod});
                         });
                     });
                 });
@@ -284,7 +270,8 @@ app.post('/get-employee-goal', function(req, resp) {
 app.get('/populate-employee-table', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
-    dbRequest.input('start_date', start_date);
+    let dp = createPdpPeriod();
+    dbRequest.input('start_date', dp.start_date);
     dbRequest.input('emp_id', req.session.emp_id);
     dbRequest.query('SELECT emp_id, first_name, last_name, a_id, action, a_g_id, due_date, hourly_cost, training_cost, expenses, status, cost_notes ' +
         'FROM employee LEFT OUTER JOIN goals ON employee.emp_id = goals.g_emp_id LEFT OUTER JOIN actions ON goals.g_id = actions.a_g_id ' +
@@ -666,6 +653,7 @@ app.post('/update-goal-prep', function(req, resp) {
 
 // save goal changes
 app.post('/save-goal-changes', function(req, resp) {
+    console.log(req.body);
 
     let dbRequest = new sql.Request(sql.globalConnection);
 
@@ -694,8 +682,8 @@ app.post('/save-goal-changes', function(req, resp) {
 
                     var index = 0;
                     for (var i = 0; i < req.body.action.length; i++) {
-                        var dateParts = req.body.due_date[index].split('-');
-                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[0], dateParts[1] - 1, dateParts[2]), req.body.hourly_cost[index], req.body.training_cost[index], req.body.expenses[index], req.body.cost_notes[index]);
+                        var dateParts = req.body.due_date[index].split('/');
+                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[2], dateParts[0] - 1, dateParts[1]), req.body.hourly_cost[index], req.body.training_cost[index], req.body.expenses[index], req.body.cost_notes[index]);
                         index++;
                     }
 
@@ -705,28 +693,30 @@ app.post('/save-goal-changes', function(req, resp) {
                         tx.commit(function(err) {
                             if (err) { console.log(err); }
 
-                            resp.redirect('/view');
+                            resp.send('success');
                         });
                     });
                 });
             } else {
-                var dateParts = req.body.due_date.split('-');
+                var dateParts = req.body.due_date.split('/');
 
                 dbRequest.input('action', req.body.action);
                 dbRequest.input('created_on', new Date());
                 dbRequest.input('a_g_id', parseInt(a_g_id));
-                dbRequest.input('due_date', new Date(dateParts[0], dateParts[1] -1, dateParts[2]));
+                dbRequest.input('due_date', new Date(dateParts[2], dateParts[0] -1, dateParts[1]));
                 dbRequest.input('hourly_cost', req.body.hourly_cost);
                 dbRequest.input('training_cost', req.body.training_cost);
                 dbRequest.input('expenses', req.body.expenses);
                 dbRequest.input('cost_notes', req.body.cost_notes);
                 dbRequest.query('INSERT INTO actions (action, created_on, a_g_id, due_date, hourly_cost, training_cost, expenses, cost_notes) VALUES (@action, @created_on, @a_g_id, @due_date, @hourly_cost, @training_cost, @expenses, @cost_notes)', function(err, result) {
-                    resp.redirect('/view');
+                    resp.send('success');
                 });
             }
         } else {
             if(result !== undefined && result.rowsAffected.length > 0) {
-                resp.redirect('/view');
+                resp.send('success');
+            } else {
+                resp.send('fail');
             }
         }
     });
@@ -962,6 +952,25 @@ function convertEndDate(date) {
     }
 
     return ed;
+}
+
+function createPdpPeriod() {
+    // create date period
+    var currentDate = new Date();
+    var currentYear = currentDate.getFullYear();
+    var currentMonth = currentDate.getMonth() + 1;
+    var currentDay = currentDate.getDate();
+    var start_date;
+    var end_date;
+    if (parseInt(currentMonth) < 10 && parseInt(currentMonth) > 3) {
+        start_date = currentYear + '-04-01';
+        end_date = currentYear + '-09-30';
+    }  else {
+        start_date = currentYear + '-10-01';
+        end_date = currentYear + 1 + '-03-31';
+    }
+
+    return {start_date: start_date, end_date: end_date}
 }
 
 // server initialization

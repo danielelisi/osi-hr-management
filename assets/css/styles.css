@@ -96,7 +96,7 @@ h1, h2, h3, h4, h5, h6, label {
 }
 
 #goal-warning {
-    min-height: 275px;
+    font-size: 20px;
 }
 
 #add-action-button {
@@ -255,4 +255,8 @@ body div.dt-button-collection .dt-button.active:after {
 
 #show-report table {
     table-layout: fixed;
+}
+
+.input-group .form-control {
+    z-index: 0;
 }
