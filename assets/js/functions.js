@@ -59,9 +59,25 @@ function formatDate(date, format) {
     return result;
 }
 
+function getPdpPeriod() {
+    let sdp = currentPdpPeriod.start_date.split('-');
+    let edp = currentPdpPeriod.end_date.split('-');
+    let sd = new Date(parseInt(sdp[0]), parseInt(sdp[1]) - 1, parseInt(sdp[2]))
+    let ed = new Date(parseInt(edp[0]), parseInt(edp[1]) - 1, parseInt(edp[2]))
+
+    return {start_date: sd, end_date: ed};
+}
+
 // add action in goal setting
 function addAction(id, count, header, from) {
     var num = count + 1;
+
+    if (actionCount < 1) {
+        swal('You can add up to 4 actions');
+    }
+    
+    let pdpPeriod = getPdpPeriod();
+
     $('#action-wrapper').append(
         $('<div>').addClass('accordion').attr('id', 'accordion-' + id + '-' + num).attr('role', 'tablist').attr('aria-multiselectable', 'true').append([
             $('<div>').addClass('card bg-transparent mb-3').append(
@@ -79,26 +95,41 @@ function addAction(id, count, header, from) {
                     ).append(
                         $('<div>').addClass('form-inline mb-3').append([
                             $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:'),
-                            $('<input>').addClass('date-select form-control').attr('type', 'date').attr('name', 'due_date').attr('required', 'required')
+                            $('<input>').addClass('date-select form-control').attr({'type': 'text', 'name': 'due_date', 'required': 'required'}).datepicker({
+                                minDate: pdpPeriod.start_date,
+                                maxDate: pdpPeriod.end_date
+                            }).tooltip({
+                                title: 'Should not go beyond the PDP period',
+                                trigger: 'hover focus'
+                            })
                         ])
                     ).append(
                         $('<div>').addClass('card-deck mb-3').append([
                             $('<div>').addClass('card bg-transparent').append(
                                 $('<div>').addClass('card-body text-center').append([
-                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Wage Cost'),
+                                    $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i> Budgeted Hours'),
                                     $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'hourly_cost')
-                                ])
+                                ]).tooltip({
+                                    title: 'Enter the number of hours it will take to complete this action.',
+                                    trigger: 'hover focus'
+                                })
                             ),
                             $('<div>').addClass('card bg-transparent').append(
                                 $('<div>').addClass('card-body text-center').append([
                                     $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i> Training Cost'),
                                     $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'training_cost')
-                                ])
+                                ]).tooltip({
+                                    title: 'Include cost of tuition and books or supplies.',
+                                    trigger: 'hover focus'
+                                })
                             ),
                             $('<div>').addClass('card bg-transparent').append(
                                 $('<div>').addClass('card-body text-center').append([
                                     $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses'),
-                                    $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'expenses'),
+                                    $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'expenses').tooltip({
+                                        title: 'Input any additional costs, such as travel.',
+                                        trigger: 'focus hover'
+                                    })
                                 ])
                             )
                         ]),
@@ -233,13 +264,7 @@ function createCheckins(resp, form_url, i) {
                         ])
                     ).append(
                         $('<div>').addClass('d-inline-block w-15 align-top').append(
-                            $('<div>').addClass('d-flex justify-content-around').append(
-                                $('<button>').addClass('no-bg').attr('type', 'reset').append(
-                                    $('<i>').addClass('fa fa-times fa-lg').attr('aria-hidden', 'true')
-                                )
-                            ).append(
-                                $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
-                            )
+                            $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
                         )
                     )
                 )
@@ -262,13 +287,7 @@ function createCheckins(resp, form_url, i) {
                 )
             ).append(
                 $('<div>').addClass('d-inline-block w-15 align-top').append(
-                    $('<div>').addClass('d-flex justify-content-around').append(
-                        $('<button>').addClass('no-bg').attr('type', 'reset').append(
-                            $('<i>').addClass('fa fa-times fa-lg').attr('aria-hidden', 'true')
-                        )
-                    ).append(
-                        $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
-                    )
+                    $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                 )
             )
         )
@@ -385,7 +404,7 @@ function createGoalReview(resp, form_url, i) {
                     )
                 ).append(
                     $('<div>').addClass('form-group mb-3').append(
-                        $('<label>').addClass('d-block font-weight-bold mr-5').text('What percent of this action was completed on time?')
+                        $('<label>').addClass('d-block font-weight-bold mr-5').text('What percentage of this action was completed on time?')
                     ).append(
                         $('<select>').attr({'name': 'goal_progress', 'required': 'required', 'disabled': state}).addClass('form-control').append([
                             $('<option>'),
@@ -416,7 +435,7 @@ function createGoalReview(resp, form_url, i) {
                     ])
                 ).append(
                     $('<div>').addClass('text-right w-100').append(
-                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').attr('id', 'manager-gr-button-' + resp.action[i].a_id).html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
+                        $('<button>').addClass('btn btn-primary').attr('type', 'submit').attr('id', 'manager-gr-button-' + resp.action[i].a_id).html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                     )
                 )
             }
@@ -437,7 +456,7 @@ function createGoalReview(resp, form_url, i) {
             )
         ).append(
             $('<div>').addClass('form-group mb-3').append(
-                $('<label>').addClass('d-block font-weight-bold mr-5').text('What percent of this action was completed on time?')
+                $('<label>').addClass('d-block font-weight-bold mr-5').text('What percentage of this action was completed on time?')
             ).append(
                 $('<select>').attr({'name': 'goal_progress', 'required': 'required', 'disabled': state}).addClass('form-control').append([
                     $('<option>'),
@@ -456,7 +475,7 @@ function createGoalReview(resp, form_url, i) {
             )
         ).append(
             $('<div>').addClass('form-group mb-3').append([
-                $('<label>').addClass('d-block font-weight-bold mr-5').text('Was this action effective towards the employees competence and knowledge?'),
+                $('<label>').addClass('d-block font-weight-bold mr-5').text('Was this action effective towards the employee\'s competence and knowledge?'),
                 $('<select>').addClass('form-control').attr({'name': 'goal_effectiveness', 'required': 'required', 'disabled': state}).append([
                     $('<option>'),
                     $('<option>').text('Not effective'),
@@ -468,7 +487,7 @@ function createGoalReview(resp, form_url, i) {
             ])
         ).append(
             $('<div>').addClass('text-right w-100').append(
-                $('<button>').addClass('btn btn-primary').attr('type', 'submit').attr('id', 'manager-gr-button-' + resp.action[i].a_id).html('<i class="fa fa-level-down fa-rotate-90 fa-lg" aria-hidden="true"></i>')
+                $('<button>').addClass('btn btn-primary').attr('type', 'submit').attr('id', 'manager-gr-button-' + resp.action[i].a_id).html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
             )
         )
     }
@@ -522,6 +541,8 @@ function createEmployeeActions(obj, i) {
         var message = 'Declined';
     }
 
+    let pdpPeriod = getPdpPeriod();
+
     $('#ev-goal-overview').append(
         $('<div>').addClass('card bg-transparent mb-3').attr('id', 'ev-action-' + obj.action[i].a_id).append([
             $('<div>').addClass('card-header bg-white d-flex justify-content-between align-items-center').append([
@@ -535,30 +556,33 @@ function createEmployeeActions(obj, i) {
                     $('<div>').addClass('d-flex justify-content-between mb-2').append([
                         $('<div>').addClass('w-24 input-group').append([
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
-                            $('<input>').addClass('form-control').attr({'type': 'date', 'readonly': 'readonly', 'name': 'due_date'}).val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd'))
+                            $('<input>').addClass('form-control date-select').attr({'type': 'text', 'readonly': 'readonly', 'name': 'due_date'}).val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd')).datepicker({
+                                minDate: pdpPeriod.start_date,
+                                maxDate: pdpPeriod.end_date
+                            })
                         ]).tooltip({
-                            trigger: 'hover',
+                            trigger: 'focus hover',
                             title: 'Due Date'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
                             $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'hourly_cost'}).val(obj.action[i].hourly_cost)
                         ).tooltip({
-                            trigger: 'hover',
-                            title: 'Wage Cost'
+                            trigger: 'focus hover',
+                            title: 'Budgeted Hours'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-dollar fa-lg mr-1" aria-hidden="true"></i>'),
                             $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'training_cost'}).val(obj.action[i].training_cost)
                         ).tooltip({
-                            trigger: 'hover',
+                            trigger: 'focus hover',
                             title: 'Training Cost'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i>'),
                             $('<input>').addClass('form-control').attr({'type': 'number', 'readonly': 'readonly', 'name': 'expenses'}).val(obj.action[i].expenses)
                         ).tooltip({
-                            trigger: 'hover',
+                            trigger: 'focus hover',
                             title: 'Expenses'
                         })
                     ]),
@@ -578,7 +602,7 @@ function createEmployeeActions(obj, i) {
                             $(this).hide();
                         }),
                         $('<button>').addClass('btn btn-primary mr-1').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit').hide(),
-                        $('<button>').addClass('btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
+                        $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
                             var inputs = $('#ev-action-' + obj.action[i].a_id).find('input').not('input[type=hidden]');
                             $(inputs).eq(0).attr('readonly', 'readonly').val(obj.action[i].action);
                             $(inputs).eq(1).attr('readonly', 'readonly').val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd'));
@@ -605,23 +629,6 @@ function displayStatus(message, statusClass, iconName) {
     $('#status-message').addClass(statusClass).animate({
         'top': '0'
     });
-}
-
-function dismissStatus(timeout) {
-    $('#dismiss-status-message').click(function() {
-        clearTimeout(timeout);
-        $('#status-message').animate({
-            'top': '-50px'
-        });
-    });
-}
-
-function statusMessageTimeout() {
-    setTimeout(function() {
-        $('#status-message').animate({
-            'top': '-50px'
-        })
-    }, 2000);
 }
 
 function expandCollapse(button, parentTable, dataTable, type) {
@@ -658,19 +665,17 @@ function selectAllOrNone(parent, bool, type) {
 }
 
 function createActionAccordion(resp) {
+    let pdpPeriod = getPdpPeriod();
+
     $('<div>').addClass('card bg-transparent mb-3 h-0').css('display', 'none').attr('id', 'action-div-' + resp.action[0].a_id).append([
         $('<div>').addClass('card-header d-flex justify-content-between align-items-center bg-white').append([
             $('<h6>').addClass('font-weight-bold text-dark-blue mb-0').append([
                 $('<i>').addClass('fa fa-dot-circle-o fa-lg mr-1').attr('aria-hidden', 'true'),
                 $('<span>').addClass('edit-action-header').html('Action ' + (actionCount + 1))
-            ]),
-            $('<form>').addClass('delete-action').attr({'method': 'POST', 'action': '/delete-action'}).append([
-                $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
-                $('<button>').addClass('delete-action-button btn btn-danger btn-sm').attr('type', 'submit').html('<i class="fa fa-trash-o mr-1" aria-hidden="true"></i>Delete')
             ])
         ]),
         $('<div>').addClass('card-body').append(
-            $('<form>').attr({'method': 'POST', 'action': '/edit-action', 'id': 'edit-action-' + (actionCount + 1)}).append([
+            $('<form>').addClass('edit-action').attr({'method': 'POST', 'action': '/edit-action', 'id': 'edit-action-' + (actionCount + 1)}).append([
                 $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
                 $('<input>').addClass('d-inline-block form-control mb-3').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly', 'value': resp.action[0].action}),
                 $('<div>').addClass('d-flex justify-content-between mb-3').append([
@@ -678,14 +683,17 @@ function createActionAccordion(resp) {
                         $('<span>').addClass('input-group-addon').append(
                             $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
                         ),
-                        $('<input>').addClass('d-flex flex-row form-control').attr({'type': 'date', 'value': formatDate(resp.action[0].due_date, 'yyyy-mm-dd'), 'name': 'due_date', 'readonly': 'readonly'})
+                        $('<input>').addClass('d-flex flex-row form-control date-select').attr({'type': 'text', 'value': formatDate(resp.action[0].due_date, 'yyyy-mm-dd'), 'name': 'due_date', 'readonly': 'readonly'}).datepicker({
+                            minDate: pdpPeriod.start_date,
+                            maxDate: pdpPeriod.end_date
+                        })
                     ]),
                     $('<div>').addClass('w-24').append(
-                        $('<div>').addClass('input-group').attr({'data-toggle': 'tooltip', 'title': 'Wage Cost'}).append([
+                        $('<div>').addClass('input-group').attr({'data-toggle': 'tooltip', 'title': 'Budgeted Hours'}).append([
                             $('<span>').addClass('input-group-addon').append(
                                 $('<i>').addClass('fa fa-clock-o fa-lg').attr('aria-hidden', 'true')
                             ),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].hourly_cost, 'name': 'hourly_cost', 'readonly': 'readonly'})
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'value': resp.action[0].hourly_cost, 'name': 'hourly_cost', 'readonly': 'readonly'})
                         ])
                     ),
                     $('<div>').addClass('w-24').append(
@@ -693,7 +701,7 @@ function createActionAccordion(resp) {
                             $('<span>').addClass('input-group-addon').append(
                                 $('<i>').addClass('fa fa-dollar fa-lg').attr('aria-hidden', 'true')
                             ),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].training_cost, 'name': 'training_cost', 'readonly': 'readonly'})
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'value': resp.action[0].training_cost, 'name': 'training_cost', 'readonly': 'readonly'})
                         ])
                     ),
                     $('<div>').addClass('w-24').append(
@@ -701,7 +709,7 @@ function createActionAccordion(resp) {
                             $('<span>').addClass('input-group-addon').append(
                                 $('<i>').addClass('fa fa-money fa-lg').attr('aria-hidden', 'true')
                             ),
-                            $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].expenses, 'name': 'expenses', 'readonly': 'readonly'})
+                            $('<input>').addClass('form-control').attr({'type': 'number', 'value': resp.action[0].expenses, 'name': 'expenses', 'readonly': 'readonly'})
                         ])
                     )
                 ]),
@@ -712,52 +720,46 @@ function createActionAccordion(resp) {
                     $('<input>').addClass('form-control').attr({'type': 'text', 'value': resp.action[0].cost_notes, 'name': 'cost_notes', 'readonly': 'readonly'})
                 ]),
                 $('<div>').addClass('edit-action-controls form-group text-right').append(
-                    $('<button>').addClass('edit-action-button btn btn-info').attr({'type': 'button', 'data-edit': 'false'}).html("<i class=\"fa fa-edit fa-lg mr-1\" aria-hidden=\"true\"></i>Edit").click(function() {
-                        $(this).hide();
-                        var editButton = $(this);
+                    $('<button>').addClass('edit-action-button btn btn-info mr-1').attr({'type': 'button', 'data-edit': 'false'}).html("<i class=\"fa fa-edit fa-lg mr-1\" aria-hidden=\"true\"></i>Edit").click(function() {
                         var textControl = $(this).parent();
+                        var inputs = $(textControl).parent().find('input').not('input[type=hidden]');                        
+                        var editButton = $(textControl).find('button:contains("Edit")');
+                        var deleteButton = $(textControl).find('button:contains("Delete")');
+                        var submitButton = $('<button>').addClass('submit btn btn-primary mr-1').attr('type', 'submit').append([
+                            $('<i>').addClass('fa fa-level-down fa-rotate-90 fa-lg mr-1'),
+                            $('<span>').html('Submit')
+                        ]);
+                        var cancelButton = $('<button>').addClass('cancel btn btn-secondary').attr('type', 'button').append([
+                            $('<i>').addClass('fa fa-times fa-lg mr-1'),
+                            $('<span>').html('Cancel')
+                        ]);
+                        
+                        $(inputs).removeAttr('readonly');
+                        
                         $(textControl).append([
-                            $('<button>').addClass('submit btn btn-primary mr-1').attr('type', 'submit').append([
-                                $('<i>').addClass('fa fa-level-down fa-rotate-90 fa-lg mr-1'),
-                                $('<span>').html('Submit')
-                            ]).click(function() {
+                            $(submitButton).click(function() {
                                 $(this).hide();
-                                $(textControl).find('button.cancel').hide();
+                                $(cancelButton).hide();
                                 $(editButton).show();
+                                $(deleteButton).show();
+                                $(inputs).attr('readonly', 'readonly');
                             }),
-                            $('<button>').addClass('cancel btn btn-danger').attr('type', 'button').append([
-                                $('<i>').addClass('fa fa-times fa-lg mr-1'),
-                                $('<span>').html('Cancel')
-                            ]).click(function() {
-                                $(this).hide();
-                                $(textControl).find('button.submit').hide();
+                            $(cancelButton).click(function() {
+                                $(this).remove();
+                                $(submitButton).remove();
                                 $(editButton).show();
+                                $(deleteButton).show();
+                                $(inputs).attr('readonly', 'readonly');
+                                $(inputs).eq(0).val(resp.action[0].action);
+                                $(inputs).eq(1).val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
+                                $(inputs).eq(2).val(resp.action[0].hourly_cost);
+                                $(inputs).eq(3).val(resp.action[0].training_cost);
+                                $(inputs).eq(4).val(resp.action[0].expenses);
+                                $(inputs).eq(5).val(resp.action[0].cost_notes);
                             })
                         ])
-                        /* if($(this).attr('data-edit') === 'false') {
-                            $(this).hide();
-                            $(this).parent().prepend([
-                                $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr('type', 'submit'),
-                                $('<button>').addClass('btn btn-danger').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
-                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=action]').attr('readonly', '').val(resp.action[0].action);
-                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=due_date]').attr('readonly', '').val(formatDate(resp.action[0].due_date, 'yyyy-mm-dd'));
-                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=hourly_cost]').attr('readonly', '').val(resp.action[0].hourly_cost);
-                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=training_cost]').attr('readonly', '').val(resp.action[0].training_cost);
-                                    $('#edit-action-' + (actionCount + 1) + ' :input[name=expenses]').attr('readonly', '').val(resp.action[0].expenses);
-                                    $(this).siblings().eq(1).attr('data-edit', 'false').show();
-                                    $(this).siblings().eq(0).remove();
-                                    $(this).remove();
-                                })
-                            ])
-
-                            $('#edit-action-' + (actionCount + 1) + ' :input').not(':button, :hidden').each(function() {
-                                $(this).removeAttr('readonly');
-                            });
-
-                            $(this).hide();
-                            $(this).attr('data-edit', 'true');
-                        } */
-                    })
+                    }),
+                    $('<button>').addClass('delete-action-button btn btn-danger').attr('type', 'button').html('<i class="fa fa-trash-o mr-1" aria-hidden="true"></i>Delete')
                 )
             ])
         )
@@ -804,7 +806,7 @@ function addTo(resp) {
                     ),
                     $('<div>').addClass('card bg-transparent').append(
                         $('<div>').addClass('card-body text-center').append([
-                            $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>Wage Cost'),
+                            $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>Budgeted Hours'),
                             $('<span>').addClass('hourly-cost').html('$' + resp.action[0].hourly_cost)
                         ])
                     ),
@@ -887,7 +889,6 @@ function addTo(resp) {
                                     ])
                                 ]),
                                 $('<div>').addClass('w-15').append(
-                                    $('<button>').addClass('btn btn-secondary mr-1').attr('type', 'reset').html('<i class="fa fa-eraser fa-lg" aria-hidden="true"></i>'),
                                     $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                                 )
                             ])
@@ -928,7 +929,6 @@ function addTo(resp) {
                                     ])
                                 ]),
                                 $('<div>').addClass('w-15').append(
-                                    $('<button>').addClass('btn btn-secondary').attr('type', 'reset').html('<i class="fa fa-eraser fa-lg" aria-hidden="true"></i>'),
                                     $('<button>').addClass('btn btn-primary').attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
                                 )
                             ])

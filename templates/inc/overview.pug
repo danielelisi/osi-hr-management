@@ -1,11 +1,11 @@
 #overview.tab-pane.active.user-main.p-3(role='tabpanel')
     if goal_prep.length === 0
-        #goal-warning.w-75.mx-auto.d-flex.justify-content-center.align-items-center
+        #goal-warning.mt-5.w-75.mx-auto.d-flex.justify-content-center.align-items-center
             .alert.alert-info.text-center.font-weight-bold
                 i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
-                | Please set your goal preparations
+                | Please complete your goal preparations
     else if goal.length === 0
-        #goal-warning.w-75.mx-auto.d-flex.justify-content-center.align-items-center
+        #goal-warning.mt-5.w-75.mx-auto.d-flex.justify-content-center.align-items-center
             .alert.alert-info.text-center.font-weight-bold
                 i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
                 | Please set your goal in Goal Setting
@@ -54,7 +54,7 @@
                                             .card-body.text-center
                                                 label.d-block.font-weight-bold.text-dark-blue
                                                     i.fa.fa-clock-o.fa-lg.mr-1(aria-hidden='true')
-                                                    span Wage Cost
+                                                    span Budgeted Hours
                                                 span.hourly-cost $#{action[index].hourly_cost}
                                         .card.bg-transparent
                                             .card-body.text-center
@@ -83,6 +83,7 @@
                                                 span Reason for Decline
                                             span #{action[index].hr_comment}
             else
-                .alert.alert-info.mx-auto.mt-5.w-75.font-weight-bold.text-center
-                    i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
-                    | Add actions for this period to start completing your goal
+                #goal-warning.mt-5.w-75.mx-auto.d-flex.justify-content-center.align-items-center
+                    .alert.alert-info.text-center.font-weight-bold
+                        i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
+                        span Please add actions to your goal in Goal Setting
