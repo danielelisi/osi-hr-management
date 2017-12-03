@@ -29,25 +29,48 @@
                             span #{action[index].action}
                 .collapse.bg-transparent(role='tabpanel', aria-labelledby='checkin-action-' + i, id='collapse-checkin-action-' + i, class=show)
                     .card-body
+                        if checkin.length > 0
+                            each val, idx in checkin
+                                if action[index].a_id === checkin[idx].c_a_id && checkin[idx].manager_checkin_comment
+                                    .card.bg-transparent.mb-3
+                                        .card-body
+                                            h5.text-dark-blue
+                                                i.fa.fa-user.fa-lg.mr-1(aria-hidden='true')
+                                                span Manager's Check-in
+                                            .alert.alert-info
+                                                div
+                                                    i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Manager Comment: 
+                                                    span #{checkin[idx].manager_checkin_comment}
+                                                div
+                                                    i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Date Submitted: 
+                                                    span #{formatDate(checkin[idx].m_check_in_date)}
+                                    - break
                         - var ck_submitted = false
                         if !ck_submitted
                             each v, idx in checkin
                                 if action[index].a_id === checkin[idx].c_a_id && checkin[idx].employee_checkin_comment
-                                    .alert.alert-success
-                                        div
-                                            i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Employee Comment: 
-                                            span #{checkin[idx].employee_checkin_comment}
-                                        div
-                                            i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Date Submitted: 
-                                            span #{formatDate(checkin[idx].checkin_date)}
-                                        div
-                                            i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Progress: 
-                                            span #{checkin[idx].progress}
-                                            
-                                    - ck_submitted = true
+                                    .card.bg-transparent
+                                        .card-body
+                                            h5.text-dark-blue
+                                                i.fa.fa-user-o.fa-lg.mr-1(aria-hidden='true')
+                                                span Employee's Check-in
+                                            .alert.alert-success
+                                                div
+                                                    i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Employee Comment: 
+                                                    span #{checkin[idx].employee_checkin_comment}
+                                                div
+                                                    i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Date Submitted: 
+                                                    span #{formatDate(checkin[idx].checkin_date)}
+                                                div
+                                                    i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Progress: 
+                                                    span #{checkin[idx].progress}
+                                                    
+                                            - ck_submitted = true
                         if !ck_submitted
                             //-- this is complete
                             .employee-ck-comments
@@ -75,16 +98,3 @@
                                             button.btn.btn-primary(type='submit')
                                                 i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true') 
                                                 span Submit
-                    if checkin.length > 0
-                        each val, idx in checkin
-                            if action[index].a_id === checkin[idx].c_a_id && checkin[idx].manager_checkin_comment
-                                .card-footer.bg-info-light
-                                    div
-                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
-                                        span.font-weight-bold Manager Comment: 
-                                        span #{checkin[idx].manager_checkin_comment}
-                                    div
-                                        i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                        span.font-weight-bold Date Submitted: 
-                                        span #{formatDate(checkin[idx].m_check_in_date)}
-                                - break
