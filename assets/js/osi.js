@@ -3,32 +3,32 @@ var actionCount = actions.length; // number of actions currently in the DOM
 $(document).ready(function() {
     if (goalPrep.length === 0) {
         swal({
-            text: 'Please complete your goal preparations',
+            text: 'Please complete your goal preparation',
             animation: false
         });
     }
 
     if (goalPrep.length > 0 && goals.length === 0) {
         swal({
-            text: 'Please set your goal and actions in Goal Setting',
+            html: 'Please set your goal and actions in the <b><u>Goal Setting</b></u> tab',
             animation: false
         });
     }
 
     if (goalPrep.length > 0 && goals.length > 0 && actions.length === 0) {
         swal({
-            text: 'Please add actions to your goal in Goal Setting',
+            html: 'Please add actions to your goal in the <b><u>Goal Setting</b></u> tab',
             animation: false
         });
     }
 
     populatePeriodSelect();
 
-    let pdpPeriod = getPdpPeriod();
+    let pdpPeriodObj = getPdpPeriod();
 
     $('.date-select').datepicker({
-        minDate: pdpPeriod.start_date,
-        maxDate: pdpPeriod.end_date
+        minDate: pdpPeriodObj.start_date,
+        maxDate: pdpPeriodObj.end_date
     });
 
     $('#get-goal-period').submit(function(e) {
@@ -68,23 +68,31 @@ $(document).ready(function() {
                 if (resp.status === 'success') {
                     swal('Success!', 'Check-in successfully submitted', 'success');
 
-                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
-                        $('<div>').append([
-                            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
-                            $('<span>').html(resp.checkin[0].employee_checkin_comment)
-                        ]),
-                        $('<div>').append([
-                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                            $('<span>').html(formatDate(resp.checkin[0].checkin_date, 'MMMM dd, yyyy'))
-                        ]),
-                        $('<div>').append([
-                            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').addClass('font-weight-bold').html('Progress: '),
-                            $('<span>').html(resp.checkin[0].progress)
-                        ])
-                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                    $('<div>').addClass('card bg-transparent').css('display', 'none').append(
+                        $('<div>').addClass('card-body').append(
+                            $('<h5>').addClass('text-dark-blue').append(
+                                $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').html('Employee\'s Submission')
+                            ),
+                            $('<div>').addClass('alert alert-success').append([
+                                $('<div>').append([
+                                    $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+                                    $('<span>').html(resp.checkin[0].employee_checkin_comment)
+                                ]),
+                                $('<div>').append([
+                                    $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                    $('<span>').html(formatDate(resp.checkin[0].checkin_date, 'MMMM dd, yyyy'))
+                                ]),
+                                $('<div>').append([
+                                    $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Progress: '),
+                                    $('<span>').html(resp.checkin[0].progress)
+                                ])
+                            ])
+                        )
+                    ).appendTo($(parent).siblings().eq(0)).slideDown('slow')
                     
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
@@ -106,7 +114,32 @@ $(document).ready(function() {
                 console.log(resp);
                 if (resp.status === 'success') {
                     swal('Success!', 'Goal review successfully submitted', 'success');
-                    goalReviewSubmittedMessage(resp.goal_review[0].employee_gr_comment, formatDate(resp.goal_review[0].submitted_on, 'MMMM dd, yyyy'), resp.final_status[0].action_review_status, $(parent).siblings().eq(0));
+
+                    $('<div>').addClass('card bg-transparent').css('display', 'none').append(
+                        $('<div>').addClass('card-body').append(
+                            $('<h5>').addClass('text-dark-blue').append(
+                                $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').html('Employee\'s Submission')
+                            ),
+                            $('<div>').addClass('alert alert-success').append([
+                                $('<div>').append([
+                                    $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+                                    $('<span>').html(resp.goal_review[0].employee_gr_comment)
+                                ]),
+                                $('<div>').append([
+                                    $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                    $('<span>').html(formatDate(resp.goal_review[0].submitted_on, 'MMMM dd, yyyy'))
+                                ]),
+                                $('<div>').append(
+                                    $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                    $('<span>').addClass('font-weight-bold').html('Final Status: '),
+                                    $('<span>').html(resp.final_status[0].action_review_status)
+                                )
+                            ])
+                        )
+                    ).appendTo($(parent).siblings().eq(0)).slideDown('slow');
 
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
@@ -120,10 +153,6 @@ $(document).ready(function() {
         url: '/populate-manager-employee-select',
         method: 'GET',
         success: function(resp) {
-            console.log(resp);
-            $('#manager-employee-select').append($('<option>', {
-                id: 'no-employee'
-            }));
             $(resp).each(function(i) {
                 $('#manager-employee-select').append($('<option>', {
                     id: resp[i].emp_id,
@@ -141,6 +170,7 @@ $(document).ready(function() {
                             $('#manager-employee-date-select').empty();
                         } else {
                             $('#manager-employee-date-select').empty();
+                             $('#manager-employee-date-select').append($('<option>').text(''));
                             $(resp).each(function(i) {
                                 $('#manager-employee-date-select').append($('<option>', {
                                     id: (resp[i].start_date).substr(0, 10) + '_' + (resp[i].end_date).substr(0, 10),
@@ -229,18 +259,26 @@ $(document).ready(function() {
                                 if (res.status === 'success') {
                                     swal('Success!', 'Check-in successfully submitted', 'success');
 
-                                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
-                                            $('<span>').html(res.checkin[0].manager_checkin_comment)
-                                        ]),
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                                            $('<span>').html(formatDate(res.checkin[0].m_check_in_date, 'MMMM dd, yyyy'))
-                                        ]),
-                                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $('<div>').addClass('card bg-transparent').css('display', 'none').append(
+                                        $('<div>').addClass('card-body').append(
+                                            $('<h5>').addClass('text-dark-blue').append(
+                                                $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                $('<span>').html('Manager\'s Submission')
+                                            ),
+                                            $('<div>').addClass('alert alert-info').append([
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                                    $('<span>').html(res.checkin[0].manager_checkin_comment)
+                                                ]),
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                                    $('<span>').html(formatDate(res.checkin[0].m_check_in_date, 'MMMM dd, yyyy'))
+                                                ]),
+                                            ])
+                                        )
+                                    ).appendTo($(parent).siblings().eq(1)).slideDown('slow');
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
@@ -262,28 +300,36 @@ $(document).ready(function() {
                                 if (res.status === 'success') {
                                     swal('Success!', 'Goal review successfully submitted', 'success');
                                     
-                                    $('<div>').addClass('alert alert-success').css('display', 'none').append([
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
-                                            $('<span>').html(res.goal_review[0].manager_gr_comment)
-                                        ]),
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                                            $('<span>').html(formatDate(res.goal_review[0].reviewed_on, 'MMMM dd, yyyy'))
-                                        ]),
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
-                                            $('<span>').html(res.goal_review[0].progress + '%')
-                                        ]),
-                                        $('<div>').append([
-                                            $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                                            $('<span>').addClass('font-weight-bold').html('Effectiveness: '),
-                                            $('<span>').html(res.goal_review[0].effectiveness)
-                                        ])
-                                    ]).appendTo($(parent).siblings().eq(0)).slideDown('slow');
+                                    $('<div>').addClass('card bg-transparent').css('display', 'none').append(
+                                        $('<div>').addClass('card-body').append(
+                                            $('<h5>').addClass('text-dark-blue').append(
+                                                $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                $('<span>').html('Manager\'s Submission')
+                                            ),
+                                            $('<div>').addClass('alert alert-info').append([
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                                    $('<span>').html(res.goal_review[0].manager_gr_comment)
+                                                ]),
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                                    $('<span>').html(formatDate(res.goal_review[0].reviewed_on, 'MMMM dd, yyyy'))
+                                                ]),
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
+                                                    $('<span>').html(res.goal_review[0].progress + '%')
+                                                ]),
+                                                $('<div>').append([
+                                                    $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                                    $('<span>').addClass('font-weight-bold').html('Effectiveness: '),
+                                                    $('<span>').html(res.goal_review[0].effectiveness)
+                                                ])
+                                            ])
+                                        )
+                                    ).appendTo($(parent).siblings().eq(1)).slideDown('slow');
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
@@ -365,45 +411,49 @@ $(document).ready(function() {
 
     // edit goal button and submission
     $('#gs-edit-goal-button').click(function() {
-        if($(this).attr('data-edit') === 'false') {
-            $('#gs-input-goal').removeAttr('readonly')
-            $(this).parent().append([
-                $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr({
-                    'type': 'submit',
-                    'id': 'gs-save-goal-button'
-                }).click(function(e) {
-                    e.preventDefault();
-                    createConfirmation('save new goal', function(confirm) {
-                        if(confirm) {
-                            $.ajax({
-                                url: '/edit-goal',
-                                method: 'POST',
-                                data: $('#gs-edit-goal').serialize(),
-                                success: function(resp) {
-                                    if(resp.status === 'success') {
-                                        $('#gs-input-goal').attr('readonly', '').val(resp.goal);
-                                        $('#gs-edit-goal-button').attr('data-edit', 'false');
-                                        $('#gs-save-goal-button').remove();
-                                        $('#gs-cancel-goal-button').remove();
-                                    }
-                                }
-                            })
+        swal({
+            title: 'Edit typo or rewording only.',
+            text: 'If you want to start a different goal, press the "Start New Goal" button.',
+            type: 'info'
+        });
+
+        var parent = $(this).parent();
+        $('#gs-input-goal').removeAttr('readonly')
+        $(parent).append([
+            $('<button>').addClass('btn btn-primary mr-1').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit').attr({
+                'type': 'submit',
+                'id': 'gs-save-goal-button'
+            }).click(function(e) {
+                e.preventDefault();
+            
+                $.ajax({
+                    url: '/edit-goal',
+                    method: 'POST',
+                    data: $('#gs-edit-goal').serialize(),
+                    success: function(resp) {
+                        if(resp.status === 'success') {
+                            swal('Success!', 'Edit successful', 'success');
+                            $('#gs-input-goal').attr('readonly', '').val(resp.goal);
+                            $('#gs-edit-goal-button').attr('data-edit', 'false');
+                            $('#gs-save-goal-button').remove();
+                            $('#gs-cancel-goal-button').remove();
                         }
-                    });
-                }),
-                $('<button>').addClass('btn btn-secondary').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
-                    'type': 'button',
-                    'id': 'gs-cancel-goal-button'
-                }).click(function() {
-                    $('#gs-input-goal').attr('readonly', '').val(goals[0].goal);
-                    $(this).remove();
-                    $('#gs-save-goal-button').remove();
-                    $('#gs-edit-goal-button').attr('data-edit', 'false').show();
-                })
-            ])
-            $(this).attr('data-edit', 'true');
-            $(this).hide();
-        }
+                    }
+                });
+            }),
+            $('<button>').addClass('btn btn-secondary').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').attr({
+                'type': 'button',
+                'id': 'gs-cancel-goal-button'
+            }).click(function() {
+                $('#gs-input-goal').attr('readonly', '').val(goals[0].goal);
+                $(this).remove();
+                $('#gs-save-goal-button').remove();
+                $('#gs-edit-goal-button').show();
+                $('#gs-delete-goal-button').show();
+            })
+        ])
+        $(this).hide();
+        $('#gs-delete-goal-button').hide();
     });
 
     // edit action button function
@@ -437,32 +487,45 @@ $(document).ready(function() {
         e.preventDefault();
         var parent = $(this);
 
-        $.ajax({
-            url: '/edit-action',
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function(resp) {
-                console.log(resp);
-                var inputs = $(parent).find('input').not('button, input[type=hidden]');
-                console.log(inputs);
-                if (resp.status === 'success') {
-                    $(inputs).attr('readonly', 'readonly');
-                    $(inputs).eq(0).val(resp.action.action);
-                    $(inputs).eq(1).val(formatDate(resp.action.due_date, 'yyyy-mm-dd'));
-                    $(inputs).eq(2).val(resp.action.hourly_cost);
-                    $(inputs).eq(3).val(resp.action.training_cost);
-                    $(inputs).eq(4).val(resp.action.expenses);
-                    $(inputs).eq(5).val(resp.action.cost_notes);
+        swal({
+            title: 'Are you sure?',
+            text: 'The actions\'s status will be reverted to pending',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            cancelButtonColor: '#868e96',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: '/edit-action',
+                    method: 'POST',
+                    data: $(this).serialize(),
+                    success: function(resp) {
+                        console.log(resp);
+                        var inputs = $(parent).find('input').not('button, input[type=hidden]');
+                        console.log(inputs);
+                        if (resp.status === 'success') {
+                            $(inputs).attr('readonly', 'readonly');
+                            $(inputs).eq(0).val(resp.action.action);
+                            $(inputs).eq(1).val(formatDate(resp.action.due_date, 'yyyy-mm-dd'));
+                            $(inputs).eq(2).val(resp.action.hourly_cost);
+                            $(inputs).eq(3).val(resp.action.training_cost);
+                            $(inputs).eq(4).val(resp.action.expenses);
+                            $(inputs).eq(5).val(resp.action.cost_notes);
 
-                    $(parent).find('button[type=submit], button.cancel-button').remove();
-                    $(parent).find('button.edit-action-button').show();
+                            $(parent).find('button[type=submit], button.cancel-button').remove();
+                            $(parent).find('button.edit-action-button').show();
 
-                    swal('Success!', 'The action is updated!', 'success');
+                            swal('Success!', 'The action is updated!', 'success');
 
-                    updateOthers(resp);
-                } else {
-                    swal('Error!', 'An error occurred while updating.', 'error');
-                }
+                            updateOthers(resp);
+                        } else {
+                            swal('Error!', 'An error occurred while updating.', 'error');
+                        }
+                    }
+                });
             }
         });
     });
@@ -514,16 +577,13 @@ $(document).ready(function() {
                 if (resp === 'success') {
                     swal({
                         title: 'Goal added!',
-                        html: 'Refreshing in 5 seconds... click <a href="/view">here</a> to refresh now.',
-                        timer: 5000,
+                        html: 'Refreshing...',
                         onOpen: () => {
                             swal.showLoading()
                         }
-                    }).then((result) => {
-                        if (result.dismiss === 'timer') {
-                            location.reload();
-                        }
                     });
+
+                    location.reload();
                 } else if (resp === 'fail') {
                     swal('Error!', 'An error ocurred when saving goal', 'error');
                 }
@@ -603,7 +663,7 @@ $(document).ready(function() {
                         deleteRemaining(resp.a_id); // delete actions from other tabs
 
                         swal(
-                            'Deleted!',
+                            'Success!',
                             'The action has been deleted.',
                             'success'
                         )
@@ -678,7 +738,7 @@ $(document).ready(function() {
             showCancelButton: true,
             confirmButtonColor: '#007bff',
             cancelButtonColor: '#868e96',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.value) {
                 $.ajax({
@@ -690,17 +750,15 @@ $(document).ready(function() {
                     },
                     success: function(resp) {
                         swal({
-                            title: 'Deleted!',
-                            html: 'Refreshing in 5 seconds or click <a href="/view">here</a> to refresh now.',
-                            timer: 5000,
+                            title: 'Success!',
+                            html: 'Refreshing...',
+                            type: 'success',
                             onOpen: () => {
                                 swal.showLoading()
                             }
-                        }).then((result) => {
-                            if (result.dismiss === 'timer') {
-                                location.reload();
-                            }
-                        });
+                        })
+                        
+                        location.reload();
                     }
                 });
             }
@@ -734,14 +792,13 @@ $(document).ready(function() {
                 url: '/populate-employee-table',
                 method: 'GET',
                 success: function(resp) {
-                    console.log(resp);
                     for (i in resp) {
                         var actionTable = $('<div>').addClass('w-100 d-flex justify-content-between flex-wrap')
                         for (index in resp[i].actions) {
                             if (resp[i].actions[index].action !== null) {
 
                                 // Show action index on Admin table
-                                var actionIdx = 'Action ' + (parseInt(index) + 1);
+                                let actionIdx = 'Action ' + (parseInt(index) + 1);
 
                                 // Classify Action Status and store in variables
                                 if (resp[i].actions[index].status === 'Submitted') {
@@ -824,9 +881,8 @@ $(document).ready(function() {
                                                                             message: $('#hr_comment').val()
                                                                         },
                                                                         success: function(resp) {
-                                                                            console.log(resp);
                                                                             if (resp.status === 'success') {
-                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Declined');
+                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>' + actionIdx + ' Declined');
                                                                                 $('#submit-decline-message').remove();
                                                                             } else {
                                                                                 swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
@@ -854,9 +910,9 @@ $(document).ready(function() {
                                                         console.log(resp);
                                                         if (resp.status === 'success') {
                                                             if (resp.value === 'Approved') {
-                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Approved');
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>' + actionIdx + ' Approved');
                                                             } else if (resp.value === 'Submitted') {
-                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>Action ' + (parseInt(index) + 1) + ' Pending');
+                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>' + actionIdx + ' Pending');
                                                             }
                                                         } else {
                                                             swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
@@ -959,7 +1015,6 @@ $(document).ready(function() {
                 });
             } else {
                 swal({
-                    type: 'Warning',
                     text: 'Divisions are being loaded. Please wait...',
                     showConfirmButton: false,
                     timer: 1500
@@ -1019,10 +1074,9 @@ $(document).ready(function() {
                 });
             } else {
                 swal({
-                    type: 'warning',
-                    title: 'Employees are being loaded. Please wait...',
+                    text: 'Employees are being loaded. Please wait...',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1500,
                 });
             }
         } else {

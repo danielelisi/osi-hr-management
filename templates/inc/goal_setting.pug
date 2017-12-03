@@ -29,11 +29,18 @@
                     h3 T
                     h6.font-weight-bold Time-Bound
                     small All goals must have a deadline
+        //--.alert.alert-info.alert-dimissable.fade.show.d-flex.justify-content-between(role='alert')
+            h5.text-dark-blue.mb-0
+                i.fa.fa-info-circle.fa-lg.mr-1(aria-hidden='true')
+                span Setting Goal and Actions for 
+                u #{formatDate(new Date(current_period.start_date))} - #{formatDate(new Date(current_period.end_date))}
+            button.close(data-dismiss='alert', aria-label='Close')
+                i.fa.fa-times(aria-hidden='true')
         .card.bg-transparent.mb-3
             .card-body
-                //-- complete
                 form#add-action(method='POST', action='/save-goal-changes')
                     input(type='hidden', name='g_gp_id', value=goal_prep[0].gp_id)
+                    input(type='hidden', name='current_period', value=current_period)
                     .form-group
                         label.d-block.font-weight-bold.text-dark-blue
                             h6.font-weight-bold.text-dark-blue.mb-0
@@ -89,25 +96,25 @@
                                     input(type='hidden', name='a_id' value=action[index].a_id)
                                     input.d-inline-block.form-control.mb-3(type='text', name='action', readonly, value=action[index].action)
                                     .d-flex.justify-content-between.mb-3
-                                        .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date')
+                                        .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.')
                                             span.input-group-addon
                                                 i.fa.fa-calendar-times-o.fa-lg(aria-hidden='true')
                                             input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, readonly, value=formatDateCode(action[index].due_date))
                                         .w-24
-                                            .input-group(data-toggle='tooltip', title='Budgeted Hours')
+                                            .input-group(data-toggle='tooltip', title='Budgeted Hours - Include cost of tuition and books or supplies.')
                                                 span.input-group-addon
                                                     i.fa.fa-clock-o.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].hourly_cost, name='hourly_cost', readonly, data-toggle='tooltip', title='Budgeted Hours - Enter the number of hours it will take to complete this action.')
+                                                input.form-control(type='number', value=action[index].hourly_cost, name='hourly_cost', readonly)
                                         .w-24                                
-                                            .input-group(data-toggle='tooltip', title='Training Cost')
+                                            .input-group(data-toggle='tooltip', title='Training Cost - Include cost of tuition and books or supplies.')
                                                 span.input-group-addon
                                                     i.fa.fa-dollar.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].training_cost, name='training_cost', readonly, data-toggle='tooltip', title='Training Cost - Include cost of tuition and books or supplies.')
+                                                input.form-control(type='number', value=action[index].training_cost, name='training_cost', readonly)
                                         .w-24
-                                            .input-group(data-toggle='tooltip', title='Expenses')
+                                            .input-group(data-toggle='tooltip', title='Expenses - Input any additional costs, such as travel.')
                                                 span.input-group-addon
                                                     i.fa.fa-money.fa-lg(aria-hidden='true')
-                                                input.form-control(type='number', value=action[index].expenses, name='expenses', readonly, data-toggle='tooltip', title='Input any additional costs, such as travel.')
+                                                input.form-control(type='number', value=action[index].expenses, name='expenses', readonly)
                                     .input-group.mb-3(data-toggle='tooltip', title='Notes')
                                         span.input-group-addon
                                             i.fa.fa-sticky-note-o.fa-lg
@@ -145,7 +152,7 @@
                             label.font-weight-bold.text-dark-blue.mr-2
                                 i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
                                 | Due Date:
-                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required)
+                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.')
                         .card-deck.mb-3
                             .card.bg-transparent
                                 .card-body.text-center
@@ -154,7 +161,7 @@
                                         | Budgeted Hours
                                     .input-group
                                         span.input-group-addon $
-                                        input.form-control(type='number', name='hourly_cost')
+                                        input.form-control(type='number', name='hourly_cost', data-toggle='tooltip', title='Budgeted Hours - Include cost of tuition and books or supplies.')
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
@@ -162,7 +169,7 @@
                                         | Training Cost
                                     .input-group
                                         span.input-group-addon $
-                                        input.form-control(type='number', name='training_cost')
+                                        input.form-control(type='number', name='training_cost', data-toggle='tooltip', title='Training Cost - Include cost of tuition and books or supplies.')
                             .card.bg-transparent
                                 .card-body.text-center
                                     label.d-block.font-weight-bold.text-dark-blue
@@ -170,7 +177,7 @@
                                         | Expenses
                                     .input-group
                                         span.input-group-addon $
-                                        input.form-control(type='number', name='expenses')
+                                        input.form-control(type='number', name='expenses', data-toggle='tooltip', title='Expenses - Input any additional costs, such as travel.')
                         .d-flex.justify-content-between.align-items-center.mb-3
                             .w-10
                                 label.font-weight-bold.text-dark-blue.mb-0

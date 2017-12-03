@@ -73,10 +73,12 @@ function addAction(id, count, header, from) {
     var num = count + 1;
 
     if (actionCount < 1) {
-        swal('You can add up to 4 actions');
+        swal({
+            text: 'You can add up to 4 actions'
+        });
     }
     
-    let pdpPeriod = getPdpPeriod();
+    let pdpPeriodObj = getPdpPeriod();
 
     $('#action-wrapper').append(
         $('<div>').addClass('accordion').attr('id', 'accordion-' + id + '-' + num).attr('role', 'tablist').attr('aria-multiselectable', 'true').append([
@@ -96,8 +98,8 @@ function addAction(id, count, header, from) {
                         $('<div>').addClass('form-inline mb-3').append([
                             $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:'),
                             $('<input>').addClass('date-select form-control').attr({'type': 'text', 'name': 'due_date', 'required': 'required'}).datepicker({
-                                minDate: pdpPeriod.start_date,
-                                maxDate: pdpPeriod.end_date
+                                minDate: pdpPeriodObj.start_date,
+                                maxDate: pdpPeriodObj.end_date
                             }).tooltip({
                                 title: 'Should not go beyond the PDP period',
                                 trigger: 'hover focus'
@@ -128,7 +130,7 @@ function addAction(id, count, header, from) {
                                     $('<label>').addClass('d-block font-weight-bold text-dark-blue').html('<i class="fa fa-money fa-lg mr-1" aria-hidden="true"></i> Expenses'),
                                     $('<input>').addClass('form-control').attr('type', 'number').attr('name', 'expenses').tooltip({
                                         title: 'Input any additional costs, such as travel.',
-                                        trigger: 'focus hover'
+                                        trigger: 'hover focus'
                                     })
                                 ])
                             )
@@ -207,18 +209,26 @@ function createCheckins(resp, form_url, i) {
             // check if action id in actions table matches with action id in checkins table
             if (resp.action[i].a_id === resp.checkin[index].c_a_id) {
                 employeeSubmitted = true;
-                content = $('<div>').addClass('card-footer bg-info-light').append([
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
-                        $('<span>').html(resp.checkin[index].employee_checkin_comment)
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                        $('<span>').html(formatDate(resp.checkin[index].checkin_date, 'MMMM dd, yyyy'))
-                    ])
-                ])
+                content = $('<div>').addClass('card bg-transparent mb-3').append(
+                    $('<div>').addClass('card-body').append(
+                        $('<h5>').addClass('text-dark-blue').append(
+                            $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').html('Employee\'s Submission')
+                        ),
+                        $('<div>').addClass('alert alert-success').append([
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+                                $('<span>').html(resp.checkin[index].employee_checkin_comment)
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                $('<span>').html(formatDate(resp.checkin[index].checkin_date, 'MMMM dd, yyyy'))
+                            ])
+                        ])
+                    )
+                )
                 return false;
             } else { // if not, warning manager employee has not checked in yet
                 employeeSubmitted = false;
@@ -235,18 +245,26 @@ function createCheckins(resp, form_url, i) {
         $(resp.checkin).each(function(index) {
             // check if action id in actions table matches with action id in checkins table AND if manager submitted checkin
             if (resp.action[i].a_id === resp.checkin[index].c_a_id && resp.checkin[index].manager_checkin_comment) {
-                managerSubmitted = $('<div>').addClass('alert alert-success mb-3').append([
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
-                        $('<span>').html(resp.checkin[index].manager_checkin_comment)
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                        $('<span>').html(formatDate(resp.checkin[index].m_check_in_date, 'MMMM dd, yyyy'))
-                    ])
-                ])
+                managerSubmitted = $('<div>').addClass('card bg-transparent').append(
+                    $('<div>').addClass('card-body').append(
+                        $('<h5>').addClass('text-dark-blue').append(
+                            $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').html('Manager\'s Submission')
+                        ),
+                        $('<div>').addClass('alert alert-info').append([
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                $('<span>').html(resp.checkin[index].manager_checkin_comment)
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                $('<span>').html(formatDate(resp.checkin[index].m_check_in_date, 'MMMM dd, yyyy'))
+                            ])
+                        ])
+                    )
+                )
                 return false;
             } else { // else show form
                 if (employeeSubmitted) { // if employee submitted their checkin
@@ -264,7 +282,7 @@ function createCheckins(resp, form_url, i) {
                         ])
                     ).append(
                         $('<div>').addClass('d-inline-block w-15 align-top').append(
-                            $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
+                            $('<button>').addClass('btn btn-primary ml-1').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
                         )
                     )
                 )
@@ -305,11 +323,11 @@ function createCheckins(resp, form_url, i) {
             )
         ).append(
             $('<div>').addClass('collapse bg-transparent ' + show).attr('role', 'tabpanel').attr('aria-labelledby', 'ev-ca-' + resp.action[i].a_id).attr('id', 'collapse-ev-checkin-actions-' + resp.action[i].a_id).append([
-                $('<div>').addClass('card-body').append([
+                $('<div>').addClass('card-body').append(
+                    content,
                     $('<div>').addClass('manager-ck-comment'),
                     managerSubmitted
-                ]),
-                content
+                )
             ])
         )
     )
@@ -334,59 +352,75 @@ function createGoalReview(resp, form_url, i) {
         $(resp.goal_review).each(function(index) {
             if (resp.action[i].a_id === resp.goal_review[index].gr_a_id) { // check if action id in actions table matches with action id in goal review table
                 employeeSubmitted = true;
-                grEmployeeComment = $('<div>').addClass('card-footer bg-info-light').append([
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
-                        $('<span>').html(resp.goal_review[index].employee_gr_comment)
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                        $('<span>').html(formatDate(resp.goal_review[index].submitted_on, 'MMMM dd, yyyy'))
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Final Status: '),
-                        $('<span>').html(resp.action[i].action_review_status)
-                    ])
-                ])
+                grEmployeeComment = $('<div>').addClass('card bg-transparent mb-3').append(
+                    $('<div>').addClass('card-body').append(
+                        $('<h5>').addClass('text-dark-blue').append(
+                            $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').html('Employee\'s Submission')
+                        ),
+                        $('<div>').addClass('alert alert-success').append([
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
+                                $('<span>').html(resp.goal_review[index].employee_gr_comment)
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                $('<span>').html(formatDate(resp.goal_review[index].submitted_on, 'MMMM dd, yyyy'))
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Final Status: '),
+                                $('<span>').html(resp.action[i].action_review_status)
+                            ])
+                        ])
+                    )
+                )
                 return false;
             } else { // if not, warn manager that employee has not submitted goal review
                 employeeSubmitted = false;
-                grEmployeeComment = $('<div>').addClass('card-footer bg-danger-light d-flex align-items-center font-weight-bold').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+                grEmployeeComment = $('<div>').addClass('alert alert-danger').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
             }
         });
     } else {
         employeeSubmitted = false;
-        grEmployeeComment = $('<div>').addClass('card-footer bg-danger-light d-flex align-items-center font-weight-bold').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+        grEmployeeComment = $('<div>').addClass('alert alert-danger').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
     }
 
     if (resp.goal_review.length > 0) {
         $(resp.goal_review).each(function(index) {
             if (resp.action[i].a_id === resp.goal_review[index].gr_a_id && resp.goal_review[index].manager_gr_comment) {
-                grManagerComment = $('<div>').addClass('alert alert-success').append([
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-commenting-ofa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
-                        $('<span>').html(resp.goal_review[index].manager_gr_comment)
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-                        $('<span>').html(formatDate(resp.goal_review[index].reviewed_on, 'MMMM dd, yyyy'))
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
-                        $('<span>').html(resp.goal_review[index].progress + '%')
-                    ]),
-                    $('<div>').append([
-                        $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-                        $('<span>').addClass('font-weight-bold').html('Effectiveness: '),
-                        $('<span>').html(resp.goal_review[index].effectiveness)
-                    ])
-                ]);
+                grManagerComment = $('<div>').addClass('card bg-transparent').append(
+                    $('<div>').addClass('card-body').append(
+                        $('<h5>').addClass('text-dark-blue').append(
+                            $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
+                            $('<span>').html('Manager\'s Submission')
+                        ),
+                        $('<div>').addClass('alert alert-info').append([
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Manager Comment: '),
+                                $('<span>').html(resp.goal_review[index].manager_gr_comment)
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
+                                $('<span>').html(formatDate(resp.goal_review[index].reviewed_on, 'MMMM dd, yyyy'))
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Observed Progress: '),
+                                $('<span>').html(resp.goal_review[index].progress + '%')
+                            ]),
+                            $('<div>').append([
+                                $('<i>').addClass('fa fa-area-chart fa-lg mr-1').attr('aria-hidden', 'true'),
+                                $('<span>').addClass('font-weight-bold').html('Effectiveness: '),
+                                $('<span>').html(resp.goal_review[index].effectiveness)
+                            ])
+                        ])
+                    )
+                )
                 return false;
             } else if (userData.auth === 'HR' || userData.auth === 'Manager') {
                 if (employeeSubmitted) {
@@ -505,10 +539,10 @@ function createGoalReview(resp, form_url, i) {
         ).append(
             $('<div>').addClass('collapse bg-transparent ' + show).attr('role', 'tabpanel').attr('aria-labelledby', 'ev-gra-' + resp.action[i].a_id).attr('id', 'collapse-ev-gr-actions-' + resp.action[i].a_id).append([
                 $('<div>').addClass('card-body').append([
+                    grEmployeeComment,
                     $('<div>').attr('id', 'manager-gr-comments'),
                     grManagerComment
-                ]),
-                grEmployeeComment
+                ])
             ])
         )
     )
@@ -541,7 +575,7 @@ function createEmployeeActions(obj, i) {
         var message = 'Declined';
     }
 
-    let pdpPeriod = getPdpPeriod();
+    let pdpPeriodObj = getPdpPeriod();
 
     $('#ev-goal-overview').append(
         $('<div>').addClass('card bg-transparent mb-3').attr('id', 'ev-action-' + obj.action[i].a_id).append([
@@ -557,8 +591,8 @@ function createEmployeeActions(obj, i) {
                         $('<div>').addClass('w-24 input-group').append([
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
                             $('<input>').addClass('form-control date-select').attr({'type': 'text', 'readonly': 'readonly', 'name': 'due_date'}).val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd')).datepicker({
-                                minDate: pdpPeriod.start_date,
-                                maxDate: pdpPeriod.end_date
+                                minDate: pdpPeriodObj.start_date,
+                                maxDate: pdpPeriodObj.end_date
                             })
                         ]).tooltip({
                             trigger: 'focus hover',
@@ -665,7 +699,7 @@ function selectAllOrNone(parent, bool, type) {
 }
 
 function createActionAccordion(resp) {
-    let pdpPeriod = getPdpPeriod();
+    let pdpPeriodObj = getPdpPeriod();
 
     $('<div>').addClass('card bg-transparent mb-3 h-0').css('display', 'none').attr('id', 'action-div-' + resp.action[0].a_id).append([
         $('<div>').addClass('card-header d-flex justify-content-between align-items-center bg-white').append([
@@ -684,8 +718,8 @@ function createActionAccordion(resp) {
                             $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
                         ),
                         $('<input>').addClass('d-flex flex-row form-control date-select').attr({'type': 'text', 'value': formatDate(resp.action[0].due_date, 'yyyy-mm-dd'), 'name': 'due_date', 'readonly': 'readonly'}).datepicker({
-                            minDate: pdpPeriod.start_date,
-                            maxDate: pdpPeriod.end_date
+                            minDate: pdpPeriodObj.start_date,
+                            maxDate: pdpPeriodObj.end_date
                         })
                     ]),
                     $('<div>').addClass('w-24').append(
@@ -994,26 +1028,6 @@ function createConfirmation(confirmation, callback) {
     )
 }
 
-function goalReviewSubmittedMessage(message, date, progress, appendTo) {
-    $('<div>').addClass('alert alert-success').css('display', 'none').append([
-        $('<div>').append([
-            $('<i>').addClass('fa fa-commenting-o fa-lg mr-1').attr('aria-hidden', 'true'),
-            $('<span>').addClass('font-weight-bold').html('Employee Comment: '),
-            $('<span>').html(message)
-        ]),
-        $('<div>').append([
-            $('<i>').addClass('fa fa-calendar-check-o fa-lg mr-1').attr('aria-hidden', 'true'),
-            $('<span>').addClass('font-weight-bold').html('Date Submitted: '),
-            $('<span>').html(date)
-        ]),
-        $('<div>').append(
-            $('<i>').addClass('fa fa-line-chart fa-lg mr-1').attr('aria-hidden', 'true'),
-            $('<span>').addClass('font-weight-bold').html('Final Status: '),
-            $('<span>').html(progress)
-        )
-    ]).appendTo(appendTo).slideDown('slow');
-}
-
 function populatePeriodSelect() {
     $.ajax({
         url: '/populate-period-select',
@@ -1021,19 +1035,11 @@ function populatePeriodSelect() {
         success: function(resp) {
             if (resp !== 'fail') {
                 for (var i = 0; i < resp.length; i++) {
-                    if (i === (resp.length - 1)) {
-                        $('#period-select').append($('<option>', {
-                            id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
-                        }).attr('selected', 'selected'));
-                    } else {
-                        $('#period-select').append($('<option>', {
-                            id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                            text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
-                        }));
-                    }
+                    $('#period-select').append($('<option>', {
+                        id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
+                        value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
+                        text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
+                    }));
                 }
             }
         }

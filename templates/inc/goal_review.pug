@@ -29,24 +29,47 @@
                             span #{action[index].action}
                 .collapse.bg-transparent(role='tabpanel', aria-labelledby='goal-review-' + i, id='collapse-goal-review-' + i, class=show)
                     .card-body
+                        if goal_review.length > 0
+                            each val, idx in goal_review
+                                if action[index].a_id === goal_review[idx].gr_a_id && goal_review[idx].manager_gr_comment
+                                    .card.bg-transparent.mb-3
+                                        .card-body
+                                            h5.text-dark-blue
+                                                i.fa.fa-user.fa-lg.mr-1(aria-hidden='true')
+                                                span Manager's Check-in
+                                            .alert.alert-info
+                                                div
+                                                    i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Manager Comment: 
+                                                    span #{goal_review[idx].manager_gr_comment}
+                                                div
+                                                    i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Date Submitted: 
+                                                    span #{formatDate(goal_review[idx].reviewed_on)}
+                                    - break
                         - var gr_submitted = false
                         if !gr_submitted
                             each v, idx in goal_review
                                 if action[index].a_id === goal_review[idx].gr_a_id
                                     - gr_submitted = true
-                                    .alert.alert-success
-                                        div
-                                            i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Employee Comment: 
-                                            span #{goal_review[idx].employee_gr_comment}
-                                        div
-                                            i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Submitted on: 
-                                            span #{formatDateCode(goal_review[idx].submitted_on)}
-                                        div
-                                            i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
-                                            span.font-weight-bold Final Status: 
-                                            span #{action[index].action_review_status}
+                                    .card.bg-transparent
+                                        .card-body
+                                            h5.text-dark-blue
+                                                i.fa.fa-user-o.fa-lg.mr-1(aria-hidden='true')
+                                                span Employee's Goal Review
+                                            .alert.alert-success
+                                                div
+                                                    i.fa.fa-commenting-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Employee Comment: 
+                                                    span #{goal_review[idx].employee_gr_comment}
+                                                div
+                                                    i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Submitted on: 
+                                                    span #{formatDateCode(goal_review[idx].submitted_on)}
+                                                div
+                                                    i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Final Status: 
+                                                    span #{action[index].action_review_status}
                         if !gr_submitted
                             #employee-gr-comments
                             //-- complete
@@ -74,16 +97,3 @@
                                             button.btn.btn-primary(type='submit')
                                                 i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')
                                                 | Submit
-                    if goal_review.length > 0
-                        each val, idx in goal_review
-                            if action[index].a_id === goal_review[idx].gr_a_id && goal_review[idx].manager_gr_comment
-                                .card-footer.bg-info-light
-                                    div
-                                        i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
-                                        span.font-weight-bold Manager Comment: 
-                                        span #{goal_review[idx].manager_gr_comment}
-                                    div
-                                        i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                        span.font-weight-bold Date Submitted: 
-                                        span #{formatDate(goal_review[idx].reviewed_on)}
-                                - break
