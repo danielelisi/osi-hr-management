@@ -15,7 +15,7 @@ const ad = new activeDirectory(activeDirectoryConfig);
 // Login Bamboo API
 router.post('/login-api', function(req, resp) {
 
-    let username = req.body.username;
+    let username = req.body.username.toLowerCase();
     let password = req.body.password;
 
     // will store @osimaritime email fetched from AD
