@@ -207,6 +207,9 @@ $(document).ready(function() {
                     $('#fetch-employee-status').html('<i class="d-block fa fa-exclamation-circle fa-5x mx-auto mb-2" aria-hidden="true"></i>That employee does not exist')
                     $('#ev').hide();
                 } else {
+                    $('#ev-pdp-period').append(
+                        $('<h4>').html(formatDate(resp.action[0].start_date, 'MMMM dd, yyyy') + ' - ' + formatDate(resp.action[0].end_date, 'MMMM dd, yyyy'))
+                    );
                     $('#fetch-employee').hide();
                     $('#ev-goal-overview').empty();
                     $('#plan').empty();
@@ -492,8 +495,6 @@ $(document).ready(function() {
             text: 'The actions\'s status will be reverted to pending',
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#007bff',
-            cancelButtonColor: '#868e96',
             confirmButtonText: 'Yes',
             cancelButtonText: 'No'
         }).then((result) => {
@@ -630,8 +631,6 @@ $(document).ready(function() {
             text: "You won't be able to revert this!",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#007bff',
-            cancelButtonColor: '#868e96',
             confirmButtonText: 'Yes',
             cancelButtonText: 'No'
         }).then((result) => {
@@ -736,8 +735,6 @@ $(document).ready(function() {
             text: "All actions will be deleted and cannot be reverted.",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#007bff',
-            cancelButtonColor: '#868e96',
             confirmButtonText: 'Yes'
         }).then((result) => {
             if (result.value) {
@@ -783,7 +780,7 @@ $(document).ready(function() {
         'scrollY': '50vh',
         'scrollCollapse': true,
         'paging': false
-    });
+    }).columns.adjust().draw();
 
     var tableLoaded = false;
     $('#admin-link').click(function() {
@@ -814,7 +811,6 @@ $(document).ready(function() {
                                     var buttonHTML = '<i class="fa fa-ban mr-1" aria-hidden="true"></i>'
                                     var statusState = ' Declined';
                                 }
-
 
                                 var actionCards = $('<div>').append([
                                     $('<div>').addClass('card-group mb-2').append([
@@ -862,42 +858,7 @@ $(document).ready(function() {
                                         ]).change(function() {
                                             var parent = $(this);
                                             if ($(this).find('select :selected').attr('value') === 'Declined') {
-                                                $('#hrv-employee').append(
-                                                    $('<div>').addClass('position-absolute d-flex justify-content-center align-items-center mx-auto my-auto').attr('id', 'submit-decline-message').css({'top': '0', 'bottom': '0', 'left': '0', 'right': '0'}).append(
-                                                        $('<div>').addClass('card w-50 bg-white border border-dark rounded').append([
-                                                            $('<div>').addClass('card-header').append(
-                                                                $('<h5>').html('Submit Message for Declining')
-                                                            ),
-                                                            $('<div>').addClass('card-body').append(
-                                                                $('<input>').addClass('form-control').attr({'type': 'text', 'id': 'hr_comment'})
-                                                            ),
-                                                            $('<div>').addClass('card-footer text-right').append([
-                                                                $('<button>').addClass('btn btn-primary mr-1').attr('type', 'button').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit').click(function() {
-                                                                    $.ajax({
-                                                                        url: '/submit-action-status',
-                                                                        method: 'POST',
-                                                                        data: {
-                                                                            data: $(parent).serializeArray(),
-                                                                            message: $('#hr_comment').val()
-                                                                        },
-                                                                        success: function(resp) {
-                                                                            if (resp.status === 'success') {
-                                                                                $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>' + actionIdx + ' Declined');
-                                                                                $('#submit-decline-message').remove();
-                                                                            } else {
-                                                                                swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                }),
-                                                                $('<button>').addClass('btn btn-secondary').attr('type', 'button').html('<i class="fa fa-times fa-lg mr-1" aria-hidden="true"></i>Cancel').click(function() {
-                                                                    $('#submit-decline-message').remove();
-                                                                    $(parent).find('select').val('Default');
-                                                                })
-                                                            ])
-                                                        ])
-                                                    )
-                                                )
+                                                declineMessage(parent, '#hr_comment', actionIdx);
                                             } else {
                                                 $.ajax({
                                                     url: '/submit-action-status',
@@ -907,7 +868,6 @@ $(document).ready(function() {
                                                         message: null
                                                     },
                                                     success: function(resp) {
-                                                        console.log(resp);
                                                         if (resp.status === 'success') {
                                                             if (resp.value === 'Approved') {
                                                                 $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-warning').addClass('btn-success').html('<i class="fa fa-check mr-1" aria-hidden="true"></i>' + actionIdx + ' Approved');
@@ -1377,26 +1337,7 @@ $(document).ready(function() {
         });
     });
 
-    /* var departmentLoaded = false;
-    $('#by-department-link').click(function() {
-        if (!departmentLoaded) {
-            $.ajax({
-                url: '/get-department',
-                method: 'GET',
-                success: function(resp) {
-                    $('#report-department-select').append(
-                        $('<option>').attr('value', resp[i].department).text(resp[i].department)
-                    )
-                }
-            });
-        }
-    }); */
-
-/*     $.ajax({
-        url: '/populate-employee-table',
-        method: 'GET',
-        success: function(resp) {
-            console.log(resp);
-        }
-    })   */
+    $('#start-new-goal-button').click(function() {
+        startNewGoal(goalPrep[0].gp_id, goals.g_id);
+    });
 });

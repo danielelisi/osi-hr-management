@@ -102,7 +102,8 @@ function addAction(id, count, header, from) {
                                 maxDate: pdpPeriodObj.end_date
                             }).tooltip({
                                 title: 'Should not go beyond the PDP period',
-                                trigger: 'hover focus'
+                                trigger: 'hover focus',
+                                placement: 'right'
                             })
                         ])
                     ).append(
@@ -232,12 +233,12 @@ function createCheckins(resp, form_url, i) {
                 return false;
             } else { // if not, warning manager employee has not checked in yet
                 employeeSubmitted = false;
-                content = $('<div>').addClass('card-footer bg-danger-light d-flex align-items-center font-weight-bold').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+                content = $('<div>').addClass('alert alert-danger font-weight-bold mb-3').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
             }
         });
     } else {
         employeeSubmitted = false;
-        content = $('<div>').addClass('card-footer bg-danger-light d-flex align-items-center font-weight-bold').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+        content = $('<div>').addClass('alert alert-danger font-weight-bold mb-3').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
     }
 
     // if there is checkin
@@ -273,15 +274,13 @@ function createCheckins(resp, form_url, i) {
                     var state = true; // otherwise, disable form
                 }
                 managerSubmitted = $('<form>').addClass('manager-checkin-form').attr('method', 'POST').attr('action', form_url).append(
-                    $('<div>').addClass('form-group').append(
-                        $('<label>').addClass('d-block font-weight-bold').text('Manager Comment')
-                    ).append(
+                    $('<label>').addClass('d-block font-weight-bold').text('Manager Comment'),
+                    $('<div>').addClass('d-flex justify-content-between').append(
                         $('<div>').addClass('d-inline-block w-85 align-top').append([
                             $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[i].a_id}),
                             $('<input>').addClass('form-control').attr({'type': 'text', 'name': 'comment', 'placeholder': "What have you observed about the employee's efforts toward this action?", 'disabled': state})
-                        ])
-                    ).append(
-                        $('<div>').addClass('d-inline-block w-15 align-top').append(
+                        ]),
+                        $('<div>').addClass('d-inline-block w-15 align-top text-right').append(
                             $('<button>').addClass('btn btn-primary ml-1').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
                         )
                     )
@@ -295,17 +294,14 @@ function createCheckins(resp, form_url, i) {
             var state = true;
         }
         managerSubmitted = $('<form>').addClass('manager-checkin-form').attr('method', 'POST').attr('action', form_url).append(
-            $('<div>').addClass('form-group').append(
-                $('<label>').addClass('d-block font-weight-bold').text('Manager Comment')
-            ).append(
-                $('<div>').addClass('d-inline-block w-85 align-top').append(
-                    $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[i].a_id})
-                ).append(
+            $('<label>').addClass('d-block font-weight-bold').text('Manager Comment'),
+            $('<div>').addClass('d-flex justify-content-between').append(
+                $('<div>').addClass('d-inline-block w-85 align-top').append([
+                    $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[i].a_id}),
                     $('<input>').addClass('form-control').attr({'type': 'text', 'name': 'comment', 'placeholder': "What have you observed about the employee's efforts toward this action?", 'disabled': state})
-                )
-            ).append(
-                $('<div>').addClass('d-inline-block w-15 align-top').append(
-                    $('<button>').addClass('btn btn-primary').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-1" aria-hidden="true"></i>Submit')
+                ]),
+                $('<div>').addClass('d-inline-block w-15 align-top text-right').append(
+                    $('<button>').addClass('btn btn-primary ml-1').attr('id', 'manager-checkin-button-' + resp.action[i].a_id).attr('type', 'submit').html('<i class="fa fa-level-down fa-rotate-90 fa-lg mr-2" aria-hidden="true"></i>Submit')
                 )
             )
         )
@@ -380,12 +376,12 @@ function createGoalReview(resp, form_url, i) {
                 return false;
             } else { // if not, warn manager that employee has not submitted goal review
                 employeeSubmitted = false;
-                grEmployeeComment = $('<div>').addClass('alert alert-danger').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+                grEmployeeComment = $('<div>').addClass('alert alert-danger font-weight-bold mb-3').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
             }
         });
     } else {
         employeeSubmitted = false;
-        grEmployeeComment = $('<div>').addClass('alert alert-danger').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
+        grEmployeeComment = $('<div>').addClass('alert alert-danger font-weight-bold mb-3').html('<i class="fa fa-exclamation-circle fa-lg mr-1" aria-hidden="true"></i>Simultaneous submission from employee and manager can cause error.')
     }
 
     if (resp.goal_review.length > 0) {
@@ -596,7 +592,8 @@ function createEmployeeActions(obj, i) {
                             })
                         ]).tooltip({
                             trigger: 'focus hover',
-                            title: 'Due Date'
+                            title: 'Due Date',
+                            placement: 'right'
                         }),
                         $('<div>').addClass('w-24 input-group').append(
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-clock-o fa-lg mr-1" aria-hidden="true"></i>'),
@@ -713,7 +710,7 @@ function createActionAccordion(resp) {
                 $('<input>').attr({'type': 'hidden', 'name': 'a_id', 'value': resp.action[0].a_id}),
                 $('<input>').addClass('d-inline-block form-control mb-3').attr({'type': 'text', 'name': 'action', 'readonly': 'readonly', 'value': resp.action[0].action}),
                 $('<div>').addClass('d-flex justify-content-between mb-3').append([
-                    $('<div>').addClass('input-date w-24 input-group d-flex flex-row').attr({'data-toggle': 'tooltip', 'title': 'Due Date'}).append([
+                    $('<div>').addClass('input-date w-24 input-group d-flex flex-row').attr({'data-toggle': 'tooltip', 'title': 'Due Date', 'data-placement': 'right'}).append([
                         $('<span>').addClass('input-group-addon').append(
                             $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
                         ),
@@ -1034,6 +1031,11 @@ function populatePeriodSelect() {
         method: 'GET',
         success: function(resp) {
             if (resp !== 'fail') {
+                $('#period-select').empty();
+                $('#period-select').append(
+                    $('<option>').text('')
+                )
+                
                 for (var i = 0; i < resp.length; i++) {
                     $('#period-select').append($('<option>', {
                         id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
@@ -1044,4 +1046,84 @@ function populatePeriodSelect() {
             }
         }
     });
+}
+
+async function declineMessage(parent, hr_comment, actionIdx) {                                         
+    const {value: text} = await swal({
+        title: 'Reason for Decline',
+        input: 'textarea',
+        inputPlaceholder: 'Type your message here',
+        confirmButtonText: 'Submit',
+        showCancelButton: true
+    });
+
+    if (text) {
+        $.ajax({
+            url: '/submit-action-status',
+            method: 'POST',
+            data: {
+                data: $(parent).serializeArray(),
+                message: $(hr_comment).val()
+            },
+            success: function(resp) {
+                if (resp.status === 'success') {
+                    swal({
+                        title: 'Success!',
+                        text:'Message submitted',
+                        type: 'success',
+                    });
+                    $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>' + actionIdx + ' Declined');
+                    $('#submit-decline-message').remove();
+                } else {
+                    swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
+                }
+            }
+        });
+    } else {
+        $(parent).find('select').val('Default');
+    }
+}
+
+async function startNewGoal(g_gp_id, g_id) {
+    const {value: name} = await swal({
+        title: 'What is your new goal?',
+        html: 'This will start a new PDP period.',
+        input: 'text',
+        showCancelButton: true,
+        confirmButtonText: 'Submit',
+        inputValidator: (value) => {
+            return !value && 'You need to enter a goal!'
+        }
+    })
+
+    if (name) {
+        $.ajax({
+            url: '/start-new-goal',
+            method: 'POST',
+            data: {
+                g_gp_id: g_gp_id,
+                g_id: g_id,
+                goal: name
+            },
+            success: function(resp) {
+                console.log(resp);
+                if (resp.status === 'success') {
+                    swal({
+                        title: 'Success!',
+                        text: 'You can now view your new PDP period.',
+                        type: 'success'
+                    });
+
+                    populatePeriodSelect();
+                    location.href('/view?period')
+                } else {
+                    swal({
+                        title: 'Error!',
+                        text: resp.message,
+                        type: 'error'
+                    })
+                }
+            }
+        })
+    }
 }
