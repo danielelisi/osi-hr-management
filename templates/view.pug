@@ -2,6 +2,8 @@
 
 - var formatDate = function(date) { var d = monthNames[date.getUTCMonth()] + ' ' + date.getUTCDate() + ', ' + date.getFullYear(); return d; }
 
+- var formatDateToString = function(string) { var dateParts = string.split('-'); var month = monthNames[parseInt(dateParts[1]) - 1]; var dateString = month + ' ' + dateParts[2] + ', ' + dateParts[0]; return dateString }
+
 - var formatShortDate = function(date) { var sd = date.getUTCDate() + '-' + monthNames[date.getUTCMonth()].substr(0, 3) + '-' + date.getYear().toString().substr(-2); return sd; }
 
 - var formatDateCode = function(date) { if (date.getUTCDate() <= 9) { var day = '0' + date.getUTCDate(); } else { var day = date.getUTCDate(); } if (date.getUTCMonth() < 9) { var m = '0' + (date.getUTCMonth() + 1); } else { var m = date.getUTCMonth() + 1 } var d = date.getFullYear() + '-' + m + '-' + day; return d; }

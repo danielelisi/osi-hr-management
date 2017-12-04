@@ -83,9 +83,10 @@ app.get('/view', function(req, resp) {
 
         // if period in url query
         if (req.query.period) {
-            currentPdpPeriod = req.query.period.split('_');
-            dbRequest.input('start_date', currentPdpPeriod[0]);
-            dbRequest.input('end_date', currentPdpPeriod[1]);
+            let queryString = req.query.period.split('_');
+            currentPdpPeriod = {start_date: queryString[0], end_date: queryString[1]};
+            dbRequest.input('start_date', queryString[0]);
+            dbRequest.input('end_date', queryString[1]);
         } else {
             currentPdpPeriod = createCurrentPdpPeriod();
             dbRequest.input('start_date', currentPdpPeriod.start_date);
@@ -94,9 +95,9 @@ app.get('/view', function(req, resp) {
 
         var goalPrepObj = dbRequest.query('SELECT * FROM goal_prep JOIN goal_prep_details ON goal_prep.gp_id = goal_prep_details.gpd_gp_id WHERE gp_emp_id = @emp_id');
 
-        var goalObj = dbRequest.query('SELECT g_id, goal, created_on, g_emp_id, g_gp_id FROM goals WHERE g_emp_id = @emp_id GROUP BY g_id, goal, created_on, g_emp_id, g_gp_id');
+        var goalObj = dbRequest.query('SELECT max(g_id), goal, created_on, g_emp_id, g_gp_id FROM goals WHERE g_emp_id = @emp_id GROUP BY g_id, goal, created_on, g_emp_id, g_gp_id');
 
-        var actionsObj = dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id WHERE start_date = @start_date AND end_date = @end_date AND g_emp_id = @emp_id');
+        var actionsObj = dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id WHERE start_date = @start_date AND end_date = @end_date AND g_emp_id = @emp_id AND g_id = (SELECT MAX(g_id) AS g_id FROM goals)');
 
         var checkinsObj = goalObj.then((result) => {
             if (result !== undefined && result.recordset.length > 0) {
@@ -120,7 +121,6 @@ app.get('/view', function(req, resp) {
 
         Promise.all([goalPrepObj, goalObj, actionsObj, checkinsObj, goalReviewObj]).then(
             (result) => {
-                console.log(result);
                 resp.render('view', {user: req.session, goal_prep: result[0].recordset, goal: result[1].recordset, action: result[2].recordset, checkin: result[3].recordset, goal_review: result[4].recordset, current_period: currentPdpPeriod})
             }
         ).catch(
@@ -766,6 +766,41 @@ app.post('/save-goal-changes', function(req, resp) {
     });
 });
 
+app.post('/start-new-goal', function(req, resp) {
+    console.log(req.body);
+    let dbRequest = new sql.Request(sql.globalConnection);
+
+    dbRequest.input('g_id', req.body.g_id);
+    dbRequest.input('goal', req.body.goal);
+    dbRequest.input('emp_id', req.session.emp_id);
+    dbRequest.input('g_gp_id', req.body.g_gp_id);
+
+    dbRequest.query('SELECT g_emp_id, g_id, start_date, end_date, manager_gr_comment, gr_id FROM goals INNER JOIN actions ON goals.g_id = actions.a_g_id INNER JOIN goal_review ON actions.a_id = goal_review.gr_a_id WHERE manager_gr_comment IS NULL AND g_emp_id = @emp_id AND start_date = (SELECT MAX(start_date) AS start_date FROM actions)', function(err, result) {
+        console.log(result.recordset);
+        if (err) {
+            console.log(err);
+            resp.send({status: 'fail', message: 'An error occurred.'});
+        }
+
+        if (result !== undefined && result.recordset.length > 0) {
+            resp.send({status: 'fail', message: 'Your manager still need to submit goal review for one or more of your current action(s).'})
+        } else {
+            createNewPdpPeriod(req.session.emp_id, function(result) {
+                dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id) Output Inserted.* VALUES (@goal, @emp_id, @g_gp_id)', function(err, result) {
+                    if (err) {
+                        console.log(err);
+                        resp.send({status: 'fail', message: 'An error occurred while setting new goal.'})
+                    }
+
+                    if (result !== undefined && result.rowsAffected.length > 0) {
+                        resp.send({status: 'success'});
+                    }
+                });
+            });
+        }
+    });
+});
+
 // edit goal
 app.post('/edit-goal', function(req, resp) {
 
@@ -1025,14 +1060,12 @@ function createNewPdpPeriod(emp_id, callback) {
 
     dbRequest.input('emp_id', emp_id);
 
-    return new Promise(function(resolve, reject) {
-        dbRequest.query('SELECT MAX(g_id) AS g_id, MAX(start_date) AS start_date, MAX(end_date) AS end_date FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id', function(err, result) {
-            if (err) {console.log(err); reject(err)}
+    dbRequest.query('SELECT MAX(g_id) AS g_id, MAX(DATEADD(mm, 6, start_date)) AS start_date, MAX(DATEADD(mm, 6, end_date)) AS end_date FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id', function(err, result) {
+        if (err) {console.log(err);}
 
-            if (result !== undefined && result.recordset.length > 0) {
-                resolve(result);
-            }
-        });
+        if (result !== undefined && result.recordset.length > 0) {
+            callback(result.recordset);
+        }
     });
 }
 

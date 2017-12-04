@@ -1,4 +1,8 @@
 #goal-setting.tab-pane.user-main.p-3(role='tabpanel')
+    .text-right.mb-3
+        button#start-new-goal-button.btn.btn-success(type='button')
+            i.fa.fa-file-o.fa-lg.mr-1(aria-hidden='true')
+            span Start New Goal
     //- set goal and actions
     if goal.length === 0 && goal_prep.length > 0
         small
@@ -96,7 +100,7 @@
                                     input(type='hidden', name='a_id' value=action[index].a_id)
                                     input.d-inline-block.form-control.mb-3(type='text', name='action', readonly, value=action[index].action)
                                     .d-flex.justify-content-between.mb-3
-                                        .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.')
+                                        .input-date.w-24.input-group.d-flex.flex-row(data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.', data-placement='right')
                                             span.input-group-addon
                                                 i.fa.fa-calendar-times-o.fa-lg(aria-hidden='true')
                                             input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, readonly, value=formatDateCode(action[index].due_date))
@@ -152,7 +156,7 @@
                             label.font-weight-bold.text-dark-blue.mr-2
                                 i.fa.fa-calendar-times-o.fa-lg.mr-1(aria-hidden='true')
                                 | Due Date:
-                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.')
+                            input.d-flex.flex-row.form-control.date-select(type='text', name='due_date', required, data-toggle='tooltip', title='Due Date - Should not go beyond PDP period.', data-placement='right')
                         .card-deck.mb-3
                             .card.bg-transparent
                                 .card-body.text-center

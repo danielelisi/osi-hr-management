@@ -12,14 +12,14 @@
     else
         h6.text-dark-blue.mb-3.h-line.font-weight-bold
             i.fa.fa-bullseye.fa-lg.mr-1(aria-hidden='true')
-            | Goal
+            span Goal
         .card.bg-transparent#overview-goal.mb-3
             .card-body.h5.font-weight-bold #{goal[0].goal}
         #overview-action-wrapper
             if action.length > 0
                 h6.p-2.text-dark-blue.mb-3.h-line.font-weight-bold
                     i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')
-                    | Actions | #{formatDate(action[0].start_date)} - #{formatDate(action[0].end_date)}
+                    span Actions
                 #accordion-overview.accordion(role='tablist', aria-multiselectable='true')
                     each val, index in action
                         - var i = index + 1
