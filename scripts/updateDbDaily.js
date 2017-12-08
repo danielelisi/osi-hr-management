@@ -53,12 +53,6 @@ async function fetchBambooHR() {
         let insertedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Inserted');
         let deletedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Deleted');
 
-        console.log('LOG DI UPDATEDLIST');
-        console.log(updatedList);
-
-        console.log('LOG DI INSERTEDLIST');
-        console.log(insertedList);
-
         /*
          * If there has been employees update, the variable would be an array obj.
          * Otherwise, a string is returned
@@ -202,7 +196,7 @@ async function updateEmployeesDatabase(employeeIds) {
             .input('id', employeeId.id)
             .input('first_name', employeeId.firstName)
             .input('last_name', employeeId.lastName)
-            .input('emp_number', employeeId.employeeNumber)
+            .input('emp_number', employeeId.employeeIds)
             .query(dbQuery);
 
             console.dir(request);
