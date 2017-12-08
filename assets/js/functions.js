@@ -25,7 +25,7 @@ function formatDate(datetime, format) {
     
     var dayNumber = date.getUTCDate();
 
-    if (dayNumber < 9) {
+    if (dayNumber < 10) {
         var day = '0' + dayNumber;
     } else {
         var day = dayNumber;

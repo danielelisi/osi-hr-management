@@ -705,7 +705,7 @@ $(document).ready(function() {
                     } else if (resp.status = 'fail') {
                         swal({
                             title: 'Error!',
-                            text: 'An error occurred',
+                            text: resp.message,
                             type: 'error',
                             allowOutsideClick: false
                         });

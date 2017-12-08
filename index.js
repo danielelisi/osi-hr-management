@@ -900,35 +900,19 @@ app.post('/edit-goal', function(req, resp) {
 
     dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date', function(err, result) {
         if (err) {console.log(err)}
-        console.log('from edit goal 1');
-        console.log(result);
 
         if (result !== undefined && result.recordset.length > 0) {
-        /* let haveActions = false;
-        for (var i = 0; i < result.recordset.length; i++) {
-            if (result.recordset[i].a_id !== null) {
-                haveActions = true;
-                break;
-            }
-        }
-
-        if (haveActions) { */
-            console.log('from edit goal');
-            console.log(result);
-            console.log(convertDate(new Date(currentPdpPeriod.end_date)));
             resp.send({status: 'fail', message: 'You have actions in the PDP period of ' + convertDate(new Date(currentPdpPeriod.start_date)) + ' - ' + convertDate(new Date(currentPdpPeriod.end_date)) + '.'});
         } else {
             dbRequest.query('INSERT INTO goals (goal, g_gp_id, g_emp_id) Output Inserted.* VALUES (@goal, @gp_id, @emp_id)', function(err, result) {
                 if (err) {console.log(err)}
                 if (result !== undefined && result.rowsAffected.length > 0) {
-                    console.log(result);
                     resp.send({status: 'success', goal: result.recordset[0].goal})
                 } else {
                     resp.send({status: 'fail', message: 'An error occurred'});
                 }
             });
         }
-        //}
     });
 });
 
@@ -951,7 +935,6 @@ app.post('/delete-goal', function(req, resp) {
 
 // edit current actions
 app.post('/edit-action', function(req, resp) {
-
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('a_id', req.body.a_id);
@@ -966,7 +949,7 @@ app.post('/edit-action', function(req, resp) {
             // the weird numbers are for color coded console.log
             console.log(`\x1b[41m DB ERROR EDITING THE ACTION:\x1b[0m ${err}`);
         }
-        console.log(result);
+
         if(result !== undefined && result.rowsAffected.length > 0) {
             resp.send({status: 'success', action: result.recordset[0]});
         } else {
@@ -980,6 +963,7 @@ app.post('/edit-action', function(req, resp) {
 app.post('/edit-add-action', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
     let currentPdpPeriod = createCurrentPdpPeriod();
+    let currentPeriodSent = JSON.parse(req.body.current_period);
 
     dbRequest.input('action', req.body.action);
     dbRequest.input('start_date', currentPdpPeriod.start_date);
@@ -992,14 +976,18 @@ app.post('/edit-add-action', function(req, resp) {
     dbRequest.input('g_id', req.body.g_id);
 
     //Add values to this query when available
-    dbRequest.query('INSERT INTO actions (action, start_date, end_date, due_date, hourly_cost, training_cost, expenses, a_g_id, cost_notes) Output Inserted.* VALUES (@action, @start_date, @end_date, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @cost_notes)', function(err, result) {
-        if(result !== undefined && result.rowsAffected.length > 0) {
-            resp.send({status: 'success', action: result.recordset})
-        } else {
-            console.log(err);
-            resp.send({status: 'fail'});
-        }
-    });
+    if (currentPdpPeriod.start_date === currentPeriodSent.start_date && currentPdpPeriod.end_date === currentPeriodSent.end_date) {
+        dbRequest.query('INSERT INTO actions (action, start_date, end_date, due_date, hourly_cost, training_cost, expenses, a_g_id, cost_notes) Output Inserted.* VALUES (@action, @start_date, @end_date, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @cost_notes)', function(err, result) {
+            if(result !== undefined && result.rowsAffected.length > 0) {
+                resp.send({status: 'success', action: result.recordset})
+            } else {
+                console.log(err);
+                resp.send({status: 'fail', message: 'An error occurred.'});
+            }
+        });
+    } else {
+        resp.send({status: 'fail', message: 'You cannot add actions from this period.'});
+    }
 });
 
 // delete action
@@ -1158,6 +1146,24 @@ function createCurrentPdpPeriod() {
     }
 
     return {start_date: start_date, end_date: end_date}
+}
+
+function convertDateToQueryString(date) {
+    if (date.getUTCDate() < 10) {
+        var day = '0' + date.getUTCDate();
+    } else {
+        var day = date.getUTCDate();
+    }
+
+    if (date.getUTCMonth() < 9) {
+        var month = '0' + date.getUTCMonth();
+    } else {
+        var month = date.getUTCMonth();
+    }
+
+    var year = date.getUTCFullYear();
+
+    return year + '-' + month + '-' + day;
 }
 
 /* function createNewPdpPeriod(emp_id, callback) {
