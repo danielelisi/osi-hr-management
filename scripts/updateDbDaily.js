@@ -30,6 +30,8 @@ async function main() {
 
             jsonfile.writeFileSync('./employeesList.json', saveUpdate, {spaces: 2});
             process.exit();
+        } else {
+            process.exit(1);
         }
     }
 }
@@ -66,8 +68,11 @@ async function fetchBambooHR() {
 
             // Make singular API call for each inserted employee and fetch the updated attributes
             if(insertedList.length !== 0) {
+                let insertedEmployeesUsername = await _getBambooUsername(updatedList);
                 let insertedAttributes = await getUpdatedAttributes(insertedList);
-                employeeList.inserted = insertedAttributes;
+
+                let employeeToInsert = mergeEmployeeObject(insertedEmployeesUsername, insertedAttributes);
+                employeeList.inserted = employeeToInsert;
             }
 
             // Add deleted user list to the global obj
@@ -170,7 +175,7 @@ async function updateDatabase(EmployeeList) {
         insertedResult = await insertEmployeesDatabase(EmployeeList.inserted);
     }
     if(EmployeeList.updated) {
-        updatedResult = await insertEmployeesDatabase(EmployeeList.updated);
+        updatedResult = await updateEmployeesDatabase(EmployeeList.updated);
     }
     if(EmployeeList.deleted) {
 
@@ -180,15 +185,40 @@ async function updateDatabase(EmployeeList) {
         return 'DB correctly updated';
     } else {
         console.error('DB UPDATE FAILED!');
+        return 'DB UPDATE FAILED!';
     }
-
 }
+
+async function _getEmployeesDirectory() {
+    return axios({
+        method: 'get',
+        url: `https://api.bamboohr.com/api/gateway.php/osimaritime/v1/employees/directory`,
+        auth: {
+            username: process.env.API_KEY,
+            password: 'x'
+        },
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    //    return only the data body we're interested from the request
+    .then(result => {
+        if(result.data) {
+            return result.data.employees;
+        } else {
+            return 'Error with getting new Employees';
+        }
+    })
+    .catch(error => console.error(error))
+    ;
+}
+
 async function updateEmployeesDatabase(employeeIds) {
     try {
         const pool = await sql.connect(dbConfig);
 
         let dbQuery = 'UPDATE test_insert ' +
-            'SET first_name=@first_name, last_name=@last_name, emp_number=@emp_number ' +
+            'SET first_name=@first_name, last_name=@last_name, emp_number=@emp_number, manager_id=@manager_id ' +
             'WHERE id=@id';
 
         for (let employeeId of employeeIds) {
@@ -197,6 +227,7 @@ async function updateEmployeesDatabase(employeeIds) {
             .input('first_name', employeeId.firstName)
             .input('last_name', employeeId.lastName)
             .input('emp_number', employeeId.employeeIds)
+            .input('manager_id', employeeId.supervisorEId)
             .query(dbQuery);
 
             console.dir(request);
@@ -214,8 +245,8 @@ async function insertEmployeesDatabase(employeeIds) {
     try {
         const pool = await sql.connect(dbConfig);
 
-        let dbQuery = 'INSERT INTO test_insert (id, first_name, last_name, emp_number) ' +
-            'VALUES (@id, @first_name, @last_name, @emp_number)';
+        let dbQuery = 'INSERT INTO test_insert (id, username, first_name, last_name, emp_number, supervisorEId) ' +
+            'VALUES (@id, @username, @first_name, @last_name, @emp_number, @supervisor_id)';
 
         for (let employeeId of employeeIds) {
             let request = await pool.request()
@@ -223,9 +254,11 @@ async function insertEmployeesDatabase(employeeIds) {
                 .input('first_name', employeeId.firstName)
                 .input('last_name', employeeId.lastName)
                 .input('emp_number', employeeId.employeeNumber)
+                .input('username', employeeId.username)
+                .input('supervisor_id', employeeId.supervisorEId)
                 .query(dbQuery);
 
-            console.dir(request);
+                console.dir(request);
         }
 
         return 'Completed';
@@ -234,6 +267,32 @@ async function insertEmployeesDatabase(employeeIds) {
         console.error(error);
         return 'Failed';
     }
+}
+
+async function _getBambooUsername(employeeIdsList) {
+    console.log(employeeIdsList);
+    let employeeDirectory = await _getEmployeesDirectory();
+    let newEmployees = employeeDirectory.filter( item => employeeIdsList.includes(item.id)).map( item => {
+        return {id: item.id, username: item.workEmail}
+    });
+
+    console.log("EMPLOYEE DIRECTORY");
+    console.dir(newEmployees);
+    return newEmployees;
+}
+
+function mergeEmployeeObject(usernameList, attributeList) {
+    let employeesToInsert = [];
+    usernameList.forEach(employeeUsername => {
+        attributeList.forEach(employeeAttribute => {
+            if(employeeUsername.id === employeeAttribute.id) {
+                let employee = Object.assign({}, employeeUsername, employeeAttribute);
+                employeesToInsert.push(employee);
+            }
+        });
+    });
+
+    return employeesToInsert;
 }
 
 main();
