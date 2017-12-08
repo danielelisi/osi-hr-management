@@ -39,7 +39,7 @@ function formatDate(datetime, format) {
         var month = monthIndex + 1;
     }
 
-    var year = date.getFullYear();
+    var year = date.getUTCFullYear();
     var yearShort = year.toString().substr(-2);
     var result;
 
