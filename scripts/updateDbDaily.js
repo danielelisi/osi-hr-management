@@ -15,22 +15,24 @@ async function main() {
     // BambooHR API call to fetch employees updates
     let EmployeesList = await fetchBambooHR();
 
-    if (EmployeesList === 'No BambooHR Updates') {
+    if (EmployeesList === 'No BambooHR updates') {
         console.log(EmployeesList);
         process.exit();
+
     } else {
         // Connect to Database and Insert/Update employees
         let databaseResult = await updateDatabase(EmployeesList);
 
         if(databaseResult === 'DB correctly updated') {
 
-            let saveUpdate = {
-                lastUpdatedTimestamp: new Date().toISOString().slice(0,19)+'Z'
-            };
+            let saveUpdateTime = {lastUpdatedTimestamp: new Date().toISOString().slice(0,19)+'Z'};
 
-            jsonfile.writeFileSync('./employeesList.json', saveUpdate, {spaces: 2});
+            jsonfile.writeFileSync('./employeesList.json', saveUpdateTime, {spaces: 2});
+
+            console.log(databaseResult);
             process.exit();
         } else {
+            console.error('DB update error');
             process.exit(1);
         }
     }
@@ -51,8 +53,9 @@ async function fetchBambooHR() {
         console.log(updatedEmployeesList);
 
         // Categorize employee update status type in different lists
-        let updatedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Updated');
+        // TODO Switch back insertList and updateList names
         let insertedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Inserted');
+        let updatedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Updated');
         let deletedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Deleted');
 
         /*
@@ -68,8 +71,8 @@ async function fetchBambooHR() {
 
             // Make singular API call for each inserted employee and fetch the updated attributes
             if(insertedList.length !== 0) {
-                let insertedEmployeesUsername = await _getBambooUsername(updatedList);
-                let insertedAttributes = await getUpdatedAttributes(insertedList);
+                let insertedEmployeesUsername = await _getBambooUsername(insertedList.slice(0,5));
+                let insertedAttributes = await getUpdatedAttributes(insertedList.slice(0,5));
 
                 let employeeToInsert = mergeEmployeeObject(insertedEmployeesUsername, insertedAttributes);
                 employeeList.inserted = employeeToInsert;
@@ -88,6 +91,33 @@ async function fetchBambooHR() {
         }
     } catch (error) {
         console.error(error)
+    }
+}
+
+async function updateDatabase(EmployeeList) {
+
+    let updateStatus = true;
+    let insertedResult = null;
+    let updatedResult = null;
+    let deletedResult = null;
+
+    const pool = await sql.connect(dbConfig);
+
+    if(EmployeeList.inserted) {
+        insertedResult = await insertEmployeesDatabase(EmployeeList.inserted, pool);
+    }
+    if(EmployeeList.updated) {
+        updatedResult = await updateEmployeesDatabase(EmployeeList.updated, pool);
+    }
+    if(EmployeeList.deleted) {
+        deletedResult = await deleteEmployeesDatabase(EmployeeList.deleted, pool);
+    }
+
+    if(updateStatus === true && insertedResult !== 'Failed' && updatedResult !== 'Failed' && deletedResult !== 'Failed') {
+        return 'DB correctly updated';
+    } else {
+        console.error('DB UPDATE FAILED!');
+        return 'DB UPDATE FAILED!';
     }
 }
 
@@ -164,31 +194,6 @@ function _getBambooUpdatedAttributes(employeeId) {
         .catch(error => console.error(error));
 }
 
-async function updateDatabase(EmployeeList) {
-
-    let updateStatus = true;
-    let insertedResult = null;
-    let updatedResult = null;
-    let deletedResult = null;
-
-    if(EmployeeList.inserted) {
-        insertedResult = await insertEmployeesDatabase(EmployeeList.inserted);
-    }
-    if(EmployeeList.updated) {
-        updatedResult = await updateEmployeesDatabase(EmployeeList.updated);
-    }
-    if(EmployeeList.deleted) {
-
-    }
-
-    if(updateStatus === true && insertedResult !== 'Failed' && updatedResult !== 'Failed' && deletedResult !== 'Failed') {
-        return 'DB correctly updated';
-    } else {
-        console.error('DB UPDATE FAILED!');
-        return 'DB UPDATE FAILED!';
-    }
-}
-
 async function _getEmployeesDirectory() {
     return axios({
         method: 'get',
@@ -213,9 +218,37 @@ async function _getEmployeesDirectory() {
     ;
 }
 
-async function updateEmployeesDatabase(employeeIds) {
+async function insertEmployeesDatabase(employeeIds, pool) {
+
     try {
-        const pool = await sql.connect(dbConfig);
+        let dbQuery = 'INSERT INTO test_insert (id, username, first_name, last_name, emp_number, manager_id) ' +
+            'VALUES (@id, @username, @first_name, @last_name, @emp_number, @manager_id)';
+
+        for (let employeeId of employeeIds) {
+            let request = await pool.request()
+                .input('id', employeeId.id)
+                .input('first_name', employeeId.firstName)
+                .input('last_name', employeeId.lastName)
+                .input('emp_number', employeeId.employeeNumber)
+                .input('username', employeeId.username)
+                .input('manager_id', employeeId.supervisorEId)
+                .query(dbQuery);
+
+            console.dir(request);
+            console.log(`INSERTED EMPLOYEE #${employeeId.id} ${employeeId.firstName} ${employeeId.lastName}`);
+        }
+
+        return 'Completed';
+
+    } catch (error) {
+        console.error(error);
+        return 'Failed';
+    }
+}
+
+async function updateEmployeesDatabase(employeeIds, pool) {
+
+    try {
 
         let dbQuery = 'UPDATE test_insert ' +
             'SET first_name=@first_name, last_name=@last_name, emp_number=@emp_number, manager_id=@manager_id ' +
@@ -231,6 +264,7 @@ async function updateEmployeesDatabase(employeeIds) {
             .query(dbQuery);
 
             console.dir(request);
+            console.log(`UPDATED EMPLOYEE #${employeeId.id} ${employeeId.firstName} ${employeeId.lastName}`);
         }
 
         return 'Completed';
@@ -241,24 +275,18 @@ async function updateEmployeesDatabase(employeeIds) {
     }
 }
 
-async function insertEmployeesDatabase(employeeIds) {
+async function deleteEmployeesDatabase(employeeIds, pool) {
     try {
-        const pool = await sql.connect(dbConfig);
 
-        let dbQuery = 'INSERT INTO test_insert (id, username, first_name, last_name, emp_number, supervisorEId) ' +
-            'VALUES (@id, @username, @first_name, @last_name, @emp_number, @supervisor_id)';
+        let dbQuery = 'DELETE FROM test_insert WHERE id=@id';
 
         for (let employeeId of employeeIds) {
             let request = await pool.request()
-                .input('id', employeeId.id)
-                .input('first_name', employeeId.firstName)
-                .input('last_name', employeeId.lastName)
-                .input('emp_number', employeeId.employeeNumber)
-                .input('username', employeeId.username)
-                .input('supervisor_id', employeeId.supervisorEId)
+                .input('id', employeeId)
                 .query(dbQuery);
 
-                console.dir(request);
+            console.dir(request);
+            console.log(`DELETED EMPLOYEE #${employeeId}`);
         }
 
         return 'Completed';
