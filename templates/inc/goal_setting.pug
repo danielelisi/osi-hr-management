@@ -1,8 +1,4 @@
 #goal-setting.tab-pane.user-main.p-3(role='tabpanel')
-    .text-right.mb-3
-        button#start-new-goal-button.btn.btn-success(type='button')
-            i.fa.fa-file-o.fa-lg.mr-1(aria-hidden='true')
-            span Start New Goal
     //- set goal and actions
     if goal.length === 0 && goal_prep.length > 0
         small
@@ -50,7 +46,6 @@
                             h6.font-weight-bold.text-dark-blue.mb-0
                                 i.fa.fa-bullseye.fa-lg.mr-1(aria-hidden='true')
                                 | My Professional Development Goal is:
-                        input(type='hidden', name='gp_id', value=goal_prep[0].gp_id)
                         input#set-goal.form-control(type='text', name='goal', placeholder='Enter your goal here', required)
                     #action-wrapper
                         h6.p-2.text-dark-blue.mb-3.h-line.font-weight-bold
@@ -74,6 +69,7 @@
                 //-- complete
                 form#gs-edit-goal(method='POST', action='/edit-goal')
                     input(type='hidden', value=goal[0].g_id, name='g_id')
+                    input(type='hidden', value=goal_prep[0].gp_id, name='gp_id')
                     textarea#gs-input-goal.form-control.mb-2(row='4', readonly, name='gs_goal') #{goal[0].goal}
                     .text-right
                         button#gs-edit-goal-button.btn.btn-info.mr-1(type='button', data-edit='false')
@@ -147,6 +143,7 @@
                 .card-body
                     form#gs-add-action(method='POST', action='/edit-add-action')
                         input(type='hidden', name='g_id', value=goal[0].g_id)
+                        input(type='hidden', name='current_period', value=current_period)
                         .form-group.mb-3
                             label.font-weight-bold.text-dark-blue
                                 i.fa.fa-dot-circle-o.fa-lg.mr-1(aria-hidden='true')

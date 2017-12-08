@@ -36,7 +36,7 @@
                                         .card-body
                                             h5.text-dark-blue
                                                 i.fa.fa-user.fa-lg.mr-1(aria-hidden='true')
-                                                span Manager's Check-in
+                                                span Manager's Goal Review
                                             .alert.alert-info
                                                 div
                                                     i.fa.fa-commenting.fa-lg.mr-1(aria-hidden='true')
@@ -46,6 +46,14 @@
                                                     i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
                                                     span.font-weight-bold Date Submitted: 
                                                     span #{formatDate(goal_review[idx].reviewed_on)}
+                                                div
+                                                    i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Observed Progress: 
+                                                    span #{goal_review[idx].progress}%
+                                                div
+                                                    i.fa.fa-area-chart.fa-lg.mr-1(aria-hidden='true')
+                                                    span.font-weight-bold Effectiveness: 
+                                                    span #{goal_review[idx].effectiveness}
                                     - break
                         - var gr_submitted = false
                         if !gr_submitted
@@ -64,8 +72,8 @@
                                                     span #{goal_review[idx].employee_gr_comment}
                                                 div
                                                     i.fa.fa-calendar-check-o.fa-lg.mr-1(aria-hidden='true')
-                                                    span.font-weight-bold Submitted on: 
-                                                    span #{formatDateCode(goal_review[idx].submitted_on)}
+                                                    span.font-weight-bold Date Submitted: 
+                                                    span #{formatDate(goal_review[idx].submitted_on)}
                                                 div
                                                     i.fa.fa-line-chart.fa-lg.mr-1(aria-hidden='true')
                                                     span.font-weight-bold Final Status: 
@@ -92,7 +100,7 @@
                                                 option(value='Completed') Completed
                                                 option(value='No Update') No Update
                                                 option(value='Not Started') Not Started
-                                                option(value='Started') Started
+                                                option(value='In Progress') In Progress
                                         .w-15
                                             button.btn.btn-primary(type='submit')
                                                 i.fa.fa-level-down.fa-rotate-90.fa-lg.mr-1(aria-hidden='true')

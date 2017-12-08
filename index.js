@@ -74,12 +74,10 @@ app.get('/dev', function(req, resp) {
 // logged in view
 app.get('/view', function(req, resp) {
     if (req.session.emp_id) {
-
         let dbRequest = new sql.Request(sql.globalConnection);
+        let currentPdpPeriod;
 
         dbRequest.input('emp_id', req.session.emp_id);
-
-        let currentPdpPeriod;
 
         // if period in url query
         if (req.query.period) {
@@ -95,32 +93,58 @@ app.get('/view', function(req, resp) {
 
         var goalPrepObj = dbRequest.query('SELECT * FROM goal_prep JOIN goal_prep_details ON goal_prep.gp_id = goal_prep_details.gpd_gp_id WHERE gp_emp_id = @emp_id');
 
-        var goalObj = dbRequest.query('SELECT max(g_id), goal, created_on, g_emp_id, g_gp_id FROM goals WHERE g_emp_id = @emp_id GROUP BY g_id, goal, created_on, g_emp_id, g_gp_id');
+        var goalObj = dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON actions.a_g_id = goals.g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date').then((result) => {
+            if (result !== undefined && result.recordset.length > 0) {
+                return result;
+            } else {
+                return dbRequest.query('SELECT * FROM goals WHERE g_id = (SELECT MAX(g_id) AS g_id FROM goals)');
+            }
+        });
 
-        var actionsObj = dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id WHERE start_date = @start_date AND end_date = @end_date AND g_emp_id = @emp_id AND g_id = (SELECT MAX(g_id) AS g_id FROM goals)');
+        var actionsObj = goalObj.then((result) => {
+            if (result !== undefined && result.recordset.length > 0) {
+                dbRequest.input('g_id', result.recordset[0].g_id);
+
+                return dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date AND a_g_id = @g_id');
+            } else if (result === undefined) {
+                return 'lala';
+            }
+        });
 
         var checkinsObj = goalObj.then((result) => {
             if (result !== undefined && result.recordset.length > 0) {
                 dbRequest.input('g_id', result.recordset[0].g_id);
-            } else {
-                dbRequest.input('g_id', null);
+                
+                return dbRequest.query('SELECT * FROM actions JOIN checkins ON actions.a_id = checkins.c_a_id WHERE actions.a_g_id = @g_id');
+            } else if (result === undefined) {
+                return 'lala';
             }
-
-            return dbRequest.query('SELECT * FROM actions JOIN checkins ON actions.a_id = checkins.c_a_id WHERE actions.a_g_id = @g_id');
         });
 
         var goalReviewObj = goalObj.then((result) => {
             if (result !== undefined && result.recordset.length > 0) {
                 dbRequest.input('g_id', result.recordset[0].g_id);
-            } else {
-                dbRequest.input('g_id', null);
+                
+                return dbRequest.query('SELECT * FROM goal_review JOIN actions ON goal_review.gr_a_id = actions.a_id WHERE actions.a_g_id = @g_id');
+            } else if (result === undefined) {
+                return 'lala';
             }
-
-            return dbRequest.query('SELECT * FROM goal_review JOIN actions ON goal_review.gr_a_id = actions.a_id WHERE actions.a_g_id = @g_id');
         });
 
         Promise.all([goalPrepObj, goalObj, actionsObj, checkinsObj, goalReviewObj]).then(
             (result) => {
+                if (result[2] === undefined) {
+                    result[2] = { recordset: [] }
+                }
+
+                if (result[3] === undefined) {
+                    result[3] = { recordset: [] }
+                }
+
+                if (result[4] === undefined) {
+                    result[4] = { recordset: [] }
+                }
+
                 resp.render('view', {user: req.session, goal_prep: result[0].recordset, goal: result[1].recordset, action: result[2].recordset, checkin: result[3].recordset, goal_review: result[4].recordset, current_period: currentPdpPeriod})
             }
         ).catch(
@@ -182,11 +206,47 @@ app.get('/populate-period-select', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('emp_id', req.session.emp_id);
-    dbRequest.query('SELECT DISTINCT g_id, g_emp_id, actions.start_date, actions.end_date FROM goals JOIN actions ON goals.g_id = actions.a_g_id  WHERE goals.g_emp_id = @emp_id', function(err, result) {
-        if (result !== undefined && result.recordset.length > 0) {
+    dbRequest.query('SELECT DISTINCT start_date, end_date FROM actions JOIN goals ON actions.a_g_id = goals.g_id WHERE g_emp_id = @emp_id', function(err, result) {
+        if (result !== undefined) {
             resp.send(result.recordset);
-        } else {
-            resp.send('fail');
+            /* var dateArray = [];
+            var startDates = [];
+            var endDates = [];
+
+            for (let dateObj of result.recordset) {
+                let d1 = dateObj.pdp_starting_date.getTime();
+                let d2 = dateObj.pdp_ending_date.getTime();
+
+                if (startDates.indexOf(d1) < 0) {
+                    startDates.push(d1);
+                }
+
+                if (endDates.indexOf(d2) < 0) {
+                    endDates.push(d2);
+                }
+
+                if (dateObj.start_date !== null && dateObj.end_date !== null) {
+                    let d3 = dateObj.start_date.getTime();
+                    let d4 = dateObj.end_date.getTime();
+
+                    if (startDates.indexOf(d3) < 0) {
+                        startDates.push(d3);
+                    }
+
+                    if (endDates.indexOf(d4) < 0) {
+                        endDates.push(d4);
+                    }
+                }
+            }
+
+            for (var i = 0; i < startDates.length; i++) {
+                let obj = {};
+                obj.start_date = startDates[i];
+                obj.end_date = endDates[i];
+                dateArray.push(obj);
+            }
+
+            resp.send(dateArray); */
         }
     });
 });
@@ -218,7 +278,6 @@ app.get('/populate-manager-employee-select', function(req, resp) {
 
 // get employee goal dates (manager)
 app.get('/populate-manager-employee-date-select/:emp_id', function(req, resp) {
-
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('emp_id', req.params.emp_id);
@@ -696,78 +755,98 @@ app.post('/save-goal-changes', function(req, resp) {
     dbRequest.input('goal', req.body.goal);
     dbRequest.input('g_gp_id', req.body.g_gp_id);
     dbRequest.input('emp_id', req.session.emp_id);
-    dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id) OUTPUT Inserted.g_id VALUES (@goal, @emp_id, @g_gp_id)', function(err, result) {
-        if (err) {
-            console.log(err);
-        }
-        var a_g_id = result.recordset[0].g_id;
+    let currentPdpPeriod = createCurrentPdpPeriod(); // create current pdp period
 
-        if (req.body.action) {
-            if (typeof req.body.action === 'object' && req.body.action.length <= 4) {
-                var tx = new sql.Transaction(sql.globalConnection);
-                tx.begin(function(err) {
-                    var currentPdpPeriod = createCurrentPdpPeriod();
-                    console.log(currentPdpPeriod.start_date, currentPdpPeriod.end_date)
+    dbRequest.input('start_date', currentPdpPeriod.start_date);
+    dbRequest.input('end_date', currentPdpPeriod.end_date);
 
-                    const table = new sql.Table('actions');
-                    table.create = true;
-                    table.columns.add('action', sql.VarChar(sql.Max), {nullable: false});
-                    table.columns.add('a_g_id', sql.Int(), {nullable: false});
-                    table.columns.add('due_date', sql.Date(), {nullable: false});
-                    table.columns.add('start_date', sql.Date(), {nullable: false});
-                    table.columns.add('end_date', sql.Date(), {nullable: false});
-                    table.columns.add('hourly_cost', sql.Int(), {nullable: true});
-                    table.columns.add('training_cost', sql.Int(), {nullable: true});
-                    table.columns.add('expenses', sql.Int(), {nullable: true});
-                    table.columns.add('cost_notes', sql.VarChar(sql.Max), {nullable: true});
+    /* dbRequest.query('SELECT MAX(g_id) AS g_id FROM goals WHERE g_emp_id = @emp_id', function(err, result) {
+        if (err) {console.log(err)}
+        console.log(result.recordset[0].g_id);
 
-                    var index = 0;
-                    for (var i = 0; i < req.body.action.length; i++) {
-                        var dateParts = req.body.due_date[index].split('/');
-                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[2], dateParts[0] - 1, dateParts[1]), new Date(currentPdpPeriod.start_date), new Date(currentPdpPeriod.end_date), req.body.hourly_cost[index], req.body.training_cost[index], req.body.expenses[index], req.body.cost_notes[index]);
-                        index++;
-                    }
+        if (result !== undefined && result.recordset.length > 0) {
+            dbRequest.input('g_id', result.recordset[0].g_id);
+ */
+            dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date', function(err, result) {
+                console.log(result);
+                if (err) {
+                    console.log(err);
+                    resp.send({status: 'fail', message: 'An error occurred 1.'})
+                }
 
-                    var r = new sql.Request(tx);
-                    r.bulk(table, function(err, result) {
-                        if (err) { console.log(err); }
-                        tx.commit(function(err) {
-                            if (err) { console.log(err); }
+                if (result !== undefined && result.recordset.length > 0) {
+                    console.log(result);
+                    resp.send({status: 'fail', message: 'The current PDP period MUST NOT have actions in it. Please wait until the next PDP period to start a new goal.'})
+                } else {
+                    dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id) OUTPUT Inserted.g_id VALUES (@goal, @emp_id, @g_gp_id)', function(err, result) {
+                        if (err) {
+                            console.log(err);
+                            resp.send({status: 'fail', message: 'An error occurred 3.'});
+                        }
 
-                            resp.send('success');
-                        });
+                        if (result !== undefined && result.recordset.length > 0) {
+                            var a_g_id = result.recordset[0].g_id;
+                        }
+
+                        if (req.body.action) {
+                            if (typeof req.body.action === 'object' && req.body.action.length <= 4) {
+                                var tx = new sql.Transaction(sql.globalConnection);
+                                tx.begin(function(err) {
+                                    const table = new sql.Table('actions');
+                                    table.create = true;
+                                    table.columns.add('action', sql.VarChar(sql.Max), {nullable: false});
+                                    table.columns.add('a_g_id', sql.Int(), {nullable: false});
+                                    table.columns.add('due_date', sql.Date(), {nullable: false});
+                                    table.columns.add('start_date', sql.Date(), {nullable: false});
+                                    table.columns.add('end_date', sql.Date(), {nullable: false});
+                                    table.columns.add('hourly_cost', sql.Int(), {nullable: true});
+                                    table.columns.add('training_cost', sql.Int(), {nullable: true});
+                                    table.columns.add('expenses', sql.Int(), {nullable: true});
+                                    table.columns.add('cost_notes', sql.VarChar(sql.Max), {nullable: true});
+
+                                    var index = 0;
+                                    for (var i = 0; i < req.body.action.length; i++) {
+                                        var dateParts = req.body.due_date[index].split('/');
+                                        table.rows.add(req.body.action[index], parseInt(a_g_id), new Date(dateParts[2], dateParts[0] - 1, dateParts[1]), new Date(currentPdpPeriod.start_date), new Date(currentPdpPeriod.end_date), req.body.hourly_cost[index], req.body.training_cost[index], req.body.expenses[index], req.body.cost_notes[index]);
+                                        index++;
+                                    }
+
+                                    var r = new sql.Request(tx);
+                                    r.bulk(table, function(err, result) {
+                                        if (err) { console.log(err); }
+                                        tx.commit(function(err) {
+                                            if (err) { console.log(err); }
+
+                                            resp.send({status: 'success'});
+                                        });
+                                    });
+                                });
+                            } else {
+                                var dateParts = req.body.due_date.split('/');
+
+                                dbRequest.input('action', req.body.action);
+                                dbRequest.input('created_on', new Date());
+                                dbRequest.input('a_g_id', parseInt(a_g_id));
+                                dbRequest.input('due_date', new Date(dateParts[2], dateParts[0] -1, dateParts[1]));
+                                dbRequest.input('hourly_cost', req.body.hourly_cost);
+                                dbRequest.input('training_cost', req.body.training_cost);
+                                dbRequest.input('expenses', req.body.expenses);
+                                dbRequest.input('cost_notes', req.body.cost_notes);
+                                dbRequest.query('INSERT INTO actions (action, created_on, a_g_id, due_date, start_date, end_date, hourly_cost, training_cost, expenses, cost_notes) VALUES (@action, @created_on, @a_g_id, @due_date, @start_date, @end_date, @hourly_cost, @training_cost, @expenses, @cost_notes)', function(err, result) {
+                                    resp.send({status: 'success'});
+                                });
+                            }
+                        } else {
+                            resp.send({status: 'success'});
+                        }
                     });
-                });
-            } else {
-                var dateParts = req.body.due_date.split('/');
-                var currentPdpPeriod = createCurrentPdpPeriod();
-
-                dbRequest.input('action', req.body.action);
-                dbRequest.input('created_on', new Date());
-                dbRequest.input('a_g_id', parseInt(a_g_id));
-                dbRequest.input('due_date', new Date(dateParts[2], dateParts[0] -1, dateParts[1]));
-                dbRequest.input('start_date', new Date(currentPdpPeriod.start_date));
-                dbRequest.input('end_date', new Date(currentPdpPeriod.end_date));
-                dbRequest.input('hourly_cost', req.body.hourly_cost);
-                dbRequest.input('training_cost', req.body.training_cost);
-                dbRequest.input('expenses', req.body.expenses);
-                dbRequest.input('cost_notes', req.body.cost_notes);
-                dbRequest.query('INSERT INTO actions (action, created_on, a_g_id, due_date, start_date, end_date, hourly_cost, training_cost, expenses, cost_notes) VALUES (@action, @created_on, @a_g_id, @due_date, @start_date, @end_date, @hourly_cost, @training_cost, @expenses, @cost_notes)', function(err, result) {
-                    resp.send('success');
-                });
-            }
-        } else {
-            if(result !== undefined && result.rowsAffected.length > 0) {
-                resp.send('success');
-            } else {
-                resp.send('fail');
-            }
-        }
-    });
+                }
+            });
+/*         }
+    }); */
 });
 
-app.post('/start-new-goal', function(req, resp) {
-    console.log(req.body);
+/* app.post('/start-new-goal', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('g_id', req.body.g_id);
@@ -775,8 +854,8 @@ app.post('/start-new-goal', function(req, resp) {
     dbRequest.input('emp_id', req.session.emp_id);
     dbRequest.input('g_gp_id', req.body.g_gp_id);
 
-    dbRequest.query('SELECT g_emp_id, g_id, start_date, end_date, manager_gr_comment, gr_id FROM goals INNER JOIN actions ON goals.g_id = actions.a_g_id INNER JOIN goal_review ON actions.a_id = goal_review.gr_a_id WHERE manager_gr_comment IS NULL AND g_emp_id = @emp_id AND start_date = (SELECT MAX(start_date) AS start_date FROM actions)', function(err, result) {
-        console.log(result.recordset);
+    // checks that all employee's actions has been goal reviewed by their manager
+    dbRequest.query('SELECT * FROM goals JOIN actions ON goals.g_id = actions.a_g_id JOIN goal_review ON actions.a_id = goal_review.gr_a_id WHERE goals.g_id = (SELECT MAX(g_id) AS g_id FROM goals) AND manager_gr_comment IS NULL', function(err, result) {
         if (err) {
             console.log(err);
             resp.send({status: 'fail', message: 'An error occurred.'});
@@ -785,8 +864,11 @@ app.post('/start-new-goal', function(req, resp) {
         if (result !== undefined && result.recordset.length > 0) {
             resp.send({status: 'fail', message: 'Your manager still need to submit goal review for one or more of your current action(s).'})
         } else {
-            createNewPdpPeriod(req.session.emp_id, function(result) {
-                dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id) Output Inserted.* VALUES (@goal, @emp_id, @g_gp_id)', function(err, result) {
+            createNewPdpPeriod(req.session.emp_id, function(newPdpPeriod) {
+                dbRequest.input('start_date', newPdpPeriod.start_date);
+                dbRequest.input('end_date', newPdpPeriod.end_date);
+
+                dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id, pdp_starting_date, pdp_ending_date) Output Inserted.* VALUES (@goal, @emp_id, @g_gp_id, @start_date, @end_date)', function(err, result) {
                     if (err) {
                         console.log(err);
                         resp.send({status: 'fail', message: 'An error occurred while setting new goal.'})
@@ -799,24 +881,49 @@ app.post('/start-new-goal', function(req, resp) {
             });
         }
     });
-});
+}); */
 
 // edit goal
 app.post('/edit-goal', function(req, resp) {
+    console.log(req.body);
 
     let dbRequest = new sql.Request(sql.globalConnection);
     let currentPdpPeriod = createCurrentPdpPeriod();
 
     dbRequest.input('g_id', req.body.g_id);
     dbRequest.input('goal', req.body.gs_goal);
+    dbRequest.input('gp_id', req.body.gp_id);
+    dbRequest.input('emp_id', req.session.emp_id);
     dbRequest.input('start_date', currentPdpPeriod.start_date);
     dbRequest.input('end_date', currentPdpPeriod.end_date);
-    dbRequest.query('INSERT INTO goals (goal) Output Inserted.* VALUES (goal)', function(err, result) {
-        if(result !== undefined && result.rowsAffected.length > 0) {
-            resp.send({status: 'success', goal: result.recordset[0].goal})
-        } else {
-            resp.send({status: 'fail'});
-        }
+
+    dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date', function(err, result) {
+        if (err) {console.log(err)}
+
+        if (result !== undefined && result.recordset.length > 0) {
+            /* let haveActions = false;
+            for (var i = 0; i < result.recordset.length; i++) {
+                if (result.recordset[i].a_id !== null) {
+                    haveActions = true;
+                    break;
+                }
+            }
+
+            if (haveActions) { */
+                console.log(result);
+                resp.send({status: 'fail', message: 'You have actions in the PDP period of ' + convertDate(new Date(currentPdpPeriod.start_date)) + ' - ' + convertDate(new Date(currentPdpPeriod.end_date)) + '.'});
+            } else {
+                dbRequest.query('INSERT INTO goals (goal, g_gp_id, g_emp_id) Output Inserted.* VALUES (@goal, @gp_id, @emp_id)', function(err, result) {
+                    if (err) {console.log(err)}
+                    if (result !== undefined && result.rowsAffected.length > 0) {
+                        console.log(result);
+                        resp.send({status: 'success', goal: result.recordset[0].goal})
+                    } else {
+                        resp.send({status: 'fail', message: 'An error occurred'});
+                    }
+                });
+            }
+        //}
     });
 });
 
@@ -849,7 +956,7 @@ app.post('/edit-action', function(req, resp) {
     dbRequest.input('training_cost', req.body.training_cost);
     dbRequest.input('expenses', req.body.expenses);
     dbRequest.input('cost_notes', req.body.cost_notes);
-    dbRequest.query('UPDATE actions SET action = @action, due_date = @due_date, hourly_cost = @hourly_cost, training_cost = @training_cost, expenses = @expenses, cost_notes = @cost_notes, status = \'Submitted\' Output Inserted.* WHERE a_id=@a_id', function(err,result){
+    dbRequest.query('UPDATE actions SET action = @action, due_date = @due_date, hourly_cost = @hourly_cost, training_cost = @training_cost, expenses = @expenses, cost_notes = @cost_notes, status = \'Submitted\' Output Inserted.* WHERE a_id = @a_id', function(err,result){
         if(err) {
             // the weird numbers are for color coded console.log
             console.log(`\x1b[41m DB ERROR EDITING THE ACTION:\x1b[0m ${err}`);
@@ -867,8 +974,11 @@ app.post('/edit-action', function(req, resp) {
 // add more actions
 app.post('/edit-add-action', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
+    let currentPdpPeriod = createCurrentPdpPeriod();
 
     dbRequest.input('action', req.body.action);
+    dbRequest.input('start_date', currentPdpPeriod.start_date);
+    dbRequest.input('end_date', currentPdpPeriod.end_date);
     dbRequest.input('due_date', req.body.due_date);
     dbRequest.input('hourly_cost', req.body.hourly_cost);
     dbRequest.input('training_cost', req.body.training_cost);
@@ -877,7 +987,7 @@ app.post('/edit-add-action', function(req, resp) {
     dbRequest.input('g_id', req.body.g_id);
 
     //Add values to this query when available
-    dbRequest.query('INSERT INTO actions (action, due_date, hourly_cost, training_cost, expenses, a_g_id, cost_notes) Output Inserted.* VALUES (@action, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @cost_notes)', function(err, result) {
+    dbRequest.query('INSERT INTO actions (action, start_date, end_date, due_date, hourly_cost, training_cost, expenses, a_g_id, cost_notes) Output Inserted.* VALUES (@action, @start_date, @end_date, @due_date, @hourly_cost, @training_cost, @expenses, @g_id, @cost_notes)', function(err, result) {
         if(result !== undefined && result.rowsAffected.length > 0) {
             resp.send({status: 'success', action: result.recordset})
         } else {
@@ -891,10 +1001,8 @@ app.post('/edit-add-action', function(req, resp) {
 app.post('/delete-action', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
-    console.log(req.body);
     dbRequest.input('a_id', req.body.a_id);
     dbRequest.query('DELETE FROM actions Output Deleted.a_id WHERE a_id = @a_id', function(err, result) {
-        console.log(result);
         if(result !== undefined && result.rowsAffected.length > 0) {
             resp.send({status: 'success', a_id: result.recordset[0].a_id});
         } else {
@@ -1018,22 +1126,16 @@ app.get('/get-status-count', function(req, resp) {
 });
 
 // functions
-function convertStartDate(date) {
-    var d = date.split('-')
-    var sd = '20' + d[0].substr(2, 2) + '-' + d[0].substr(0, 2) + '-01';
+function convertDate(date) {
+    let monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-    return sd;
-}
-
-function convertEndDate(date) {
-    var d = date.split('-');
-    if (d[1].substr(0,2) === '09') {
-        var ed = '20' + d[1].substr(2, 2) + '-' + d[1].substr(0, 2) + '-30';
-    } else {
-        var ed = '20' + d[1].substr(2, 2) + '-' + d[1].substr(0, 2) + '-31';
+    let day = date.getUTCDate();
+    if (date.getMonth() < 9) {
+        var month = monthNames[date.getUTCMonth()];
     }
+    let year = date.getFullYear();
 
-    return ed;
+    return month + ' ' + day + ', ' + year;
 }
 
 function createCurrentPdpPeriod() {
@@ -1044,30 +1146,51 @@ function createCurrentPdpPeriod() {
     var start_date;
     var end_date;
 
-    if (parseInt(currentMonth) < 10 && parseInt(currentMonth) > 3) {
-        start_date = currentYear + '-04-01';
-        end_date = currentYear + '-09-30';
+    if (parseInt(currentMonth) < 6 && parseInt(currentMonth) > 5) {
+        start_date = currentYear + '-01-01';
+        end_date = currentYear + '-06-30';
     }  else {
-        start_date = currentYear + '-10-01';
-        end_date = currentYear + 1 + '-03-31';
+        start_date = currentYear + '-07-01';
+        end_date = currentYear + '-12-31';
     }
 
     return {start_date: start_date, end_date: end_date}
 }
 
-function createNewPdpPeriod(emp_id, callback) {
+/* function createNewPdpPeriod(emp_id, callback) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('emp_id', emp_id);
 
-    dbRequest.query('SELECT MAX(g_id) AS g_id, MAX(DATEADD(mm, 6, start_date)) AS start_date, MAX(DATEADD(mm, 6, end_date)) AS end_date FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id', function(err, result) {
-        if (err) {console.log(err);}
+    dbRequest.query('SELECT TOP 1 g_id, DATEADD(mm, 6, MAX(pdp_starting_date)) AS start_date, EOMONTH(MAX(pdp_ending_date), 6) AS end_date FROM goals WHERE g_emp_id = 1 GROUP BY g_id ORDER BY g_id DESC', function(err, result) {
+        if (err) {console.log(err)};
 
         if (result !== undefined && result.recordset.length > 0) {
-            callback(result.recordset);
+            dbRequest.input('g_id', result.recordset[0].g_id);
+            let startDateFromGoal = result.recordset[0].start_date;
+            let endDateFromGoal = result.recordset[0].end_date;
+
+            dbRequest.query('SELECT DATEADD(mm, 6, MAX(start_date)) AS start_date, EOMONTH(MAX(pdp_ending_date), 6) AS end_date FROM actions JOIN goals ON goals.g_id = actions.a_g_id WHERE goals.g_id = @g_id', function(err, result) {
+                if (err) {console.log(err)};
+                var start_date = startDateFromGoal;
+                var end_date = endDateFromGoal;
+
+                if (result !== undefined && result.recordset.length > 0) {
+                    if (result.recordset[0].start_date > startDateFromGoal && result.recordset[0].end_date > endDateFromGoal) {
+                        start_date = result.recordset[0].start_date;
+                        end_date = result.recordset[0].end_date;
+                    }
+                }
+
+                let newPdpPeriod = {start_date: start_date, end_date: end_date};
+
+                callback(newPdpPeriod);
+            });
+        } else {
+            callback();
         }
     });
-}
+} */
 
 // server initialization
 const connectionPool = new sql.ConnectionPool(dbConfig, function(err) {
