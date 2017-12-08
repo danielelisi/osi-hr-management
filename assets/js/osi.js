@@ -27,7 +27,7 @@ $(document).ready(function() {
     let pdpPeriodObj = getPdpPeriod();
 
     $('.date-select').datepicker({
-        minDate: pdpPeriodObj.start_date,
+        minDate: new Date() < pdpPeriodObj.start_date ? pdpPeriodObj.start_date : new Date(),
         maxDate: pdpPeriodObj.end_date
     });
 
@@ -415,9 +415,10 @@ $(document).ready(function() {
     // edit goal button and submission
     $('#gs-edit-goal-button').click(function() {
         swal({
-            title: 'Edit typo or rewording only.',
-            text: 'If you want to start a different goal, press the "Start New Goal" button.',
-            type: 'info'
+            title: 'Warning',
+            html: 'In order to start a new goal, the current PDP period MUST NOT have actions in it.<br><u>IT IS HIGHLY SUGGESTED THAT YOU DO NOT DELETE CURRENT ACTIONS; INSTEAD, WAIT UNTIL THE NEXT PDP PERIOD TO START A NEW GOAL.</u>',
+            type: 'warning',
+            allowOutsideClick: false
         });
 
         var parent = $(this).parent();
@@ -434,12 +435,12 @@ $(document).ready(function() {
                     method: 'POST',
                     data: $('#gs-edit-goal').serialize(),
                     success: function(resp) {
-                        if(resp.status === 'success') {
+                        if (resp.status === 'success') {
                             swal('Success!', 'Edit successful', 'success');
-                            $('#gs-input-goal').attr('readonly', '').val(resp.goal);
-                            $('#gs-edit-goal-button').attr('data-edit', 'false');
-                            $('#gs-save-goal-button').remove();
-                            $('#gs-cancel-goal-button').remove();
+                            
+                            location.reload();
+                        } else if (resp.status === 'fail') {
+                            swal('Error!', resp.message, 'error');
                         }
                     }
                 });
@@ -575,7 +576,7 @@ $(document).ready(function() {
             method: 'POST',
             data: $(this).serialize(),
             success: function(resp) {
-                if (resp === 'success') {
+                if (resp.status === 'success') {
                     swal({
                         title: 'Goal added!',
                         html: 'Refreshing...',
@@ -585,8 +586,8 @@ $(document).ready(function() {
                     });
 
                     location.reload();
-                } else if (resp === 'fail') {
-                    swal('Error!', 'An error ocurred when saving goal', 'error');
+                } else if (resp.status === 'fail') {
+                    swal('Error!', resp.message, 'error');
                 }
             }
         });
@@ -601,19 +602,24 @@ $(document).ready(function() {
                 method: 'POST',
                 data: $(this).serialize(),
                 success: function(resp) {
-                    $('#period-select').empty();
-                    populatePeriodSelect();
-                    createActionAccordion(resp);
-                    actions.push(resp.action[0]);
-                    
-                    if (actions.length >= 4) {
-                        $('#edit-add-new-action-div').addClass('d-none');
+                    if (resp.status === 'success') {
+                        createActionAccordion(resp);
+                        populatePeriodSelect();
+                        actions.push(resp.action[0]);
+                        $('#checkin-link').removeClass('disabled').removeAttr('data-placement', 'data-original-title', 'title');
+                        $('#goal-review-link').removeClass('disabled').removeAttr('data-placement', 'data-original-title', 'title');
+                        
+                        if (actions.length >= 4) {
+                            $('#edit-add-new-action-div').addClass('d-none');
+                        }
+
+                        $(parent).find('input').not('button, input[type=hidden]').val('');
+
+                        addTo(resp);
+                        swal('Success!', 'Your new action has been added', 'success');
+                    } else if (resp.status = 'fail') {
+                        swal('Error!', 'An error occurred', 'error');
                     }
-
-                    $(parent).find('input').not('button, input[type=hidden]').val('');
-
-                    addTo(resp);
-                    swal('Success!', 'Your new action has been added', 'success');
                 }
             });
         } else {
@@ -640,7 +646,6 @@ $(document).ready(function() {
                     method: 'POST',
                     data: $(parent).serialize(),
                     success: function(resp) {
-                        $('#period-select').empty();
                         populatePeriodSelect();
                         for (var i = 0; i < actions.length; i++) {
                             if (actions[i].a_id === resp.a_id) {
@@ -1148,33 +1153,49 @@ $(document).ready(function() {
                     $('row c[r^="N"]', sheet).attr('s', '30');
                     $('row c[r^="O"]', sheet).attr('s', '30');
                     $('row c[r^="P"]', sheet).attr('s', '30');
+                    $('row c[r^="Q"]', sheet).attr('s', '30');
+                    $('row c[r^="R"]', sheet).attr('s', '30');
+                    $('row c[r^="S"]', sheet).attr('s', '30');
+                    $('row c[r^="T"]', sheet).attr('s', '30');
 
-                    $('row c[r^="Q"]', sheet).attr('s', '35');
-                    $('row c[r^="R"]', sheet).attr('s', '35');
-                    $('row c[r^="S"]', sheet).attr('s', '35');
-                    $('row c[r^="T"]', sheet).attr('s', '35');
                     $('row c[r^="U"]', sheet).attr('s', '35');
                     $('row c[r^="V"]', sheet).attr('s', '35');
                     $('row c[r^="W"]', sheet).attr('s', '35');
                     $('row c[r^="X"]', sheet).attr('s', '35');
+                    $('row c[r^="Y"]', sheet).attr('s', '35');
+                    $('row c[r^="Z"]', sheet).attr('s', '35');
+                    $('row c[r^="AA"]', sheet).attr('s', '35');
+                    $('row c[r^="AB"]', sheet).attr('s', '35');
+                    $('row c[r^="AC"]', sheet).attr('s', '35');
+                    $('row c[r^="AD"]', sheet).attr('s', '35');
+                    $('row c[r^="AE"]', sheet).attr('s', '35');
+                    $('row c[r^="AF"]', sheet).attr('s', '35');
 
-                    $('row c[r^="Y"]', sheet).attr('s', '40');
-                    $('row c[r^="Z"]', sheet).attr('s', '40');
-                    $('row c[r^="AA"]', sheet).attr('s', '40');
-                    $('row c[r^="AB"]', sheet).attr('s', '40');
-                    $('row c[r^="AC"]', sheet).attr('s', '40');
-                    $('row c[r^="AD"]', sheet).attr('s', '40');
-                    $('row c[r^="AE"]', sheet).attr('s', '40');
-                    $('row c[r^="AF"]', sheet).attr('s', '40');
+                    $('row c[r^="AG"]', sheet).attr('s', '40');
+                    $('row c[r^="AH"]', sheet).attr('s', '40');
+                    $('row c[r^="AI"]', sheet).attr('s', '40');
+                    $('row c[r^="AJ"]', sheet).attr('s', '40');
+                    $('row c[r^="AK"]', sheet).attr('s', '40');
+                    $('row c[r^="AL"]', sheet).attr('s', '40');
+                    $('row c[r^="AM"]', sheet).attr('s', '40');
+                    $('row c[r^="AN"]', sheet).attr('s', '40');
+                    $('row c[r^="AO"]', sheet).attr('s', '40');
+                    $('row c[r^="AP"]', sheet).attr('s', '40');
+                    $('row c[r^="AQ"]', sheet).attr('s', '40');
+                    $('row c[r^="AR"]', sheet).attr('s', '40');
 
-                    $('row c[r^="AG"]', sheet).attr('s', '45');
-                    $('row c[r^="AH"]', sheet).attr('s', '45');
-                    $('row c[r^="AI"]', sheet).attr('s', '45');
-                    $('row c[r^="AJ"]', sheet).attr('s', '45');
-                    $('row c[r^="AK"]', sheet).attr('s', '45');
-                    $('row c[r^="AL"]', sheet).attr('s', '45');
-                    $('row c[r^="AM"]', sheet).attr('s', '45');
-                    $('row c[r^="AN"]', sheet).attr('s', '45');
+                    $('row c[r^="AS"]', sheet).attr('s', '45');
+                    $('row c[r^="AT"]', sheet).attr('s', '45');
+                    $('row c[r^="AU"]', sheet).attr('s', '45');
+                    $('row c[r^="AV"]', sheet).attr('s', '45');
+                    $('row c[r^="AW"]', sheet).attr('s', '45');
+                    $('row c[r^="AX"]', sheet).attr('s', '45');
+                    $('row c[r^="AY"]', sheet).attr('s', '45');
+                    $('row c[r^="AZ"]', sheet).attr('s', '45');
+                    $('row c[r^="BA"]', sheet).attr('s', '45');
+                    $('row c[r^="BB"]', sheet).attr('s', '45');
+                    $('row c[r^="BC"]', sheet).attr('s', '45');
+                    $('row c[r^="BD"]', sheet).attr('s', '45');
                 }
             },
             {
@@ -1201,6 +1222,10 @@ $(document).ready(function() {
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
+            {'width': '300px'}, // employee checkin comment
+            {'width': '300px'}, // manager checkin comment
+            {'width': '300px'}, // employee goal review comment
+            {'width': '300px'}, // manager goal review comment
             {'width': '300px'}, // action 2
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
@@ -1209,6 +1234,10 @@ $(document).ready(function() {
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
+            {'width': '300px'}, // employee checkin comment
+            {'width': '300px'}, // manager checkin comment
+            {'width': '300px'}, // employee goal review comment
+            {'width': '300px'}, // manager goal review comment
             {'width': '300px'}, // action 3
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
@@ -1217,6 +1246,10 @@ $(document).ready(function() {
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
+            {'width': '300px'}, // employee checkin comment
+            {'width': '300px'}, // manager checkin comment
+            {'width': '300px'}, // employee goal review comment
+            {'width': '300px'}, // manager goal review comment
             {'width': '300px'}, // action 4
             {'width': '100px'}, // status
             {'width': '100px'}, // final status
@@ -1225,6 +1258,10 @@ $(document).ready(function() {
             {'width': '75px'}, // training cost
             {'width': '75px'}, // expenses
             {'width': '75px'}, // total cost
+            {'width': '300px'}, // employee checkin comment
+            {'width': '300px'}, // manager checkin comment
+            {'width': '300px'}, // employee goal review comment
+            {'width': '300px'}, // manager goal review comment
         ],
         'scrollY': '50vh',
         'scrollX': true,
@@ -1304,7 +1341,11 @@ $(document).ready(function() {
                             var hourly_cost = null;
                             var training_cost = null;
                             var expenses = null;
-                            var total_cost = null
+                            var total_cost = null;
+                            var employee_checkin_comment = null;
+                            var manager_checkin_comment = null;
+                            var employee_gr_comment = null;
+                            var manager_gr_comment = null;
                         } else {
                             var action = resp[id].pdp[i].action;
                             var status = resp[id].pdp[i].status;
@@ -1314,6 +1355,10 @@ $(document).ready(function() {
                             var training_cost = resp[id].pdp[i].training_cost;
                             var expenses = resp[id].pdp[i].expenses;
                             var total_cost = parseInt(hourly_cost) + parseInt(training_cost) + parseInt(expenses);
+                            var employee_checkin_comment = resp[id].pdp[i].employee_checkin_comment;
+                            var manager_checkin_comment = resp[id].pdp[i].manager_checkin_comment;
+                            var employee_gr_comment = resp[id].pdp[i].employee_gr_comment;
+                            var manager_gr_comment = resp[id].pdp[i].manager_gr_comment;
                         }
                         
                         row.push(action);
@@ -1324,6 +1369,7 @@ $(document).ready(function() {
                         row.push(training_cost);
                         row.push(expenses);
                         row.push(total_cost);
+                        row.push(employee_checkin_comment, manager_checkin_comment, employee_gr_comment, manager_gr_comment);
                     }
 
                     reportTable.row.add(row).draw();

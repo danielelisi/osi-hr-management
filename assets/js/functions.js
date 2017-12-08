@@ -13,47 +13,51 @@ $(document).ready(function() {
     });
 });
 
-function formatDate(date, format) {
+function formatDate(datetime, format) {
+    let date = new Date(datetime);
+
     var monthShort = [
         'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
     ];
     var monthLong = [
         'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'
     ]
-    var day = date.substr(8, 2);
-    var m = date.substr(5, 2);
-    var monthIndex;
-    var y = date.substr(0, 4);
-    var ys = date.substr(2, 2);
+    
+    var dayNumber = date.getUTCDate();
 
-    if (parseInt(m) < 10) {
-        monthIndex = date.substr(6, 1);
-        var monthDigit = '0' + parseInt(m);
+    if (dayNumber < 9) {
+        var day = '0' + dayNumber;
     } else {
-        monthIndex = m;
-        var monthDigit = parseInt(m)
+        var day = dayNumber;
     }
 
-    var month = parseInt(monthIndex) - 1;
-    var year = parseInt(y);
-    var yearShort = parseInt(ys);
+    var monthIndex = date.getUTCMonth();
+
+    if (monthIndex < 9) {
+        var month = '0' + (monthIndex + 1);
+    } else {
+        var month = monthIndex + 1;
+    }
+
+    var year = date.getFullYear();
+    var yearShort = year.toString().substr(-2);
     var result;
 
     // use these formats as second parameters to output different formats
-    if (format === 'M yyyy') {
-        result = monthShort[month] + ' ' + year;
+    if (format === 'M dd, yyyy') {
+        result = monthShort[monthIndex] + ' ' + day + ', ' + year;
     } else if (format === 'MMM yyyy') {
-        result = monthLong[month] + ' ' + year;
+        result = monthLong[monthIndex] + ' ' + year;
     } else if (format === 'dd-M-yy') {
-        result = day + '-' + monthShort[month] + '-' + yearShort;
+        result = day + '-' + monthShort[monthIndex] + '-' + yearShort;
     } else if (format === 'MMMM dd, yyyy') {
-        result = monthLong[month] + ' ' + day + ', ' + year;
+        result = monthLong[monthIndex] + ' ' + day + ', ' + year;
     } else if (format === 'yyyy-mm-dd') {
-        result = year + '-' + monthDigit + '-' + day;
+        result = year + '-' + month + '-' + day;
     } else if (format === 'mm-yyyy') {
-        result = monthDigit + '-' + year;
+        result = month + '-' + year;
     } else if (format === 'mmyy') {
-        result = m + yearShort.toString();
+        result = month + yearShort;
     }
 
     return result;
@@ -98,7 +102,7 @@ function addAction(id, count, header, from) {
                         $('<div>').addClass('form-inline mb-3').append([
                             $('<label>').addClass('font-weight-bold text-dark-blue mr-5').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i> Due Date:'),
                             $('<input>').addClass('date-select form-control').attr({'type': 'text', 'name': 'due_date', 'required': 'required'}).datepicker({
-                                minDate: pdpPeriodObj.start_date,
+                                minDate: new Date() < pdpPeriodObj.start_date ? pdpPeriodObj.start_date : new Date(),
                                 maxDate: pdpPeriodObj.end_date
                             }).tooltip({
                                 title: 'Should not go beyond the PDP period',
@@ -214,7 +218,7 @@ function createCheckins(resp, form_url, i) {
                     $('<div>').addClass('card-body').append(
                         $('<h5>').addClass('text-dark-blue').append(
                             $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').html('Employee\'s Submission')
+                            $('<span>').html('Employee\'s Check-in')
                         ),
                         $('<div>').addClass('alert alert-success').append([
                             $('<div>').append([
@@ -250,7 +254,7 @@ function createCheckins(resp, form_url, i) {
                     $('<div>').addClass('card-body').append(
                         $('<h5>').addClass('text-dark-blue').append(
                             $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').html('Manager\'s Submission')
+                            $('<span>').html('Manager\'s Check-in')
                         ),
                         $('<div>').addClass('alert alert-info').append([
                             $('<div>').append([
@@ -352,7 +356,7 @@ function createGoalReview(resp, form_url, i) {
                     $('<div>').addClass('card-body').append(
                         $('<h5>').addClass('text-dark-blue').append(
                             $('<i>').addClass('fa fa-user-o fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').html('Employee\'s Submission')
+                            $('<span>').html('Employee\'s Goal Review')
                         ),
                         $('<div>').addClass('alert alert-success').append([
                             $('<div>').append([
@@ -391,7 +395,7 @@ function createGoalReview(resp, form_url, i) {
                     $('<div>').addClass('card-body').append(
                         $('<h5>').addClass('text-dark-blue').append(
                             $('<i>').addClass('fa fa-user fa-lg mr-1').attr('aria-hidden', 'true'),
-                            $('<span>').html('Manager\'s Submission')
+                            $('<span>').html('Manager\'s Goal Review')
                         ),
                         $('<div>').addClass('alert alert-info').append([
                             $('<div>').append([
@@ -587,7 +591,7 @@ function createEmployeeActions(obj, i) {
                         $('<div>').addClass('w-24 input-group').append([
                             $('<span>').addClass('input-group-addon').html('<i class="fa fa-calendar-times-o fa-lg mr-1" aria-hidden="true"></i>'),
                             $('<input>').addClass('form-control date-select').attr({'type': 'text', 'readonly': 'readonly', 'name': 'due_date'}).val(formatDate(obj.action[i].due_date, 'yyyy-mm-dd')).datepicker({
-                                minDate: pdpPeriodObj.start_date,
+                                minDate: new Date() < pdpPeriodObj.start_date ? pdpPeriodObj.start_date : new Date(),
                                 maxDate: pdpPeriodObj.end_date
                             })
                         ]).tooltip({
@@ -715,7 +719,7 @@ function createActionAccordion(resp) {
                             $('<i>').addClass('fa fa-calendar-times-o fa-lg').attr('aria-hidden', 'true')
                         ),
                         $('<input>').addClass('d-flex flex-row form-control date-select').attr({'type': 'text', 'value': formatDate(resp.action[0].due_date, 'yyyy-mm-dd'), 'name': 'due_date', 'readonly': 'readonly'}).datepicker({
-                            minDate: pdpPeriodObj.start_date,
+                            minDate: new Date() < pdpPeriodObj.start_date ? pdpPeriodObj.start_date : new Date(),
                             maxDate: pdpPeriodObj.end_date
                         })
                     ]),
@@ -891,7 +895,7 @@ function addTo(resp) {
     }
 
     $('#accordion-checkins').append(
-        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'checkin-action-div- ' + resp.action[0].a_id).append([
+        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'checkin-action-div-' + resp.action[0].a_id).append([
             $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-checkins', 'href': '#collapse-checkin-action-' + resp.action[0].a_id}).append(
                 $('<div>').addClass('card-header bg-white').attr({'role': 'tab', 'id': 'checkin-action-' + resp.action[0].a_id}).append(
                     $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
@@ -916,7 +920,7 @@ function addTo(resp) {
                                         $('<option>').attr('value', 'Completed').text('Completed'),
                                         $('<option>').attr('value', 'No Update').text('No Update'),
                                         $('<option>').attr('value', 'Not Started').text('Not Started'),
-                                        $('<option>').attr('value', 'Started').text('Started'),
+                                        $('<option>').attr('value', 'In Progress').text('In Progress'),
                                     ])
                                 ]),
                                 $('<div>').addClass('w-15').append(
@@ -931,7 +935,7 @@ function addTo(resp) {
     )
 
     $('#accordion-goal-review').append(
-        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'goal-review-action-div- ' + resp.action[0].a_id).append([
+        $('<div>').addClass('card mb-1 bg-transparent').attr('id', 'goal-review-action-div-' + resp.action[0].a_id).append([
             $('<a>').attr({'data-toggle': 'collapse', 'data-parent': '#accordion-goal-review', 'href': '#collapse-goal-review-' + resp.action[0].a_id}).append(
                 $('<div>').addClass('card-header bg-white').attr({'role': 'tab', 'id': 'goal-review-' + resp.action[0].a_id}).append(
                     $('<h6>').addClass('d-inline-block mb-0 font-weight-bold').html('<i class="fa fa-dot-circle-o fa-lg mr-1" aria-hidden="true"></i>' + resp.action[0].action)
@@ -956,7 +960,7 @@ function addTo(resp) {
                                         $('<option>').attr('value', 'Completed').text('Completed'),
                                         $('<option>').attr('value', 'No Update').text('No Update'),
                                         $('<option>').attr('value', 'Not Started').text('Not Started'),
-                                        $('<option>').attr('value', 'Started').text('Started')
+                                        $('<option>').attr('value', 'In Progress').text('In Progress')
                                     ])
                                 ]),
                                 $('<div>').addClass('w-15').append(
@@ -984,7 +988,9 @@ function updateOthers(resp) {
     $(overviewActions).find('span.hourly-cost').eq(1).html('$' + resp.action.hourly_cost);
     $(overviewActions).find('span.training-cost').eq(2).html('$' + resp.action.training_cost);
     $(overviewActions).find('span.expenses').eq(3).html('$' + resp.action.expenses);
-    $(overviewActions).find('span.notes').html(resp.action.cost_notes)
+    $(overviewActions).find('span.notes').html(resp.action.cost_notes);
+    $(overviewActions).find('div.hr-comment').remove();
+    $(overviewActions).find('span.action-status').removeClass('badge-danger').addClass('badge-warning').html('Pending');
 
     // update action divs in Check-in tab
     $('#checkin-action-div-' + resp.action.a_id).find('.card-header span').html(resp.action.action);
@@ -1030,17 +1036,18 @@ function populatePeriodSelect() {
         url: '/populate-period-select',
         method: 'GET',
         success: function(resp) {
+            console.log(resp);
             if (resp !== 'fail') {
                 $('#period-select').empty();
                 $('#period-select').append(
-                    $('<option>').text('')
+                    $('<option>').text('--- Select PDP Period ---')
                 )
                 
                 for (var i = 0; i < resp.length; i++) {
                     $('#period-select').append($('<option>', {
-                        id: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                        value: resp[i].start_date.substr(0, 10) + '_' + resp[i].end_date.substr(0, 10),
-                        text: formatDate(resp[i].start_date, 'M yyyy') + ' - ' + formatDate(resp[i].end_date, 'M yyyy')
+                        id: formatDate(resp[i].start_date, 'yyyy-mm-dd') + '_' + formatDate(resp[i].end_date, 'yyyy-mm-dd'),
+                        value: formatDate(resp[i].start_date, 'yyyy-mm-dd') + '_' + formatDate(resp[i].end_date, 'yyyy-mm-dd'),
+                        text: formatDate(resp[i].start_date, 'M dd, yyyy') + ' - ' + formatDate(resp[i].end_date, 'M dd, yyyy')
                     }));
                 }
             }
@@ -1063,7 +1070,7 @@ async function declineMessage(parent, hr_comment, actionIdx) {
             method: 'POST',
             data: {
                 data: $(parent).serializeArray(),
-                message: $(hr_comment).val()
+                message: text
             },
             success: function(resp) {
                 if (resp.status === 'success') {
@@ -1087,7 +1094,7 @@ async function declineMessage(parent, hr_comment, actionIdx) {
 async function startNewGoal(g_gp_id, g_id) {
     const {value: name} = await swal({
         title: 'What is your new goal?',
-        html: 'This will start a new PDP period.',
+        html: 'This goal will begin in the next PDP period.<br>',
         input: 'text',
         showCancelButton: true,
         confirmButtonText: 'Submit',
@@ -1114,13 +1121,19 @@ async function startNewGoal(g_gp_id, g_id) {
                         type: 'success'
                     });
 
-                    populatePeriodSelect();
-                    location.href('/view?period')
+                    location.reload();
                 } else {
                     swal({
                         title: 'Error!',
                         text: resp.message,
                         type: 'error'
+                    }).then((result) => {
+                        if (result.value) {
+                            swal({
+                                text: 'This error occurred because actions of your most recent added goal has not been reviewed by your manager.',
+                                type: 'info'
+                            })
+                        }
                     })
                 }
             }
