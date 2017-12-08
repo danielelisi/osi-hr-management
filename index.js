@@ -95,9 +95,10 @@ app.get('/view', function(req, resp) {
 
         var goalObj = dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON actions.a_g_id = goals.g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date').then((result) => {
             if (result !== undefined && result.recordset.length > 0) {
+                console.log(result);
                 return result;
             } else {
-                return dbRequest.query('SELECT * FROM goals WHERE g_id = (SELECT MAX(g_id) AS g_id FROM goals)');
+                return dbRequest.query('SELECT * FROM goals WHERE g_id = (SELECT MAX(g_id) AS g_id FROM goals) AND g_emp_id = @emp_id');
             }
         });
 
@@ -899,30 +900,34 @@ app.post('/edit-goal', function(req, resp) {
 
     dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date', function(err, result) {
         if (err) {console.log(err)}
+        console.log('from edit goal 1');
+        console.log(result);
 
         if (result !== undefined && result.recordset.length > 0) {
-            /* let haveActions = false;
-            for (var i = 0; i < result.recordset.length; i++) {
-                if (result.recordset[i].a_id !== null) {
-                    haveActions = true;
-                    break;
-                }
+        /* let haveActions = false;
+        for (var i = 0; i < result.recordset.length; i++) {
+            if (result.recordset[i].a_id !== null) {
+                haveActions = true;
+                break;
             }
+        }
 
-            if (haveActions) { */
-                console.log(result);
-                resp.send({status: 'fail', message: 'You have actions in the PDP period of ' + convertDate(new Date(currentPdpPeriod.start_date)) + ' - ' + convertDate(new Date(currentPdpPeriod.end_date)) + '.'});
-            } else {
-                dbRequest.query('INSERT INTO goals (goal, g_gp_id, g_emp_id) Output Inserted.* VALUES (@goal, @gp_id, @emp_id)', function(err, result) {
-                    if (err) {console.log(err)}
-                    if (result !== undefined && result.rowsAffected.length > 0) {
-                        console.log(result);
-                        resp.send({status: 'success', goal: result.recordset[0].goal})
-                    } else {
-                        resp.send({status: 'fail', message: 'An error occurred'});
-                    }
-                });
-            }
+        if (haveActions) { */
+            console.log('from edit goal');
+            console.log(result);
+            console.log(convertDate(new Date(currentPdpPeriod.end_date)));
+            resp.send({status: 'fail', message: 'You have actions in the PDP period of ' + convertDate(new Date(currentPdpPeriod.start_date)) + ' - ' + convertDate(new Date(currentPdpPeriod.end_date)) + '.'});
+        } else {
+            dbRequest.query('INSERT INTO goals (goal, g_gp_id, g_emp_id) Output Inserted.* VALUES (@goal, @gp_id, @emp_id)', function(err, result) {
+                if (err) {console.log(err)}
+                if (result !== undefined && result.rowsAffected.length > 0) {
+                    console.log(result);
+                    resp.send({status: 'success', goal: result.recordset[0].goal})
+                } else {
+                    resp.send({status: 'fail', message: 'An error occurred'});
+                }
+            });
+        }
         //}
     });
 });
@@ -1130,9 +1135,7 @@ function convertDate(date) {
     let monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     let day = date.getUTCDate();
-    if (date.getMonth() < 9) {
-        var month = monthNames[date.getUTCMonth()];
-    }
+    let month = monthNames[date.getUTCMonth()];
     let year = date.getFullYear();
 
     return month + ' ' + day + ', ' + year;

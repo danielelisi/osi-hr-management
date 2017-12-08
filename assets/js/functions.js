@@ -39,7 +39,7 @@ function formatDate(datetime, format) {
         var month = monthIndex + 1;
     }
 
-    var year = date.getFullYear();
+    var year = date.getUTCFullYear();
     var yearShort = year.toString().substr(-2);
     var result;
 
@@ -78,7 +78,8 @@ function addAction(id, count, header, from) {
 
     if (actionCount < 1) {
         swal({
-            text: 'You can add up to 4 actions'
+            text: 'You can add up to 4 actions',
+            allowOutsideClick: false
         });
     }
     
@@ -1061,7 +1062,8 @@ async function declineMessage(parent, hr_comment, actionIdx) {
         input: 'textarea',
         inputPlaceholder: 'Type your message here',
         confirmButtonText: 'Submit',
-        showCancelButton: true
+        showCancelButton: true,
+        allowOutsideClick: false
     });
 
     if (text) {
@@ -1078,11 +1080,17 @@ async function declineMessage(parent, hr_comment, actionIdx) {
                         title: 'Success!',
                         text:'Message submitted',
                         type: 'success',
+                        allowOutsideClick: false
                     });
                     $('#action-status-button-' + resp.a_id).removeClass('btn-success btn-warning').addClass('btn-danger').html('<i class="fa fa-ban mr-1" aria-hidden="true"></i>' + actionIdx + ' Declined');
                     $('#submit-decline-message').remove();
                 } else {
-                    swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
+                    swal({
+                        title: 'Error!', 
+                        text: 'An error occurred while submitting this action\'s status', 
+                        type: 'error',
+                        allowOutsideClick: false
+                    });
                 }
             }
         });
@@ -1100,7 +1108,8 @@ async function startNewGoal(g_gp_id, g_id) {
         confirmButtonText: 'Submit',
         inputValidator: (value) => {
             return !value && 'You need to enter a goal!'
-        }
+        },
+        allowOutsideClick: false
     })
 
     if (name) {
@@ -1118,7 +1127,8 @@ async function startNewGoal(g_gp_id, g_id) {
                     swal({
                         title: 'Success!',
                         text: 'You can now view your new PDP period.',
-                        type: 'success'
+                        type: 'success',
+                        allowOutsideClick: false
                     });
 
                     location.reload();
@@ -1126,12 +1136,14 @@ async function startNewGoal(g_gp_id, g_id) {
                     swal({
                         title: 'Error!',
                         text: resp.message,
-                        type: 'error'
+                        type: 'error',
+                        allowOutsideClick: false
                     }).then((result) => {
                         if (result.value) {
                             swal({
                                 text: 'This error occurred because actions of your most recent added goal has not been reviewed by your manager.',
-                                type: 'info'
+                                type: 'info',
+                                allowOutsideClick: false
                             })
                         }
                     })

@@ -4,21 +4,24 @@ $(document).ready(function() {
     if (goalPrep.length === 0) {
         swal({
             text: 'Please complete your goal preparation',
-            animation: false
+            animation: false,
+            allowOutsideClick: false
         });
     }
 
     if (goalPrep.length > 0 && goals.length === 0) {
         swal({
             html: 'Please set your goal and actions in the <b><u>Goal Setting</b></u> tab',
-            animation: false
+            animation: false,
+            allowOutsideClick: false
         });
     }
 
     if (goalPrep.length > 0 && goals.length > 0 && actions.length === 0) {
         swal({
             html: 'Please add actions to your goal in the <b><u>Goal Setting</b></u> tab',
-            animation: false
+            animation: false,
+            allowOutsideClick: false
         });
     }
 
@@ -52,7 +55,12 @@ $(document).ready(function() {
             addAction('action', actionCount, 'Action', $(this).attr('data-from'));
             actionCount++;
         } else {
-            swal('Error!', 'Cannot add more than 4 actions', 'error');
+            swal({
+                title: 'Error!',
+                text: 'Cannot add more than 4 actions',
+                type: 'error',
+                allowOutsideClick: false
+            });
         }
     });
     // employee checkin submission
@@ -66,7 +74,12 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'success') {
-                    swal('Success!', 'Check-in successfully submitted', 'success');
+                    swal({
+                        title: 'Success!',
+                        text: 'Check-in successfully submitted',
+                        type: 'success',
+                        allowOutsideClick: false
+                    });
 
                     $('<div>').addClass('card bg-transparent').css('display', 'none').append(
                         $('<div>').addClass('card-body').append(
@@ -96,7 +109,12 @@ $(document).ready(function() {
                     
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
-                    swal('Error!', 'An error occurred while checking in', 'error');
+                    swal({
+                        title: 'Error!',
+                        text: 'An error occurred while checking in',
+                        type: 'error',
+                        allowOutsideClick: false
+                    });
                 }
             }
         });
@@ -113,7 +131,12 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'success') {
-                    swal('Success!', 'Goal review successfully submitted', 'success');
+                    swal({
+                        title: 'Success!',
+                        type: 'Goal review successfully submitted',
+                        type: 'success',
+                        allowOutsideClick: false
+                    });
 
                     $('<div>').addClass('card bg-transparent').css('display', 'none').append(
                         $('<div>').addClass('card-body').append(
@@ -143,7 +166,12 @@ $(document).ready(function() {
 
                     $(parent).remove();
                 } else if (resp.status === 'fail') {
-                    swal('Error!', 'An error occurred while submitting your goal review', 'error');
+                    swal({
+                        title: 'Error!',
+                        text: 'An error occurred while submitting your goal review',
+                        type: 'error',
+                        allowOutsideClick: false
+                    });
                 }
             }
         });
@@ -260,7 +288,12 @@ $(document).ready(function() {
                             data: $(parent).serialize(),
                             success: function(res) {
                                 if (res.status === 'success') {
-                                    swal('Success!', 'Check-in successfully submitted', 'success');
+                                    swal({
+                                        title: 'Success!',
+                                        text: 'Check-in successfully submitted',
+                                        type: 'success',
+                                        allowOutsideClick: false
+                                    });
 
                                     $('<div>').addClass('card bg-transparent').css('display', 'none').append(
                                         $('<div>').addClass('card-body').append(
@@ -285,7 +318,12 @@ $(document).ready(function() {
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
-                                    swal('Error!', 'An error occurred while checking in', 'error');
+                                    swal({
+                                        title: 'Error!',
+                                        text: 'An error occurred while checking in',
+                                        type: 'error',
+                                        allowOutsideClick: false
+                                    });
                                 }  
                             }
                         });
@@ -301,7 +339,12 @@ $(document).ready(function() {
                             data: $(this).serialize(),
                             success: function(res) {
                                 if (res.status === 'success') {
-                                    swal('Success!', 'Goal review successfully submitted', 'success');
+                                    swal({
+                                        title: 'Success!',
+                                        text: 'Goal review successfully submitted',
+                                        type: 'success',
+                                        allowOutsideClick: false
+                                    });
                                     
                                     $('<div>').addClass('card bg-transparent').css('display', 'none').append(
                                         $('<div>').addClass('card-body').append(
@@ -336,7 +379,12 @@ $(document).ready(function() {
 
                                     $(parent).remove();
                                 } else if (res.status === 'fail') {
-                                    swal('Error!', 'An error occurred while submitting your goal review', 'error');
+                                    swal({
+                                        title: 'Error!',
+                                        text: 'An error occurred while submitting your goal review',
+                                        type: 'error',
+                                        allowOutsideClick: false
+                                    });
                                 }  
                             }
                         });
@@ -370,7 +418,12 @@ $(document).ready(function() {
 
                     $('#ev-ca-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
                     $('#ev-gra-' + resp.action[0].a_id).find('h6 span').html(resp.action[0].action);
-                    swal('Success!', 'Employee\'s action successfully updated', 'success');
+                    swal({
+                        title: 'Success!',
+                        text: 'Employee\'s action successfully updated',
+                        type: 'success',
+                        allowOutsideClick: false
+                    });
                 }
             }
         });
@@ -436,11 +489,21 @@ $(document).ready(function() {
                     data: $('#gs-edit-goal').serialize(),
                     success: function(resp) {
                         if (resp.status === 'success') {
-                            swal('Success!', 'Edit successful', 'success');
+                            swal({
+                                title: 'Success!',
+                                type: 'Edit successful',
+                                type: 'success',
+                                allowOutsideClick: false
+                            });
                             
                             location.reload();
                         } else if (resp.status === 'fail') {
-                            swal('Error!', resp.message, 'error');
+                            swal({
+                                title: 'Error!',
+                                text: resp.message,
+                                type: 'error',
+                                allowOutsideClick: false
+                            });
                         }
                     }
                 });
@@ -497,7 +560,8 @@ $(document).ready(function() {
             type: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
+            cancelButtonText: 'No',
+            allowOutsideClick: false
         }).then((result) => {
             if (result.value) {
                 $.ajax({
@@ -520,11 +584,21 @@ $(document).ready(function() {
                             $(parent).find('button[type=submit], button.cancel-button').remove();
                             $(parent).find('button.edit-action-button').show();
 
-                            swal('Success!', 'The action is updated!', 'success');
+                            swal({
+                                title: 'Success!',
+                                text: 'The action is updated!',
+                                type: 'success',
+                                allowOutsideClick: false
+                            });
 
                             updateOthers(resp);
                         } else {
-                            swal('Error!', 'An error occurred while updating.', 'error');
+                            swal({
+                                title: 'Error!',
+                                text: 'An error occurred while updating.',
+                                type: 'error',
+                                allowOutsideClick: false
+                            });
                         }
                     }
                 });
@@ -582,12 +656,18 @@ $(document).ready(function() {
                         html: 'Refreshing...',
                         onOpen: () => {
                             swal.showLoading()
-                        }
+                        },
+                        allowOutsideClick: false
                     });
 
                     location.reload();
                 } else if (resp.status === 'fail') {
-                    swal('Error!', resp.message, 'error');
+                    swal({
+                        title: 'Error!', 
+                        text: resp.message,
+                        type: 'error',
+                        allowOutsideClick: false
+                    });
                 }
             }
         });
@@ -616,14 +696,29 @@ $(document).ready(function() {
                         $(parent).find('input').not('button, input[type=hidden]').val('');
 
                         addTo(resp);
-                        swal('Success!', 'Your new action has been added', 'success');
+                        swal({
+                            title: 'Success!',
+                            text: 'Your new action has been added',
+                            type: 'success',
+                            allowOutsideClick: false
+                        });
                     } else if (resp.status = 'fail') {
-                        swal('Error!', 'An error occurred', 'error');
+                        swal({
+                            title: 'Error!',
+                            text: 'An error occurred',
+                            type: 'error',
+                            allowOutsideClick: false
+                        });
                     }
                 }
             });
         } else {
-            swal('Error!', 'Nice try! Don\'t be lazy and complete your actions first :)', 'error');
+            swal({
+                title: 'Error!',
+                text: 'Nice try! Don\'t be lazy and complete your actions first :)',
+                type: 'error',
+                allowOutsideClick: false
+            });
         }
     });
 
@@ -638,7 +733,8 @@ $(document).ready(function() {
             type: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
+            cancelButtonText: 'No',
+            allowOutsideClick: false
         }).then((result) => {
             if (result.value) {
                 $.ajax({
@@ -666,11 +762,12 @@ $(document).ready(function() {
 
                         deleteRemaining(resp.a_id); // delete actions from other tabs
 
-                        swal(
-                            'Success!',
-                            'The action has been deleted.',
-                            'success'
-                        )
+                        swal({
+                            title: 'Success!',
+                            text: 'The action has been deleted.',
+                            type: 'success',
+                            allowOutsideClick: false
+                        })
                     }
                 });
             }
@@ -704,9 +801,19 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp === 'invalid') {
-                    swal('Error!', 'All fields are required', 'error');
+                    swal({
+                        title: 'Error!', 
+                        text: 'All fields are required',
+                        type: 'error',
+                        allowOutsideClick: false
+                    });
                 } else if (resp === 'success') {
-                    swal('Success!', 'Refreshing...', 'success');
+                    swal({
+                        title: 'Success!',
+                        text: 'Refreshing...',
+                        type: 'success',
+                        allowOutsideClick: false
+                    });
                     location.reload();
                 }
             }
@@ -725,9 +832,19 @@ $(document).ready(function() {
             success: function(resp) {
                 console.log(resp);
                 if (resp.status === 'fail') {
-                    swal('Warning!', 'All fields are required', 'warning');
+                    swal({
+                        title: 'Warning!',
+                        text: 'All fields are required',
+                        type: 'warning',
+                        allowOutsideClick: false
+                    });
                 } else if (resp.status === 'success') {
-                    swal('Success!', 'Goal preparation successfully updated', 'success');
+                    swal({
+                        title: 'Success!',
+                        text: 'Goal preparation successfully updated',
+                        type: 'success',
+                        allowOutsideClick: false
+                    });
                     $(parent).find('input').not('input[type=hidden], button').attr('readonly', 'readonly');
                 }
             }
@@ -740,7 +857,8 @@ $(document).ready(function() {
             text: "All actions will be deleted and cannot be reverted.",
             type: 'warning',
             showCancelButton: true,
-            confirmButtonText: 'Yes'
+            confirmButtonText: 'Yes',
+            allowOutsideClick: false
         }).then((result) => {
             if (result.value) {
                 $.ajax({
@@ -755,6 +873,7 @@ $(document).ready(function() {
                             title: 'Success!',
                             html: 'Refreshing...',
                             type: 'success',
+                            allowOutsideClick: false,
                             onOpen: () => {
                                 swal.showLoading()
                             }
@@ -880,7 +999,11 @@ $(document).ready(function() {
                                                                 $('#action-status-button-' + resp.a_id).removeClass('btn-danger btn-success').addClass('btn-warning').html('<i class="fa fa-ellipsis-h mr-1" aria-hidden="true"></i>' + actionIdx + ' Pending');
                                                             }
                                                         } else {
-                                                            swal('Error!', 'An error occurred while submitting this action\'s status', 'error');
+                                                            swal({
+                                                                title: 'Error!',
+                                                                text: 'An error occurred while submitting this action\'s status', type: 'error',
+                                                                allowOutsideClick: false
+                                                            });
                                                         }
                                                     }
                                                 });
@@ -982,7 +1105,8 @@ $(document).ready(function() {
                 swal({
                     text: 'Divisions are being loaded. Please wait...',
                     showConfirmButton: false,
-                    timer: 1500
+                    timer: 1500,
+                    allowOutsideClick: false
                 });
             }
         } else {
@@ -1042,6 +1166,7 @@ $(document).ready(function() {
                     text: 'Employees are being loaded. Please wait...',
                     showConfirmButton: false,
                     timer: 1500,
+                    allowOutsideClick: false
                 });
             }
         } else {
