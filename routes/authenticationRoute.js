@@ -30,16 +30,18 @@ router.post('/login-api', function(req, resp) {
             console.log('Starting AD authentication');
 
             // For testing purposes on OSI Server
-            if(username === 'pdp') {
-                console.log('Recognized pdp username, default AD account in use');
-                username = 'pdp@osl.com';
-                password = '4FhQWaJxdX';
-            }
-            else {
-                username = username + '@osl.com';
-            }
+            // if(username === 'pdp') {
+            //     console.log('Recognized pdp username, default AD account in use');
+            //     username = 'pdp@osl.com';
+            //     password = '4FhQWaJxdX';
+            // }
+            // else {
+            //     username = username + '@osl.com';
+            // }
 
-            // First, authenticate user credentials
+            username = username + '@osl.com';
+
+            // Authenticate user credentials
             ad.authenticate(username, password, function(err, auth) {
                 if(err) console.log(`Authentication Error: ${err}`);
 
@@ -165,7 +167,8 @@ router.post('/login-api', function(req, resp) {
 
     function employeeType(emp_id, callback) {
 
-        if (emp_id === 1) {
+        // HR account type for Elizabeth and Sarah
+        if (emp_id === 1 || emp_id === 132) {
             console.log(`THIS USER IS HR`);
             callback('HR');
         }
