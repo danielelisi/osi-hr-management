@@ -13,13 +13,17 @@ const dbConfig = {
 async function main() {
     try {
         let employeesDirectory = await _getEmployeesDirectory();
-        console.dir(employeesDirectory);
 
-        let employeesToInsert = await _getEmployeesDetail(employeesDirectory.slice(0,5));
-        console.log(employeesToInsert);
+        let employeesToInsert = await _getEmployeesDetail(employeesDirectory);
 
         let databaseResult = await _populateDatabase(employeesToInsert);
         console.log(databaseResult);
+
+        if(databaseResult === "DB correctly populated") {
+            process.exit();
+        } else {
+            process.exit(1);
+        }
 
     } catch (error) {
         console.error(error);
@@ -38,16 +42,15 @@ async function _getEmployeesDirectory() {
             'Accept': 'application/json'
         }
     })
-    //    return only the data body we're interested from the request
-        .then(result => {
-            if(result.data) {
-                return result.data.employees;
-            } else {
-                return 'Error with getting new Employees';
-            }
-        })
-        .catch(error => console.error(error))
-        ;
+    // return only the data body we're interested from the request
+    .then(result => {
+        if(result.data) {
+            return result.data.employees;
+        } else {
+            return 'Error with getting new Employees';
+        }
+    })
+    .catch(error => console.error(error));
 }
 
 async function _getEmployeesDetail(employeeDirectory) {
@@ -84,9 +87,9 @@ function _getBambooUpdatedAttributes(employeeId) {
             fields: 'employeeNumber,supervisorEId'
         },
     })
-    //    return only the data body we're interested from the request
-        .then(result => result.data)
-        .catch(error => console.error(error));
+    // return only the data body we're interested from the request
+    .then(result => result.data)
+    .catch(error => console.error(error));
 }
 
 function mergeEmployeeObject(employeesList, detailsList) {
