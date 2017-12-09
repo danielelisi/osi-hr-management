@@ -53,7 +53,6 @@ async function fetchBambooHR() {
         console.log(updatedEmployeesList);
 
         // Categorize employee update status type in different lists
-        // TODO Switch back insertList and updateList names
         let insertedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Inserted');
         let updatedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Updated');
         let deletedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Deleted');
@@ -194,39 +193,15 @@ function _getBambooUpdatedAttributes(employeeId) {
         .catch(error => console.error(error));
 }
 
-async function _getEmployeesDirectory() {
-    return axios({
-        method: 'get',
-        url: `https://api.bamboohr.com/api/gateway.php/osimaritime/v1/employees/directory`,
-        auth: {
-            username: process.env.API_KEY,
-            password: 'x'
-        },
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    //    return only the data body we're interested from the request
-    .then(result => {
-        if(result.data) {
-            return result.data.employees;
-        } else {
-            return 'Error with getting new Employees';
-        }
-    })
-    .catch(error => console.error(error))
-    ;
-}
-
 async function insertEmployeesDatabase(employeeIds, pool) {
 
     try {
-        let dbQuery = 'INSERT INTO test_insert (id, username, first_name, last_name, emp_number, manager_id) ' +
-            'VALUES (@id, @username, @first_name, @last_name, @emp_number, @manager_id)';
+        let dbQuery = 'INSERT INTO employee (emp_id, username, first_name, last_name, emp_number, manager_id) ' +
+            'VALUES (@emp_id, @username, @first_name, @last_name, @emp_number, @manager_id)';
 
         for (let employeeId of employeeIds) {
             let request = await pool.request()
-                .input('id', employeeId.id)
+                .input('emp_id', employeeId.id)
                 .input('first_name', employeeId.firstName)
                 .input('last_name', employeeId.lastName)
                 .input('emp_number', employeeId.employeeNumber)
@@ -250,13 +225,13 @@ async function updateEmployeesDatabase(employeeIds, pool) {
 
     try {
 
-        let dbQuery = 'UPDATE test_insert ' +
+        let dbQuery = 'UPDATE employee ' +
             'SET first_name=@first_name, last_name=@last_name, emp_number=@emp_number, manager_id=@manager_id ' +
-            'WHERE id=@id';
+            'WHERE emp_id=@emp_id';
 
         for (let employeeId of employeeIds) {
             let request = await pool.request()
-            .input('id', employeeId.id)
+            .input('emp_id', employeeId.id)
             .input('first_name', employeeId.firstName)
             .input('last_name', employeeId.lastName)
             .input('emp_number', employeeId.employeeIds)
@@ -278,11 +253,11 @@ async function updateEmployeesDatabase(employeeIds, pool) {
 async function deleteEmployeesDatabase(employeeIds, pool) {
     try {
 
-        let dbQuery = 'DELETE FROM test_insert WHERE id=@id';
+        let dbQuery = 'DELETE FROM employee WHERE emp_id=@emp_id';
 
         for (let employeeId of employeeIds) {
             let request = await pool.request()
-                .input('id', employeeId)
+                .input('emp_id', employeeId)
                 .query(dbQuery);
 
             console.dir(request);
@@ -307,6 +282,30 @@ async function _getBambooUsername(employeeIdsList) {
     console.log("EMPLOYEE DIRECTORY");
     console.dir(newEmployees);
     return newEmployees;
+}
+
+async function _getEmployeesDirectory() {
+    return axios({
+        method: 'get',
+        url: `https://api.bamboohr.com/api/gateway.php/osimaritime/v1/employees/directory`,
+        auth: {
+            username: process.env.API_KEY,
+            password: 'x'
+        },
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    //    return only the data body we're interested from the request
+        .then(result => {
+            if(result.data) {
+                return result.data.employees;
+            } else {
+                return 'Error with getting new Employees';
+            }
+        })
+        .catch(error => console.error(error))
+        ;
 }
 
 function mergeEmployeeObject(usernameList, attributeList) {
