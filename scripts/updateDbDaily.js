@@ -1,7 +1,11 @@
-require('dotenv').config({path: '../.env'});
+
 const axios = require('axios');
 const sql = require('mssql');
 const jsonfile = require('jsonfile');
+const path = require('path');
+
+const envFile = path.join(__dirname, '..','.env');
+require('dotenv').config({path: envFile});
 
 // database configurations
 const dbConfig = {
@@ -12,8 +16,12 @@ const dbConfig = {
 };
 
 async function main() {
+	
+	//Global Variable for json file
+	const lastTimeFile = path.join(__dirname, 'employeesList.json');
+	
     // BambooHR API call to fetch employees updates
-    let EmployeesList = await fetchBambooHR();
+    let EmployeesList = await fetchBambooHR(lastTimeFile);
 
     if (EmployeesList === 'No BambooHR updates') {
         console.log(EmployeesList);
@@ -27,7 +35,7 @@ async function main() {
 
             let saveUpdateTime = {lastUpdatedTimestamp: new Date().toISOString().slice(0,19)+'Z'};
 
-            jsonfile.writeFileSync('./employeesList.json', saveUpdateTime, {spaces: 2});
+            jsonfile.writeFileSync(lastTimeFile, saveUpdateTime, {spaces: 2});
 
             console.log(databaseResult);
             process.exit();
@@ -38,9 +46,9 @@ async function main() {
     }
 }
 
-async function fetchBambooHR() {
+async function fetchBambooHR(lastTimeFile) {
     // Get latest update time from json file
-    let lastUpdateTime = jsonfile.readFileSync('./employeesList.json').lastUpdatedTimestamp;
+    let lastUpdateTime = jsonfile.readFileSync(lastTimeFile).lastUpdatedTimestamp;
     let employeeList = {
         inserted: null,
         updated: null,
@@ -51,17 +59,19 @@ async function fetchBambooHR() {
         // Get list of employees id that has been changed since lastUpdateTime
         let updatedEmployeesList = await getChangedEmployees(lastUpdateTime);
         console.log(updatedEmployeesList);
-
-        // Categorize employee update status type in different lists
-        let insertedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Inserted');
-        let updatedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Updated');
-        let deletedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Deleted');
+        
 
         /*
          * If there has been employees update, the variable would be an array obj.
          * Otherwise, a string is returned
         */
         if (typeof updatedEmployeesList === 'object') {
+			
+			// Categorize employee update status type in different lists
+			let insertedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Inserted');
+			let updatedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Updated');
+			let deletedList = Object.keys(updatedEmployeesList).filter(item => updatedEmployeesList[item].action === 'Deleted');
+			
             // Make singular API call for each updated employee and fetch the updated attributes
             if(updatedList.length !== 0) {
                 let updatedAttributes = await getUpdatedAttributes(updatedList);
