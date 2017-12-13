@@ -1445,8 +1445,9 @@ $(document).ready(function() {
                 var sd;
                 var ed;
                 for (let id in resp) {
+                    var manager_id = resp[id].manager_id;
                     var emp_num = resp[id].emp_number ? resp[id].emp_number : null;
-                    var manager_name = resp[id].manager_name ? resp[id].manager_name : null;
+                    var manager_name = resp[manager_id] ? resp[manager_id].firstName + ' ' + resp[manager_id].lastName : null;
 
                     if (resp[id].pdp.length > 0) {
                         sd = resp[id].pdp[0].start_date;

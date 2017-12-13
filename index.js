@@ -95,7 +95,6 @@ app.get('/view', function(req, resp) {
 
         var goalObj = dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON actions.a_g_id = goals.g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date').then((result) => {
             if (result !== undefined && result.recordset.length > 0) {
-                console.log(result);
                 return result;
             } else {
                 return dbRequest.query('SELECT * FROM goals WHERE g_id = (SELECT MAX(g_id) AS g_id FROM goals) AND g_emp_id = @emp_id');
@@ -568,8 +567,8 @@ app.post('/get-report', function(req, resp) {
                         jobTitle: employee.fields.jobTitle,
                         department: employee.fields.department,
                         division: employee.fields.division,
-                        manager_name: null,
                         emp_number: null,
+                        manager_id: null,
                         pdp: []
                     }
                 }
@@ -609,9 +608,10 @@ app.post('/get-report', function(req, resp) {
                         for (let item of result.recordset) {
                             for (let employee in selectedEmployees) {
                                 if (parseInt(employee) === parseInt(item.emp_id)) {
+                                    console.log(item);
                                     var emp_id = item.emp_id;
                                     selectedEmployees[employee].emp_number = item.emp_number;
-                                    selectedEmployees[employee].manager_name = item.manager_name;
+                                    selectedEmployees[employee].manager_id = item.manager_id;
                                 }
                             }
                         }
@@ -696,8 +696,6 @@ app.post('/submit-goal-prep', function(req, resp) {
 
 // update goal preparations
 app.post('/update-goal-prep', function(req, resp) {
-    console.log(req.body);
-    
     let dbRequest = new sql.Request(sql.globalConnection);
 
     dbRequest.input('gpd_gp_id', req.body.gpd_gp_id[0]);
@@ -769,14 +767,12 @@ app.post('/save-goal-changes', function(req, resp) {
             dbRequest.input('g_id', result.recordset[0].g_id);
  */
             dbRequest.query('SELECT * FROM goals LEFT JOIN actions ON goals.g_id = actions.a_g_id WHERE g_emp_id = @emp_id AND start_date = @start_date AND end_date = @end_date', function(err, result) {
-                console.log(result);
                 if (err) {
                     console.log(err);
                     resp.send({status: 'fail', message: 'An error occurred 1.'})
                 }
 
                 if (result !== undefined && result.recordset.length > 0) {
-                    console.log(result);
                     resp.send({status: 'fail', message: 'The current PDP period MUST NOT have actions in it. Please wait until the next PDP period to start a new goal.'})
                 } else {
                     dbRequest.query('INSERT INTO goals (goal, g_emp_id, g_gp_id) OUTPUT Inserted.g_id VALUES (@goal, @emp_id, @g_gp_id)', function(err, result) {
@@ -886,8 +882,6 @@ app.post('/save-goal-changes', function(req, resp) {
 
 // edit goal
 app.post('/edit-goal', function(req, resp) {
-    console.log(req.body);
-
     let dbRequest = new sql.Request(sql.globalConnection);
     let currentPdpPeriod = createCurrentPdpPeriod();
 
@@ -1066,7 +1060,6 @@ app.post('/submit-goal-review/:who', function(req, resp) {
             } else if (result !== undefined && result.recordset.length === 0) {
                 dbRequest.query('INSERT INTO goal_review (gr_a_id, employee_gr_comment, submitted_on) Output Inserted.* VALUES (@a_id, @comment, @date)', function(e, r) {
                     dbRequest.query('UPDATE actions SET action_review_status = @progress Output Inserted.* WHERE a_id = @a_id', function(error, res) {
-                        console.log(res);
                         if (err) {
                             console.log(err);
                             resp.send({status: 'fail'});
@@ -1101,7 +1094,6 @@ app.post('/submit-goal-review/:who', function(req, resp) {
 app.post('/submit-action-status', function(req, resp) {
     let dbRequest = new sql.Request(sql.globalConnection);
 
-    console.log(req.body);
     dbRequest.input('a_id', req.body.data[0].value);
     dbRequest.input('status', req.body.data[1].value);
     dbRequest.input('hr_comment', req.body.message);
